@@ -6,20 +6,18 @@
     update types file with expected values in each app consuming
 */
 import { getServiceConfig } from "./Config/Config";
-import { default as useKeyPress } from './hooks/useKeyPress';
-import { default as useOktaTokens } from './hooks/useOktaTokens';
-import { default as useOnClickOutside } from './hooks/useOnClickOutside';
-import { measureStore } from './Store/measureStore';
+import { default as useKeyPress } from "./hooks/useKeyPress";
+import { default as useOktaTokens } from "./hooks/useOktaTokens";
+import { default as useOnClickOutside } from "./hooks/useOnClickOutside";
+import { measureStore } from "./Store/measureStore";
 
 export {
   getServiceConfig,
   useKeyPress,
   useOktaTokens,
   useOnClickOutside,
-  measureStore
-}
-
-
+  measureStore,
+};
 
 // export { getServiceConfig } from './Config/Config'
 // export { default as useKeyPress } from './hooks/useKeyPress';
