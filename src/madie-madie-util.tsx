@@ -18,10 +18,3 @@ export {
   useOnClickOutside,
   measureStore,
 };
-
-// export { getServiceConfig } from './Config/Config'
-// export { default as useKeyPress } from './hooks/useKeyPress';
-// export { default as useOktaTokens } from './hooks/useOktaTokens';
-// export { default as useOnClickOutside } from './hooks/useOnClickOutside';
-
-// export { measureStore } from './Store/measureStore'
