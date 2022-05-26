@@ -14,6 +14,9 @@ export interface ServiceConfig {
   elmTranslationService: {
     baseUrl: string;
   };
+  terminologyService: {
+    baseUrl: string;
+  };
 }
 
 export async function getServiceConfig(): Promise<ServiceConfig> {
