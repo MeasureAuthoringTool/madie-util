@@ -1,13 +1,11 @@
 {
   "extends": "ts-config-single-spa",
   "compilerOptions": {
-    "declaration": true,
-    "declarationDir": "dist",
-    "declarationMap": true,
     "jsx": "react-jsx",
-    "sourceMap": true
+    "declarationDir": "dist"
   },
-  "files": ["src/madie-madie-frontend-template.tsx"],
+  "files": ["src/madie-madie-util.tsx"],
   "include": ["src/**/*"],
-  "exclude": ["src/**/*.test*"]
+  "exclude": ["src/**/*.test*"],
+  "declarationMap": true
 }
