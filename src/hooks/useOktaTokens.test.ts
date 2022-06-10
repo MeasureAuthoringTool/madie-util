@@ -36,6 +36,7 @@ describe("useOktaTokens", () => {
     expect(oktaTokens.getIdToken).toBeTruthy();
     expect(oktaTokens.getAccessTokenObj).toBeTruthy();
     expect(oktaTokens.getAccessToken).toBeTruthy();
+    expect(oktaTokens.getUserName).toBeTruthy();
   });
 
   it("should return an idToken object", () => {
@@ -65,6 +66,14 @@ describe("useOktaTokens", () => {
   it("should return an accessToken", () => {
     const { getAccessToken } = useOktaTokens();
     expect(getAccessToken()).toEqual("test.access.jwt");
+    expect(global.Storage.prototype.getItem).toHaveBeenCalledWith(
+      "okta-token-storage"
+    );
+  });
+
+  it("should return user name", () => {
+    const { getUserName } = useOktaTokens();
+    expect(getUserName()).toEqual("testuser@test.com");
     expect(global.Storage.prototype.getItem).toHaveBeenCalledWith(
       "okta-token-storage"
     );
