@@ -4,7 +4,7 @@ import useTerminologyServiceApi, {
   TerminologyServiceApi,
   getServiceUrl,
 } from "./useTerminologyServiceApi";
-import { ServiceConfig } from "../config/Config";
+import { ServiceConfig } from "../Config/Config";
 import axios from "axios";
 
 jest.mock("axios");

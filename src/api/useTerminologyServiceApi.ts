@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ServiceConfig, getServiceConfig } from "../config/Config";
+import { ServiceConfig, getServiceConfig } from "../Config/Config";
 
 import useOktaTokens from "../hooks/useOktaTokens";
 
