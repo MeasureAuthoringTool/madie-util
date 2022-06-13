@@ -22,7 +22,7 @@ jest.mock("../hooks/useOktaTokens", () =>
   }))
 );
 
-jest.mock("../config/Config", () => {
+jest.mock("../Config/Config", () => {
   return {
     getServiceConfig: jest.fn(() => Promise.resolve(mockConfig)),
   };
