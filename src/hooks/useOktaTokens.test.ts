@@ -1,9 +1,10 @@
 import useOktaTokens from "./useOktaTokens";
 
+const TEST_USER = "testuser@test.com";
 const idTokenObj = {
   authorizeUrl: "authorize.url",
   claims: {
-    sub: "testuser@test.com",
+    sub: TEST_USER,
     name: "Test User",
   },
   idToken: "test.id.jwt",
@@ -12,7 +13,7 @@ const idTokenObj = {
 const accessTokenObj = {
   authorizeUrl: "authorize.url",
   claims: {
-    sub: "testuser@test.com",
+    sub: TEST_USER,
   },
   accessToken: "test.access.jwt",
 };
@@ -73,7 +74,7 @@ describe("useOktaTokens", () => {
 
   it("should return user name", () => {
     const { getUserName } = useOktaTokens();
-    expect(getUserName()).toEqual("testuser@test.com");
+    expect(getUserName()).toEqual(TEST_USER);
     expect(global.Storage.prototype.getItem).toHaveBeenCalledWith(
       "okta-token-storage"
     );
