@@ -1,6 +1,6 @@
 import useOktaTokens from "./useOktaTokens";
 
-const TEST_USER = "te$tuser@test.com";
+const TEST_USER = "te$tuser@te$t.com";
 const idTokenObj = {
   authorizeUrl: "authorize.url",
   claims: {

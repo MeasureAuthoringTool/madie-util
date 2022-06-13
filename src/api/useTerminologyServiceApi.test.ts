@@ -5,7 +5,6 @@ import useTerminologyServiceApi, {
   getServiceUrl,
 } from "./useTerminologyServiceApi";
 import { ServiceConfig } from "../config/Config";
-//import useOktaTokens from "../hooks/useOktaTokens";
 import axios from "axios";
 
 jest.mock("axios");
@@ -16,12 +15,6 @@ const mockConfig: ServiceConfig = {
     baseUrl: "url",
   },
 };
-
-// jest.mock("../hooks/useOktaTokens", () => ({
-//   useOktaTokens: jest.fn(() => ({
-//     getAccessToken: jest.fn(() => "test.jwt"),
-//   })),
-// }));
 
 jest.mock("../hooks/useOktaTokens", () =>
   jest.fn(() => ({
