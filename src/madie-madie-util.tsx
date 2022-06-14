@@ -10,6 +10,7 @@ import { default as useKeyPress } from "./hooks/useKeyPress";
 import { default as useOktaTokens } from "./hooks/useOktaTokens";
 import { default as useOnClickOutside } from "./hooks/useOnClickOutside";
 import { measureStore } from "./Store/measureStore";
+import { default as useTerminologyServiceApi } from "./api/useTerminologyServiceApi";
 
 export {
   getServiceConfig,
@@ -17,4 +18,5 @@ export {
   useOktaTokens,
   useOnClickOutside,
   measureStore,
+  useTerminologyServiceApi,
 };

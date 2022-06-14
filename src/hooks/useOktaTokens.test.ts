@@ -1,9 +1,10 @@
 import useOktaTokens from "./useOktaTokens";
 
+const TEST_USER = "te$tuser@te$t.com";
 const idTokenObj = {
   authorizeUrl: "authorize.url",
   claims: {
-    sub: "testuser@test.com",
+    sub: TEST_USER,
     name: "Test User",
   },
   idToken: "test.id.jwt",
@@ -12,7 +13,7 @@ const idTokenObj = {
 const accessTokenObj = {
   authorizeUrl: "authorize.url",
   claims: {
-    sub: "testuser@test.com",
+    sub: TEST_USER,
   },
   accessToken: "test.access.jwt",
 };
@@ -36,6 +37,7 @@ describe("useOktaTokens", () => {
     expect(oktaTokens.getIdToken).toBeTruthy();
     expect(oktaTokens.getAccessTokenObj).toBeTruthy();
     expect(oktaTokens.getAccessToken).toBeTruthy();
+    expect(oktaTokens.getUserName).toBeTruthy();
   });
 
   it("should return an idToken object", () => {
@@ -65,6 +67,14 @@ describe("useOktaTokens", () => {
   it("should return an accessToken", () => {
     const { getAccessToken } = useOktaTokens();
     expect(getAccessToken()).toEqual("test.access.jwt");
+    expect(global.Storage.prototype.getItem).toHaveBeenCalledWith(
+      "okta-token-storage"
+    );
+  });
+
+  it("should return user name", () => {
+    const { getUserName } = useOktaTokens();
+    expect(getUserName()).toEqual(TEST_USER);
     expect(global.Storage.prototype.getItem).toHaveBeenCalledWith(
       "okta-token-storage"
     );
