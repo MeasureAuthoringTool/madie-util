@@ -62,6 +62,15 @@ describe("useTerminologyServiceApi", () => {
     } catch {}
   });
 
+  it("checkLogin returns false if status is not 200", async () => {
+    const resp = { status: 201, data: true };
+    mockedAxios.get.mockResolvedValue(resp);
+    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
+    const loggedIn = await terminlogyService.checkLogin();
+    expect(mockedAxios.get).toBeCalledTimes(1);
+    expect(loggedIn).toBeFalsy();
+  });
+
   it("Login to UMLS success", async () => {
     const resp = { status: 200, data: "success" };
     mockedAxios.post.mockResolvedValue(resp);
@@ -78,5 +87,14 @@ describe("useTerminologyServiceApi", () => {
       await terminlogyService.loginUMLS("test");
       expect(mockedAxios.post).toBeCalledTimes(1);
     } catch {}
+  });
+
+  it("Login to UMLS will not be successful unless status is 200", async () => {
+    const resp = { status: 201, data: "success" };
+    mockedAxios.post.mockResolvedValue(resp);
+    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
+    const result = await terminlogyService.loginUMLS("test");
+    expect(mockedAxios.post).toBeCalledTimes(1);
+    expect(result).toContain("failure");
   });
 });
