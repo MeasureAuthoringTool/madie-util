@@ -1,9 +1,9 @@
 import React from "react";
-import { Subject } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { Measure } from "@madie/madie-models/dist/Measure";
 
 // immutable object that retains state, tracks updates
-const subject = new Subject<Measure | null>();
+const subject = new BehaviorSubject<Measure | null>(null);
 // initial value just for initialization.
 const initialState: null = null;
 // this will be the references that updates events are emitted against.
