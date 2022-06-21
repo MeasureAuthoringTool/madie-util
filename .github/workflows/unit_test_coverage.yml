@@ -1,5 +1,5 @@
 # This workflow will do the following:
-# - Clean install node dependencies
+# - perform a clean install of node dependencies
 # - lint the source code for errors
 # - build the source code
 # - run tests and capture code coverage
