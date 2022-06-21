@@ -18,6 +18,7 @@ on:
 jobs:
   node_matrix:
     strategy:
+      fail-fast: false
       matrix:
         version: [14, 16, 18]
     name: Checkout, install, lint, build and test with coverage
