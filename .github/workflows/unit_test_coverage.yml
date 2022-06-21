@@ -80,3 +80,19 @@ jobs:
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: lcov.info
+
+  upload-codecov-coverage:
+    name: Upload code coverage to Codecov
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage
+
+      - name: Upload code coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          file: lcov.info
+          fail_ci_if_error: true
