@@ -30,13 +30,10 @@ export class TerminologyServiceApi {
   async loginUMLS(apiKey: string): Promise<String> {
     const baseUrl = await getServiceUrl();
     const resp = await axios
-      .post(`${baseUrl}/vsac/umls-credentials`, null, {
+      .post(`${baseUrl}/vsac/umls-credentials`, apiKey, {
         headers: {
           Authorization: `Bearer ${this.getAccessToken()}`,
           "Content-Type": "text/plain",
-        },
-        params: {
-          apiKey: apiKey,
         },
         timeout: 15000,
       })
