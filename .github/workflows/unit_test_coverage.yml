@@ -18,8 +18,9 @@ on:
 jobs:
   node_matrix:
     strategy:
+      fail-fast: false
       matrix:
-        version: [12, 16]
+        version: [14, 16, 18]
     name: Checkout, install, lint, build and test with coverage
     runs-on: ubuntu-latest
 
@@ -31,6 +32,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.version }}
+          cache: 'npm'
 
       - name: Cache node modules
         uses: actions/cache@v3
