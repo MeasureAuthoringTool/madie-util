@@ -19,7 +19,7 @@ jobs:
   node_matrix:
     strategy:
       matrix:
-        version: [12, 16]
+        version: [14, 16, 18]
     name: Checkout, install, lint, build and test with coverage
     runs-on: ubuntu-latest
 
