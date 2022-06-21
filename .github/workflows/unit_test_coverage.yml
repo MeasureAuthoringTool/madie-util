@@ -22,15 +22,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Use Node.js 14.x
-        uses: actions/setup-node@v2-beta
+        uses: actions/checkout@v3
         with:
           node-version: 14.x
 
       - name: Cache node modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-node-modules
         with:
@@ -60,39 +60,39 @@ jobs:
         run: npm run-script coverage
 
       - name: Store the coverage report as an artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: coverage
           path: src/coverage/lcov.info
 
-  upload-codacy-coverage:
-    name: Upload code coverage to Codacy
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download coverage artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: coverage
-
-      - name: Upload code coverage to Codacy
-        uses: codacy/codacy-coverage-reporter-action@master
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: lcov.info
-
-  upload-codecov-coverage:
-    name: Upload code coverage to Codecov
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download coverage artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: coverage
-
-      - name: Upload code coverage to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          file: lcov.info
-          fail_ci_if_error: true
+#  upload-codacy-coverage:
+#    name: Upload code coverage to Codacy
+#    needs: build
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Download coverage artifact
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: coverage
+#
+#      - name: Upload code coverage to Codacy
+#        uses: codacy/codacy-coverage-reporter-action@master
+#        with:
+#          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+#          coverage-reports: lcov.info
+#
+#  upload-codecov-coverage:
+#    name: Upload code coverage to Codecov
+#    needs: build
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Download coverage artifact
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: coverage
+#
+#      - name: Upload code coverage to Codecov
+#        uses: codecov/codecov-action@v2
+#        with:
+#          file: lcov.info
+#          fail_ci_if_error: true
