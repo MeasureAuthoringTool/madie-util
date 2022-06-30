@@ -7,3 +7,4 @@ dist
 coverage
 pnpm-lock.yaml
 pull_request_template.md
+.github/
