@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@madie/madie-models": "^1.0.2",
-    "@types/jest": "^27.0.1",
+    "@types/jest": "^27.5.2",
     "@types/react": "^17.0.19",
     "@types/react-dom": "^17.0.9",
     "@types/systemjs": "^6.1.1",
