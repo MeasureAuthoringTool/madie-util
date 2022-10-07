@@ -13,6 +13,7 @@ import { measureStore } from "./Store/measureStore";
 import { cqlLibraryStore } from "./Store/cqlLibraryStore";
 import { routeHandlerStore } from "./Store/routeHandlerStore";
 import { default as useTerminologyServiceApi } from "./api/useTerminologyServiceApi";
+import { default as useOrganizationApi } from "./api/useOrganizationApi";
 
 export {
   getServiceConfig,
@@ -23,4 +24,5 @@ export {
   cqlLibraryStore,
   routeHandlerStore,
   useTerminologyServiceApi,
+  useOrganizationApi,
 };
