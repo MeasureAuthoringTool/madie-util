@@ -14,6 +14,12 @@ const mockConfig: ServiceConfig = {
   terminologyService: {
     baseUrl: "url",
   },
+  measureService: {
+    baseUrl: "",
+  },
+  elmTranslationService: {
+    baseUrl: "",
+  },
 };
 
 jest.mock("../hooks/useOktaTokens", () =>
