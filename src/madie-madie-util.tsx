@@ -14,6 +14,7 @@ import { cqlLibraryStore } from "./Store/cqlLibraryStore";
 import { routeHandlerStore } from "./Store/routeHandlerStore";
 import { default as useTerminologyServiceApi } from "./api/useTerminologyServiceApi";
 import { default as useOrganizationApi } from "./api/useOrganizationApi";
+import { useDocumentTitle } from "./hooks/useDocumentTitle";
 
 export {
   getServiceConfig,
@@ -25,4 +26,5 @@ export {
   routeHandlerStore,
   useTerminologyServiceApi,
   useOrganizationApi,
+  useDocumentTitle,
 };
