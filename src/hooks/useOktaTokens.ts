@@ -28,7 +28,7 @@ const useOktaTokens = (storageKey = "okta-token-storage") => {
   return {
     getAccessToken: () => getAccessTokenObj(storageKey)?.accessToken,
     getAccessTokenObj: () => getAccessTokenObj(storageKey),
-    getUserName: () => getAccessTokenObj(storageKey).claims.sub,
+    getUserName: () => getAccessTokenObj(storageKey)?.claims?.sub,
     getIdToken: () => getIdTokenObj(storageKey)?.idToken,
     getIdTokenObj: () => getIdTokenObj(storageKey),
   };
