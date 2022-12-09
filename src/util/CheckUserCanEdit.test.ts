@@ -24,7 +24,7 @@ const measure_different_createdBy = {
 const measure_different_createdBy_same_SharedWith = {
   id: "m1234",
   createdBy: "Te$tUser2@te$t.com",
-  acls: [{ userId: "Te$tUser@te$t.com", roles: ["SHARED_WITH"] }],
+  acls: [{ userId: "Te$tUser@te$t.com", roles: ["SHARED_WITH"] }], //#nosec
 } as unknown as Measure;
 
 const measure_different_createdBy_different_SharedWith = {
