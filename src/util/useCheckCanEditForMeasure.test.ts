@@ -1,6 +1,6 @@
 import * as React from "react";
 import useOktaTokens from "../hooks/useOktaTokens";
-import checkUserCanEdit from "./checkUserCanEdit";
+import checkUserCanEdit from "./useCheckCanEditForMeasure";
 import { Measure } from "@madie/madie-models/dist/Measure";
 
 const TEST_USER = "te$tuser@te$t.com";
@@ -33,7 +33,7 @@ const measure_different_createdBy_different_SharedWith = {
   acls: [{ userId: "Te$tUser3@te$t.com", roles: ["SHARED_WITH"] }],
 } as unknown as Measure;
 
-describe("useOktaTokens", () => {
+describe("Check user canEdit", () => {
   beforeEach(() => {
     jest.resetAllMocks();
     (useOktaTokens as jest.Mock).mockImplementation(() => ({
