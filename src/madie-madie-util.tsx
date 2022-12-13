@@ -15,6 +15,7 @@ import { routeHandlerStore } from "./Store/routeHandlerStore";
 import { default as useTerminologyServiceApi } from "./api/useTerminologyServiceApi";
 import { default as useOrganizationApi } from "./api/useOrganizationApi";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
+import { default as checkUserCanEdit } from "./util/useCheckCanEdit";
 
 export {
   getServiceConfig,
@@ -27,4 +28,5 @@ export {
   useTerminologyServiceApi,
   useOrganizationApi,
   useDocumentTitle,
+  checkUserCanEdit,
 };
