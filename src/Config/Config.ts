@@ -17,6 +17,11 @@ export interface ServiceConfig {
   terminologyService: {
     baseUrl: string;
   };
+  madieVersion: string;
+  features: {
+    measureVersioning: boolean;
+    export: boolean;
+  };
 }
 
 export async function getServiceConfig(): Promise<ServiceConfig> {
