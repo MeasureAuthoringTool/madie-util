@@ -21,6 +21,7 @@ export interface ServiceConfig {
   features: {
     measureVersioning: boolean;
     export: boolean;
+    applyDefaults: boolean;
   };
 }
 

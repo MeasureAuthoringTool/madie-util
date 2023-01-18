@@ -5,7 +5,7 @@
   if we want other apps to use functions defined here, we need to
     update types file with expected values in each app consuming
 */
-import { getServiceConfig } from "./Config/Config";
+import { getServiceConfig, ServiceConfig } from "./Config/Config";
 import { default as useKeyPress } from "./hooks/useKeyPress";
 import { default as useOktaTokens } from "./hooks/useOktaTokens";
 import { default as useOnClickOutside } from "./hooks/useOnClickOutside";
@@ -16,6 +16,12 @@ import { default as useTerminologyServiceApi } from "./api/useTerminologyService
 import { default as useOrganizationApi } from "./api/useOrganizationApi";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { default as checkUserCanEdit } from "./util/useCheckCanEdit";
+import {
+  ApiContextProvider,
+  ApiContextConsumer,
+} from "./context/ServiceContext";
+import useServiceConfig from "./hooks/useServiceConfig";
+import useFeatureFlag from "./hooks/useFeatureFlag";
 
 export {
   getServiceConfig,
@@ -29,4 +35,9 @@ export {
   useOrganizationApi,
   useDocumentTitle,
   checkUserCanEdit,
+  ApiContextProvider,
+  ApiContextConsumer,
+  //ServiceConfig,
+  useServiceConfig,
+  useFeatureFlag,
 };
