@@ -30,7 +30,7 @@ describe("Check user canEdit", () => {
 
   it("should return true when measure is shared with the same user", () => {
     const canEdit = useCheckUserCanEdit(
-      "anotherU$er",
+      "anotherU$er", // nosec
       [{ userId: "Te$tUser@te$t.com", roles: ["SHARED_WITH"] }],
       "0.0.000"
     );
