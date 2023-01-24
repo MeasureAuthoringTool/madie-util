@@ -3,7 +3,7 @@ import { BehaviorSubject } from "rxjs";
 
 // immutable object that retains state, tracks updates
 const subject = new BehaviorSubject<FeatureFlags | null>(null);
-interface FeatureFlags {
+export interface FeatureFlags {
   export: boolean;
   measureVersioning: boolean;
   populationCriteriaTabs: boolean;

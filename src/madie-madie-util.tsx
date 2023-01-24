@@ -17,6 +17,7 @@ import { default as useTerminologyServiceApi } from "./api/useTerminologyService
 import { default as useOrganizationApi } from "./api/useOrganizationApi";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { default as checkUserCanEdit } from "./util/useCheckCanEdit";
+import { useFeatureFlags } from "./hooks/useFeatureFlags";
 
 export {
   getServiceConfig,
@@ -31,4 +32,5 @@ export {
   useOrganizationApi,
   useDocumentTitle,
   checkUserCanEdit,
+  useFeatureFlags,
 };
