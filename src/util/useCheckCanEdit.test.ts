@@ -2,7 +2,7 @@ import * as React from "react";
 import useOktaTokens from "../hooks/useOktaTokens";
 import useCheckUserCanEdit from "./useCheckCanEdit";
 
-const TEST_USER = "te$tuser@te$t.com";
+const JANE_DOE = "Jane doe";
 const JOHN_DOE = "john doe";
 
 jest.mock("../hooks/useOktaTokens", () =>
@@ -15,12 +15,12 @@ describe("Check user canEdit", () => {
   beforeEach(() => {
     jest.resetAllMocks();
     (useOktaTokens as jest.Mock).mockImplementation(() => ({
-      getUserName: () => TEST_USER,
+      getUserName: () => JANE_DOE,
     }));
   });
 
   it("should return true when user name and createdBy are the same", () => {
-    const canEdit = useCheckUserCanEdit(TEST_USER, [], true);
+    const canEdit = useCheckUserCanEdit(JANE_DOE, [], true);
     expect(canEdit).toBeTruthy();
   });
 
@@ -32,7 +32,7 @@ describe("Check user canEdit", () => {
   it("should return true when measure is shared with the same user", () => {
     const canEdit = useCheckUserCanEdit(
       "anotherU$er", // nosec
-      [{ userId: TEST_USER, roles: ["SHARED_WITH"] }],
+      [{ userId: JANE_DOE, roles: ["SHARED_WITH"] }],
       true
     );
     expect(canEdit).toBeTruthy();
@@ -40,7 +40,7 @@ describe("Check user canEdit", () => {
 
   it("should return true when measure is shared with the same user with no version status supplied", () => {
     const canEdit = useCheckUserCanEdit("anotherU$er", [
-      { userId: TEST_USER, roles: ["SHARED_WITH"] },
+      { userId: JANE_DOE, roles: ["SHARED_WITH"] },
     ]);
     expect(canEdit).toBeTruthy();
   });
