@@ -1,9 +1,17 @@
 import useOktaTokens from "../hooks/useOktaTokens";
 import { Acl } from "@madie/madie-models/dist/Measure";
 
-const useCheckUserCanEdit = (createdBy: string, acls: Array<Acl>): boolean => {
+const useCheckUserCanEdit = (
+  createdBy: string,
+  acls: Array<Acl>,
+  draft: boolean = true
+): boolean => {
   const { getUserName } = useOktaTokens();
   const userName = getUserName();
+  // versioned measures are always uneditable.
+  if (!draft) {
+    return false;
+  }
 
   return (
     createdBy?.toLowerCase() === userName?.toLowerCase() ||
