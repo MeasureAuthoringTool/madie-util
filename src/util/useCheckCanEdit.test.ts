@@ -2,7 +2,8 @@ import * as React from "react";
 import useOktaTokens from "../hooks/useOktaTokens";
 import useCheckUserCanEdit from "./useCheckCanEdit";
 
-const TEST_USER = "te$tuser@te$t.com";
+const JANE_DOE = "Jane doe";
+const JOHN_DOE = "john doe";
 
 jest.mock("../hooks/useOktaTokens", () =>
   jest.fn(() => ({
@@ -14,12 +15,12 @@ describe("Check user canEdit", () => {
   beforeEach(() => {
     jest.resetAllMocks();
     (useOktaTokens as jest.Mock).mockImplementation(() => ({
-      getUserName: () => TEST_USER,
+      getUserName: () => JANE_DOE,
     }));
   });
 
   it("should return true when user name and createdBy are the same", () => {
-    const canEdit = useCheckUserCanEdit(TEST_USER, [], true);
+    const canEdit = useCheckUserCanEdit(JANE_DOE, [], true);
     expect(canEdit).toBeTruthy();
   });
 
@@ -31,7 +32,7 @@ describe("Check user canEdit", () => {
   it("should return true when measure is shared with the same user", () => {
     const canEdit = useCheckUserCanEdit(
       "anotherU$er", // nosec
-      [{ userId: "Te$tUser@te$t.com", roles: ["SHARED_WITH"] }],
+      [{ userId: JANE_DOE, roles: ["SHARED_WITH"] }],
       true
     );
     expect(canEdit).toBeTruthy();
@@ -39,7 +40,7 @@ describe("Check user canEdit", () => {
 
   it("should return true when measure is shared with the same user with no version status supplied", () => {
     const canEdit = useCheckUserCanEdit("anotherU$er", [
-      { userId: "Te$tUser@te$t.com", roles: ["SHARED_WITH"] },
+      { userId: JANE_DOE, roles: ["SHARED_WITH"] },
     ]);
     expect(canEdit).toBeTruthy();
   });
@@ -47,7 +48,7 @@ describe("Check user canEdit", () => {
   it("should return undefined when measure is shared with a different user", () => {
     const canEdit = useCheckUserCanEdit(
       "anotherU$er",
-      [{ userId: "Te$tUser3@te$t.com", roles: ["SHARED_WITH"] }],
+      [{ userId: JOHN_DOE, roles: ["SHARED_WITH"] }],
       true
     );
     expect(canEdit).not.toBeTruthy();
@@ -56,7 +57,7 @@ describe("Check user canEdit", () => {
   it("should return false when measure is versioned greater than 0", () => {
     const canEdit = useCheckUserCanEdit(
       "anotherU$er",
-      [{ userId: "Te$tUser3@te$t.com", roles: ["SHARED_WITH"] }],
+      [{ userId: JOHN_DOE, roles: ["SHARED_WITH"] }],
       false
     );
     expect(canEdit).not.toBeTruthy();
