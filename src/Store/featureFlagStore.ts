@@ -8,12 +8,14 @@ export interface FeatureFlags {
   measureVersioning: boolean;
   populationCriteriaTabs: boolean;
   applyDefaults: boolean;
+  importTestCases: boolean;
 }
 const initialState: FeatureFlags = {
   export: false,
   measureVersioning: false,
   populationCriteriaTabs: false,
   applyDefaults: false,
+  importTestCases: false,
 };
 
 let state: FeatureFlags | null = initialState;
