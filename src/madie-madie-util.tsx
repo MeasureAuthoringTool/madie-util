@@ -1,5 +1,5 @@
 /*
-  This is our index. 
+  This is our index.
   We need to register and export anything we want our spa suite to have access to
   rxjs here can track state and deliver it across multipe apps listening to the same instance.
   if we want other apps to use functions defined here, we need to
@@ -18,6 +18,7 @@ import { default as useOrganizationApi } from "./api/useOrganizationApi";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { default as checkUserCanEdit } from "./util/useCheckCanEdit";
 import { useFeatureFlags } from "./hooks/useFeatureFlags";
+import { PROGRAM_USE_CONTEXTS } from "./static/program-use-contexts";
 
 export {
   getServiceConfig,
@@ -33,4 +34,5 @@ export {
   useDocumentTitle,
   checkUserCanEdit,
   useFeatureFlags,
+  PROGRAM_USE_CONTEXTS,
 };
