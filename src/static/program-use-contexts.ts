@@ -1,4 +1,4 @@
-import { ProgramUseContext } from "../../../madie-models";
+import { ProgramUseContext } from "@madie/madie-models";
 
 export const PROGRAM_USE_CONTEXTS: ProgramUseContext[] = [
   {
