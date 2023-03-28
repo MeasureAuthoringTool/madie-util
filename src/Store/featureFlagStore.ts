@@ -15,7 +15,7 @@ export interface FeatureFlags {
 const initialState: FeatureFlags = {
   export: false,
   measureVersioning: false,
-  populationCriteriaTabs: false,
+  populationCriteriaTabs: true,
   applyDefaults: false,
   importTestCases: false,
   qdm: false,
