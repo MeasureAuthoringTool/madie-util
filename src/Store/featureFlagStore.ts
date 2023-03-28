@@ -9,6 +9,8 @@ export interface FeatureFlags {
   populationCriteriaTabs: boolean;
   applyDefaults: boolean;
   importTestCases: boolean;
+
+  qdm: boolean;
 }
 const initialState: FeatureFlags = {
   export: false,
@@ -16,6 +18,7 @@ const initialState: FeatureFlags = {
   populationCriteriaTabs: true,
   applyDefaults: false,
   importTestCases: false,
+  qdm: false,
 };
 
 let state: FeatureFlags | null = initialState;
