@@ -5,18 +5,14 @@ import { BehaviorSubject } from "rxjs";
 const subject = new BehaviorSubject<FeatureFlags | null>(null);
 export interface FeatureFlags {
   export: boolean;
-  //measureVersioning: boolean;
   populationCriteriaTabs: boolean;
-  applyDefaults: boolean;
   importTestCases: boolean;
 
   qdm: boolean;
 }
 const initialState: FeatureFlags = {
   export: false,
-  //measureVersioning: false,
   populationCriteriaTabs: true,
-  applyDefaults: false,
   importTestCases: false,
   qdm: false,
 };
