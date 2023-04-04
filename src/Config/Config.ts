@@ -19,7 +19,6 @@ export interface ServiceConfig {
   };
   madieVersion: string;
   features: {
-    //measureVersioning: boolean;
     export: boolean;
   };
 }
