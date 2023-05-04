@@ -18,6 +18,7 @@ import { default as useOrganizationApi } from "./api/useOrganizationApi";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { default as checkUserCanEdit } from "./util/useCheckCanEdit";
 import { useFeatureFlags } from "./hooks/useFeatureFlags";
+import { getOidFromString } from "./util/terminologyUtils";
 import { PROGRAM_USE_CONTEXTS } from "./static/program-use-contexts";
 
 export {
@@ -34,5 +35,6 @@ export {
   useDocumentTitle,
   checkUserCanEdit,
   useFeatureFlags,
+  getOidFromString,
   PROGRAM_USE_CONTEXTS,
 };
