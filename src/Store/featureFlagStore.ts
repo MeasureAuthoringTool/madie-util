@@ -9,12 +9,16 @@ export interface FeatureFlags {
   importTestCases: boolean;
 
   qdm: boolean;
+  qdmExport: boolean;
+  qdmVersioning: boolean;
 }
 const initialState: FeatureFlags = {
   export: false,
   populationCriteriaTabs: true,
   importTestCases: false,
   qdm: false,
+  qdmExport: false,
+  qdmVersioning: false,
 };
 
 let state: FeatureFlags | null = initialState;
