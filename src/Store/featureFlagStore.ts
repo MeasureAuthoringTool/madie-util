@@ -11,6 +11,7 @@ export interface FeatureFlags {
   qdm: boolean;
   qdmExport: boolean;
   qdmVersioning: boolean;
+  qiCoreElementsTab: boolean;
 }
 const initialState: FeatureFlags = {
   export: false,
@@ -19,6 +20,7 @@ const initialState: FeatureFlags = {
   qdm: false,
   qdmExport: false,
   qdmVersioning: false,
+  qiCoreElementsTab: false,
 };
 
 let state: FeatureFlags | null = initialState;
