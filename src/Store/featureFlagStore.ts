@@ -13,6 +13,7 @@ export interface FeatureFlags {
   qdmVersioning: boolean;
   qiCoreElementsTab: boolean;
   highlightingTabs: boolean;
+  exportQiCoreBundleType: boolean;
 }
 const initialState: FeatureFlags = {
   export: false,
@@ -23,6 +24,7 @@ const initialState: FeatureFlags = {
   qdmVersioning: false,
   qiCoreElementsTab: false,
   highlightingTabs: false,
+  exportQiCoreBundleType: false,
 };
 
 let state: FeatureFlags | null = initialState;
