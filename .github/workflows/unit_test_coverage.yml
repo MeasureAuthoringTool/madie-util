@@ -87,7 +87,7 @@ jobs:
 
   upload-codecov-coverage:
     name: Upload code coverage to Codecov
-    needs: build
+    needs: node_matrix
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
