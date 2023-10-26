@@ -14,6 +14,7 @@ export interface FeatureFlags {
   qiCoreElementsTab: boolean;
   highlightingTabs: boolean;
   exportQiCoreBundleType: boolean;
+  disableRunTestCaseWithObservStrat: boolean;
 }
 const initialState: FeatureFlags = {
   export: false,
@@ -25,6 +26,7 @@ const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
   highlightingTabs: false,
   exportQiCoreBundleType: false,
+  disableRunTestCaseWithObservStrat: true,
 };
 
 let state: FeatureFlags | null = initialState;
