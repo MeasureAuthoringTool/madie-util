@@ -13,6 +13,7 @@ export interface FeatureFlags {
   qdmVersioning: boolean;
   qiCoreElementsTab: boolean;
   highlightingTabs: boolean;
+  qdmHighlightingTabs: boolean;
   exportQiCoreBundleType: boolean;
   disableRunTestCaseWithObservStrat: boolean;
   qdmHideJson: boolean;
@@ -26,6 +27,7 @@ const initialState: FeatureFlags = {
   qdmVersioning: false,
   qiCoreElementsTab: false,
   highlightingTabs: false,
+  qdmHighlightingTabs: false,
   exportQiCoreBundleType: false,
   disableRunTestCaseWithObservStrat: true,
   qdmHideJson: true,
