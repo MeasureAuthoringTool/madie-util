@@ -11,13 +11,15 @@ export interface FeatureFlags {
   qdmHighlightingTabs: boolean;
   disableRunTestCaseWithObservStrat: boolean;
   qdmHideJson: boolean;
+  importTestCases: boolean;
 }
 const initialState: FeatureFlags = {
   qdmExport: false,
   qdmTestCases: true,
   qiCoreElementsTab: false,
-  highlightingTabs: false,
+  highlightingTabs: true,
   qdmHighlightingTabs: false,
+  importTestCases: false,
   disableRunTestCaseWithObservStrat: true,
   qdmHideJson: true,
 };
