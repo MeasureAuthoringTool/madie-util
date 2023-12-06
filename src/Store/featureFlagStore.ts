@@ -21,7 +21,7 @@ const initialState: FeatureFlags = {
   highlightingTabs: true,
   qdmHighlightingTabs: false,
   importTestCases: false,
-  qiCoreBonnieTestCases:false,
+  qiCoreBonnieTestCases: false,
   disableRunTestCaseWithObservStrat: true,
   qdmHideJson: true,
 };
