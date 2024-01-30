@@ -15,6 +15,7 @@ export interface FeatureFlags {
   qdmMeasureReferences: boolean;
   importTestCases: boolean;
   qiCoreBonnieTestCases: boolean;
+  enableQdmRepeatTransfer: boolean;
 }
 const initialState: FeatureFlags = {
   qdmExport: false,
@@ -28,6 +29,7 @@ const initialState: FeatureFlags = {
   qiCoreBonnieTestCases: false,
   disableRunTestCaseWithObservStrat: true,
   qdmHideJson: true,
+  enableQdmRepeatTransfer: false,
 };
 
 let state: FeatureFlags | null = initialState;
