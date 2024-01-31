@@ -4,27 +4,32 @@ import { BehaviorSubject } from "rxjs";
 // immutable object that retains state, tracks updates
 const subject = new BehaviorSubject<FeatureFlags | null>(null);
 export interface FeatureFlags {
-  export: boolean;
-  populationCriteriaTabs: boolean;
-  importTestCases: boolean;
-
-  qdm: boolean;
   qdmExport: boolean;
-  qdmVersioning: boolean;
+  qdmTestCases: boolean;
   qiCoreElementsTab: boolean;
   highlightingTabs: boolean;
-  exportQiCoreBundleType: boolean;
+  qdmHighlightingTabs: boolean;
+  disableRunTestCaseWithObservStrat: boolean;
+  qdmHideJson: boolean;
+  qdmMeasureDefinitions: boolean;
+  qdmMeasureReferences: boolean;
+  importTestCases: boolean;
+  qiCoreBonnieTestCases: boolean;
+  enableQdmRepeatTransfer: boolean;
 }
 const initialState: FeatureFlags = {
-  export: false,
-  populationCriteriaTabs: true,
-  importTestCases: false,
-  qdm: false,
   qdmExport: false,
-  qdmVersioning: false,
+  qdmTestCases: true,
   qiCoreElementsTab: false,
-  highlightingTabs: false,
-  exportQiCoreBundleType: false,
+  highlightingTabs: true,
+  qdmHighlightingTabs: false,
+  qdmMeasureDefinitions: false,
+  qdmMeasureReferences: false,
+  importTestCases: false,
+  qiCoreBonnieTestCases: false,
+  disableRunTestCaseWithObservStrat: true,
+  qdmHideJson: true,
+  enableQdmRepeatTransfer: false,
 };
 
 let state: FeatureFlags | null = initialState;
