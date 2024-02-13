@@ -18,7 +18,7 @@ jobs:
           # Checkout branch
           git checkout -q ${{ github.event.pull_request.head.ref }}
           # Set variables
-#          BASE_BRANCH=${{ github.event.pull_request.base.ref }}
+          BASE_BRANCH=${{ github.event.pull_request.base.ref }}
 #          msg_regex='MAT-[0-9]+\s.*'
 #          # This list permits some commits
 #          commit_static_permit_list="(^Merge pull request \#)|(^Merge branch)|(^Revert \")"
