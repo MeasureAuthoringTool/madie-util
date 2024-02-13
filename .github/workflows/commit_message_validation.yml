@@ -43,7 +43,6 @@ jobs:
               echo "************"
               printf "Invalid commit message: \"%s\" and hash: %s\n" "$(git log --max-count=1 --format=%B $commit)" "$commit"
               echo "************"
-
               # Set this variable to trigger rejection if any commit fails regex
               invalidCommit=true
             fi
