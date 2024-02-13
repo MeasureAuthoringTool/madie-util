@@ -23,7 +23,7 @@ jobs:
           BASE_BRANCH=${{ github.event.pull_request.base.ref }}
           msg_regex='MAT-[0-9]+\s.*'
           # This list permits some commits
-          commit_static_permit_list="(^Merge pull request \#)|(^Merge remote-tracking branch \#)|(^Merge branch)|(^Revert \")"
+          commit_static_permit_list="(^Merge pull request \#)|(^Merge remote-tracking branch \")|(^Merge branch)|(^Revert \")"
           # Initialize invalidCommit as false, will be set to true by any invalid commits
           invalidCommit=false
           CURRENT_BRANCH=$(git branch | grep ^\* | cut -d "*" -f 2 | cut -d " " -f 2)
