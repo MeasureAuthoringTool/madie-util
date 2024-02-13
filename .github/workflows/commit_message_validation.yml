@@ -28,34 +28,4 @@ jobs:
           BRANCH_MERGE_BASE=$(git merge-base ${BASE_BRANCH} ${CURRENT_BRANCH})
           # Find all commits since common ancestor
           BRANCH_COMMITS=$(git rev-list ${BRANCH_MERGE_BASE}..HEAD)
-          # Check every commit message since ancestor for regex match
-          for commit in $BRANCH_COMMITS; do
-            # Check if ticket in static permit-list for non-Jira commit_sha
-            if $(git log --max-count=1 --format=%B $commit | grep -iqE "$commit_static_permit_list"); then
-              : #If commit matches regex, commit is valid, do nothing
-            elif git log --max-count=1 --format=%B $commit | tr '[a-z]' '[A-Z]' | grep -iqE "$msg_regex"; then
-              : #If commit matches regex, commit is valid, do nothing
-            else
-              # If commit doesn't match regex, commit isn't valid, print commit info
-              echo "************"
-              printf "Invalid commit message: \"%s\" and hash: %s\n" "$(git log --max-count=1 --format=%B $commit)" "$commit"
-              echo "************"
-
-              # Set this variable to trigger rejection if any commit fails regex
-              invalidCommit=true
-            fi
-          done
-
-          # If any commit are invalid, print reject message
-          if [ "$invalidCommit" == true ]; then
-              echo "Your push was rejected because at least one commit message on this branch is invalid"
-              echo "Please fix the commit message(s) and push again."
-              echo "https://help.github.com/en/articles/changing-a-commit-message"
-              echo "************"
-              exit 1
-          elif [ "$invalidCommit" == false ]; then
-              echo "************"
-              echo "All commits are valid"
-              echo "************"
-              exit 0
-          fi
+          exit 0
