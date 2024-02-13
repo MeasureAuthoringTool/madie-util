@@ -1,6 +1,10 @@
-name: Release
+name: validate git commit messages
 
-on: [push]
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
 
 jobs:
   commit_message_validation:
