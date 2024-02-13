@@ -19,13 +19,13 @@ jobs:
           git checkout -q ${{ github.event.pull_request.head.ref }}
           # Set variables
           BASE_BRANCH=${{ github.event.pull_request.base.ref }}
-#          msg_regex='MAT-[0-9]+\s.*'
-#          # This list permits some commits
-#          commit_static_permit_list="(^Merge pull request \#)|(^Merge branch)|(^Revert \")"
-#          # Initialize invalidCommit as false, will be set to true by any invalid commits
-#          invalidCommit=false
-#          # Find hash of commit most common ancestor, e.g. where branch began
-#          BRANCH_MERGE_BASE=$(git merge-base ${BASE_BRANCH} ${CURRENT_BRANCH})
-#          # Find all commits since common ancestor
-#          BRANCH_COMMITS=$(git rev-list ${BRANCH_MERGE_BASE}..HEAD)
+          msg_regex='MAT-[0-9]+\s.*'
+          # This list permits some commits
+          commit_static_permit_list="(^Merge pull request \#)|(^Merge branch)|(^Revert \")"
+          # Initialize invalidCommit as false, will be set to true by any invalid commits
+          invalidCommit=false
+          # Find hash of commit most common ancestor, e.g. where branch began
+          BRANCH_MERGE_BASE=$(git merge-base ${BASE_BRANCH} ${CURRENT_BRANCH})
+          # Find all commits since common ancestor
+          BRANCH_COMMITS=$(git rev-list ${BRANCH_MERGE_BASE}..HEAD)
           exit 0
