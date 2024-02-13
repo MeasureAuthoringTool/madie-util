@@ -26,6 +26,6 @@ jobs:
           invalidCommit=false
           # Find hash of commit most common ancestor, e.g. where branch began
           BRANCH_MERGE_BASE=$(git merge-base ${BASE_BRANCH} ${CURRENT_BRANCH})
-#          # Find all commits since common ancestor
-#          BRANCH_COMMITS=$(git rev-list ${BRANCH_MERGE_BASE}..HEAD)
+          # Find all commits since common ancestor
+          BRANCH_COMMITS=$(git rev-list ${BRANCH_MERGE_BASE}..HEAD)
           exit 0
