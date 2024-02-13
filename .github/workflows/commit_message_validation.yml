@@ -24,7 +24,10 @@ jobs:
           commit_static_permit_list="(^Merge pull request \#)|(^Merge branch)|(^Revert \")"
           # Initialize invalidCommit as false, will be set to true by any invalid commits
           invalidCommit=false
+          CURRENT_BRANCH=$(git branch | grep ^\* | cut -d "*" -f 2 | cut -d " " -f 2)
           # Find hash of commit most common ancestor, e.g. where branch began
+          echo $BASE_BRANCH
+          echo $CURRENT_BRANCH
           BRANCH_MERGE_BASE=$(git merge-base ${BASE_BRANCH} ${CURRENT_BRANCH})
           # Find all commits since common ancestor
           BRANCH_COMMITS=$(git rev-list ${BRANCH_MERGE_BASE}..HEAD)
