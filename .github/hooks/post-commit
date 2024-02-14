@@ -1,5 +1,4 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
 
 # Define the regular expression for Jira ticket numbers
 REGEX="MAT-[0-9]+\s.*"
