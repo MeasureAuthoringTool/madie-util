@@ -19,12 +19,12 @@ describe("Check user canEdit", () => {
     }));
   });
 
-  it("should return true when user name and createdBy are the same", () => {
+  it("should return true when user name and createdBy are the same and draft is true", () => {
     const canEdit = useCheckUserCanDelete(JANE_DOE, true);
     expect(canEdit).toBeTruthy();
   });
 
-  it("should return true when user name and createdBy are not the same", () => {
+  it("should return false when user name and createdBy are not the same", () => {
     const canEdit = useCheckUserCanDelete(JOHN_DOE, true);
     expect(canEdit).not.toBeTruthy();
   });
@@ -32,5 +32,10 @@ describe("Check user canEdit", () => {
   it("should return false when user name and createdBy are same but it is not draft", () => {
     const canEdit = useCheckUserCanDelete(JANE_DOE, false);
     expect(canEdit).not.toBeTruthy();
+  });
+
+  it("should return true when user name and createdBy are the same ", () => {
+    const canEdit = useCheckUserCanDelete(JANE_DOE);
+    expect(canEdit).toBeTruthy();
   });
 });

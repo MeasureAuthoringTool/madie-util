@@ -6,7 +6,7 @@ const useCheckUserCanDelete = (
 ): boolean => {
   const { getUserName } = useOktaTokens();
   const userName = getUserName();
-  // versioned measures/libraries can never be deleted .
+  // versioned measures/libraries can never be deleted.
   if (!draft) {
     return false;
   }
