@@ -1,4 +1,3 @@
-import * as React from "react";
 import useOktaTokens from "../hooks/useOktaTokens";
 import useCheckUserCanDelete from "./useCheckCanDelete";
 
