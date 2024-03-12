@@ -19,6 +19,7 @@ export interface FeatureFlags {
   enableQdmRepeatTransfer: boolean;
   generateCMSID: boolean;
   manifestExpansion: boolean;
+  testCaseExport: boolean;
 }
 const initialState: FeatureFlags = {
   includeSDEValues: false,
@@ -36,6 +37,7 @@ const initialState: FeatureFlags = {
   enableQdmRepeatTransfer: false,
   generateCMSID: false,
   manifestExpansion: false,
+  testCaseExport: false,
 };
 
 let state: FeatureFlags | null = initialState;

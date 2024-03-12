@@ -17,6 +17,7 @@ import { default as useTerminologyServiceApi } from "./api/useTerminologyService
 import { default as useOrganizationApi } from "./api/useOrganizationApi";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { default as checkUserCanEdit } from "./util/useCheckCanEdit";
+import { default as checkUserCanDelete } from "./util/useCheckCanDelete";
 import { useFeatureFlags } from "./hooks/useFeatureFlags";
 import { getOidFromString } from "./util/terminologyUtils";
 
@@ -33,6 +34,7 @@ export {
   useOrganizationApi,
   useDocumentTitle,
   checkUserCanEdit,
+  checkUserCanDelete,
   useFeatureFlags,
   getOidFromString,
 };
