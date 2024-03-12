@@ -18,6 +18,7 @@ export interface FeatureFlags {
   qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
   generateCMSID: boolean;
+  testCaseExport: boolean;
 }
 const initialState: FeatureFlags = {
   includeSDEValues: false,
@@ -34,6 +35,7 @@ const initialState: FeatureFlags = {
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   generateCMSID: false,
+  testCaseExport: false,
 };
 
 let state: FeatureFlags | null = initialState;
