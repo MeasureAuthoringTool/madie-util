@@ -35,7 +35,7 @@ const initialState: FeatureFlags = {
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   generateCMSID: false,
-  manifestExpansion: true,
+  manifestExpansion: false,
 };
 
 let state: FeatureFlags | null = initialState;
