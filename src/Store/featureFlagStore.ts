@@ -6,15 +6,8 @@ const subject = new BehaviorSubject<FeatureFlags | null>(null);
 export interface FeatureFlags {
   includeSDEValues: boolean;
   qdmExport: boolean;
-  qdmTestCases: boolean;
   qiCoreElementsTab: boolean;
-  highlightingTabs: boolean;
-  qdmHighlightingTabs: boolean;
-  disableRunTestCaseWithObservStrat: boolean;
   qdmHideJson: boolean;
-  qdmMeasureDefinitions: boolean;
-  qdmMeasureReferences: boolean;
-  importTestCases: boolean;
   qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
   generateCMSID: boolean;
@@ -24,15 +17,8 @@ export interface FeatureFlags {
 const initialState: FeatureFlags = {
   includeSDEValues: false,
   qdmExport: false,
-  qdmTestCases: true,
   qiCoreElementsTab: false,
-  highlightingTabs: true,
-  qdmHighlightingTabs: false,
-  qdmMeasureDefinitions: false,
-  qdmMeasureReferences: false,
-  importTestCases: false,
   qiCoreBonnieTestCases: false,
-  disableRunTestCaseWithObservStrat: true,
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   generateCMSID: false,
