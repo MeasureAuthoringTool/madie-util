@@ -5,20 +5,14 @@ import { BehaviorSubject } from "rxjs";
 const subject = new BehaviorSubject<FeatureFlags | null>(null);
 export interface FeatureFlags {
   qdmExport: boolean;
-  qdmTestCases: boolean;
   qiCoreElementsTab: boolean;
   qdmHideJson: boolean;
-  qdmMeasureDefinitions: boolean;
-  qdmMeasureReferences: boolean;
   qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
 }
 const initialState: FeatureFlags = {
   qdmExport: false,
-  qdmTestCases: true,
   qiCoreElementsTab: false,
-  qdmMeasureDefinitions: false,
-  qdmMeasureReferences: false,
   qiCoreBonnieTestCases: false,
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
