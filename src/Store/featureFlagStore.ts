@@ -7,8 +7,6 @@ export interface FeatureFlags {
   qdmExport: boolean;
   qdmTestCases: boolean;
   qiCoreElementsTab: boolean;
-  highlightingTabs: boolean;
-  qdmHighlightingTabs: boolean;
   disableRunTestCaseWithObservStrat: boolean;
   qdmHideJson: boolean;
   qdmMeasureDefinitions: boolean;
@@ -20,8 +18,6 @@ const initialState: FeatureFlags = {
   qdmExport: false,
   qdmTestCases: true,
   qiCoreElementsTab: false,
-  highlightingTabs: true,
-  qdmHighlightingTabs: false,
   qdmMeasureDefinitions: false,
   qdmMeasureReferences: false,
   qiCoreBonnieTestCases: false,
