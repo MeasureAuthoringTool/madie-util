@@ -7,7 +7,6 @@ export interface FeatureFlags {
   qdmExport: boolean;
   qdmTestCases: boolean;
   qiCoreElementsTab: boolean;
-  disableRunTestCaseWithObservStrat: boolean;
   qdmHideJson: boolean;
   qdmMeasureDefinitions: boolean;
   qdmMeasureReferences: boolean;
@@ -21,7 +20,6 @@ const initialState: FeatureFlags = {
   qdmMeasureDefinitions: false,
   qdmMeasureReferences: false,
   qiCoreBonnieTestCases: false,
-  disableRunTestCaseWithObservStrat: true,
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
 };
