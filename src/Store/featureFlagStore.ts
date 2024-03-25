@@ -4,6 +4,7 @@ import { BehaviorSubject } from "rxjs";
 // immutable object that retains state, tracks updates
 const subject = new BehaviorSubject<FeatureFlags | null>(null);
 export interface FeatureFlags {
+  includeSDEValues: boolean;
   qdmExport: boolean;
   qdmTestCases: boolean;
   qiCoreElementsTab: boolean;
@@ -12,8 +13,12 @@ export interface FeatureFlags {
   qdmMeasureReferences: boolean;
   qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
+  generateCMSID: boolean;
+  manifestExpansion: boolean;
+  testCaseExport: boolean;
 }
 const initialState: FeatureFlags = {
+  includeSDEValues: false,
   qdmExport: false,
   qdmTestCases: true,
   qiCoreElementsTab: false,
@@ -22,6 +27,9 @@ const initialState: FeatureFlags = {
   qiCoreBonnieTestCases: false,
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
+  generateCMSID: false,
+  manifestExpansion: false,
+  testCaseExport: false,
 };
 
 let state: FeatureFlags | null = initialState;
