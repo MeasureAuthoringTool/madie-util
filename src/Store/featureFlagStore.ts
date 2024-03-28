@@ -13,6 +13,7 @@ export interface FeatureFlags {
   generateCMSID: boolean;
   manifestExpansion: boolean;
   testCaseExport: boolean;
+  qdmCodeSearch: boolean;
 }
 const initialState: FeatureFlags = {
   includeSDEValues: false,
@@ -24,6 +25,7 @@ const initialState: FeatureFlags = {
   generateCMSID: false,
   manifestExpansion: false,
   testCaseExport: false,
+  qdmCodeSearch: false,
 };
 
 let state: FeatureFlags | null = initialState;
