@@ -27,7 +27,7 @@ const initialState: FeatureFlags = {
   manifestExpansion: false,
   testCaseExport: false,
   qdmCodeSearch: false,
-  QDMValueSetSearch: false
+  QDMValueSetSearch: false,
 };
 
 let state: FeatureFlags | null = initialState;
