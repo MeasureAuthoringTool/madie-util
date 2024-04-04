@@ -14,6 +14,7 @@ export interface FeatureFlags {
   manifestExpansion: boolean;
   testCaseExport: boolean;
   qdmCodeSearch: boolean;
+  QDMValueSetSearch: boolean;
 }
 const initialState: FeatureFlags = {
   includeSDEValues: false,
@@ -26,6 +27,7 @@ const initialState: FeatureFlags = {
   manifestExpansion: false,
   testCaseExport: false,
   qdmCodeSearch: false,
+  QDMValueSetSearch: false
 };
 
 let state: FeatureFlags | null = initialState;
