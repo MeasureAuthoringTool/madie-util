@@ -27,7 +27,7 @@ const initialState: FeatureFlags = {
   generateCMSID: false,
   manifestExpansion: false,
   testCaseExport: false,
-  qdmCodeSearch: true,
+  qdmCodeSearch: false,
   QDMValueSetSearch: false,
   testTabNumber: false,
 };
