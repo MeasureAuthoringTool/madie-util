@@ -63,7 +63,7 @@
     "single-spa": "^5.9.3",
     "single-spa-react": "^4.3.1",
     "styled-components": "^5.3.5",
-    "twin.macro": "^2.8.2",
+    "twin.macro": "^3.0.0",
     "axios": "^1.6.7"
   },
   "types": "dist/madie-madie-util.d.ts",
