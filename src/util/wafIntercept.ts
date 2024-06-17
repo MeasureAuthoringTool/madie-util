@@ -20,8 +20,15 @@ const wafIntercept = () =>
           ? error.response.data.split("ID:")[1].split("<br>")[0].trim()
           : "";
         const body = error.response.data.split("<body>")[1].split("<br>")[0];
-        throw new Error(DOMPurify.sanitize(body, { ALLOWED_TAGS: [] })); // no tags allowed, removes all HTML tags.
+        const purifiedBody = DOMPurify.sanitize(body, { ALLOWED_TAGS: [] });
+
+        const wafEvent = new CustomEvent("wafReject", {
+          detail: { message: purifiedBody },
+        });
+        document.dispatchEvent(wafEvent);
+        throw new Error(purifiedBody); // no tags allowed, removes all HTML tags.
       }
+
       return Promise.reject(error);
     }
   );
