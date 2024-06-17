@@ -9,6 +9,7 @@ import { getServiceConfig } from "./Config/Config";
 import { default as useKeyPress } from "./hooks/useKeyPress";
 import { default as useOktaTokens } from "./hooks/useOktaTokens";
 import { default as useOnClickOutside } from "./hooks/useOnClickOutside";
+import { default as wafIntercept } from "./util/wafIntercept";
 import { measureStore } from "./Store/measureStore";
 import { cqlLibraryStore } from "./Store/cqlLibraryStore";
 import { routeHandlerStore } from "./Store/routeHandlerStore";
@@ -37,4 +38,5 @@ export {
   checkUserCanDelete,
   useFeatureFlags,
   getOidFromString,
+  wafIntercept,
 };
