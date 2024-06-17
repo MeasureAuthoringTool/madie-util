@@ -23,7 +23,7 @@ const wafIntercept = () =>
         const purifiedBody = DOMPurify.sanitize(body, { ALLOWED_TAGS: [] });
 
         const wafEvent = new CustomEvent("wafReject", {
-          detail: { message: purifiedBody },
+          detail: { message: purifiedBody, supportId: supportID },
         });
         document.dispatchEvent(wafEvent);
         throw new Error(purifiedBody); // no tags allowed, removes all HTML tags.
