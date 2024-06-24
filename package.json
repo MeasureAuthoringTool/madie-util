@@ -65,7 +65,7 @@
     "single-spa": "^5.9.3",
     "single-spa-react": "^4.3.1",
     "styled-components": "^5.3.5",
-    "twin.macro": "^2.8.2"
+    "twin.macro": "^3.4.1"
   },
   "types": "dist/madie-madie-util.d.ts",
   "overrides": {
