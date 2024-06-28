@@ -1,6 +1,7 @@
 import React from "react";
 import { BehaviorSubject } from "rxjs";
 import { Measure } from "@madie/madie-models/dist/Measure";
+import { TestCase } from "@madie/madie-models";
 
 // immutable object that retains state, tracks updates
 const subject = new BehaviorSubject<Measure | null>(null);
@@ -16,6 +17,10 @@ export const measureStore = {
   // updateMeasure is mapped to an updating state function
   updateMeasure: (measure: Measure | null) => {
     state = Object.assign({}, measure);
+    subject.next(state);
+  },
+  updateTestCases: (testCases: TestCase[] | null) => {
+    state = { ...state, testCases };
     subject.next(state);
   },
   initialState,
