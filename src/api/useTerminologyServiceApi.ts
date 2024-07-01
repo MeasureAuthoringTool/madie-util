@@ -2,6 +2,7 @@ import axios from "axios";
 import { ServiceConfig, getServiceConfig } from "../Config/Config";
 
 import useOktaTokens from "../hooks/useOktaTokens";
+import { wafIntercept } from "../madie-madie-util";
 
 export class TerminologyServiceApi {
   constructor(private getAccessToken: () => string) {}
@@ -55,6 +56,9 @@ export const getServiceUrl = async () => {
 
   return serviceUrl;
 };
+axios.interceptors.response.use((response) => {
+  return response;
+}, wafIntercept);
 
 export default function useTerminologyServiceApi(): TerminologyServiceApi {
   const { getAccessToken } = useOktaTokens();

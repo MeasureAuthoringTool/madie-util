@@ -2,6 +2,7 @@ import axios from "axios";
 import { ServiceConfig, getServiceConfig } from "../Config/Config";
 import useOktaTokens from "../hooks/useOktaTokens";
 import { Organization } from "@madie/madie-models";
+import { wafIntercept } from "../madie-madie-util";
 
 export class OrganizationApi {
   constructor(private getAccessToken: () => string) {}
@@ -34,6 +35,10 @@ export const getServiceUrl = async () => {
 
   return serviceUrl;
 };
+
+axios.interceptors.response.use((response) => {
+  return response;
+}, wafIntercept);
 
 export default function useOrganizationApi(): OrganizationApi {
   const { getAccessToken } = useOktaTokens();
