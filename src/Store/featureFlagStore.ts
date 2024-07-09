@@ -16,6 +16,7 @@ export interface FeatureFlags {
   qdmCodeSearch: boolean;
   QDMValueSetSearch: boolean;
   ShiftTestCasesDates: boolean;
+  associateMeasures: boolean;
 }
 const initialState: FeatureFlags = {
   includeSDEValues: false,
@@ -30,6 +31,7 @@ const initialState: FeatureFlags = {
   qdmCodeSearch: false,
   QDMValueSetSearch: false,
   ShiftTestCasesDates: false,
+  associateMeasures: false,
 };
 
 let state: FeatureFlags | null = initialState;
