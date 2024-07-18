@@ -15,6 +15,7 @@ export interface FeatureFlags {
   testCaseExport: boolean;
   qdmCodeSearch: boolean;
   QDMValueSetSearch: boolean;
+  CQLBuilderDefinitions: boolean;
   ShiftTestCasesDates: boolean;
   associateMeasures: boolean;
 }
@@ -30,6 +31,7 @@ const initialState: FeatureFlags = {
   testCaseExport: false,
   qdmCodeSearch: false,
   QDMValueSetSearch: false,
+  CQLBuilderDefinitions: false,
   ShiftTestCasesDates: false,
   associateMeasures: false,
 };
