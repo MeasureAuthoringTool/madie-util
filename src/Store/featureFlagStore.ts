@@ -20,7 +20,6 @@ export interface FeatureFlags {
   ShiftTestCasesDates: boolean;
   associateMeasures: boolean;
   qiCoreStu4Updates: boolean;
-
 }
 const initialState: FeatureFlags = {
   CQLBuilderIncludes: false,
