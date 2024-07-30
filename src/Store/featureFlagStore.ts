@@ -5,7 +5,6 @@ import { BehaviorSubject } from "rxjs";
 const subject = new BehaviorSubject<FeatureFlags | null>(null);
 export interface FeatureFlags {
   CQLBuilderIncludes: boolean;
-  qdmExport: boolean;
   qiCoreElementsTab: boolean;
   qdmHideJson: boolean;
   qiCoreBonnieTestCases: boolean;
@@ -20,7 +19,6 @@ export interface FeatureFlags {
 }
 const initialState: FeatureFlags = {
   CQLBuilderIncludes: false,
-  qdmExport: false,
   qiCoreElementsTab: false,
   qiCoreBonnieTestCases: false,
   qdmHideJson: true,
