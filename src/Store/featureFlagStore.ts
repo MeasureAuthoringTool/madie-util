@@ -5,15 +5,11 @@ import { BehaviorSubject } from "rxjs";
 const subject = new BehaviorSubject<FeatureFlags | null>(null);
 export interface FeatureFlags {
   CQLBuilderIncludes: boolean;
-  includeSDEValues: boolean;
   qdmExport: boolean;
   qiCoreElementsTab: boolean;
   qdmHideJson: boolean;
   qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
-  generateCMSID: boolean;
-  manifestExpansion: boolean;
-  testCaseExport: boolean;
   qdmCodeSearch: boolean;
   QDMValueSetSearch: boolean;
   CQLBuilderDefinitions: boolean;
@@ -24,15 +20,11 @@ export interface FeatureFlags {
 }
 const initialState: FeatureFlags = {
   CQLBuilderIncludes: false,
-  includeSDEValues: false,
   qdmExport: false,
   qiCoreElementsTab: false,
   qiCoreBonnieTestCases: false,
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
-  generateCMSID: false,
-  manifestExpansion: false,
-  testCaseExport: false,
   qdmCodeSearch: false,
   QDMValueSetSearch: false,
   CQLBuilderDefinitions: false,
