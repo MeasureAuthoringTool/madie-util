@@ -12,7 +12,6 @@ export interface FeatureFlags {
   qdmCodeSearch: boolean;
   QDMValueSetSearch: boolean;
   CQLBuilderDefinitions: boolean;
-  CQLBuilderTabs: boolean;
   ShiftTestCasesDates: boolean;
   associateMeasures: boolean;
   qiCoreStu4Updates: boolean;
@@ -26,7 +25,6 @@ const initialState: FeatureFlags = {
   qdmCodeSearch: false,
   QDMValueSetSearch: false,
   CQLBuilderDefinitions: false,
-  CQLBuilderTabs: false,
   ShiftTestCasesDates: false,
   associateMeasures: false,
   qiCoreStu4Updates: false,
