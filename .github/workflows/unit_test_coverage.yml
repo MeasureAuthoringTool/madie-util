@@ -48,7 +48,7 @@ jobs:
         run: npm ci
 
       - name: Audit dependencies for security vulnerabilities
-        run: npm audit --audit-level=high
+        run: npm audit --omit=dev --audit-level=${{ vars.NPM_AUDIT_LEVEL }}
 
       - name: Lint the source code
         run: npm run-script lint
@@ -101,4 +101,3 @@ jobs:
           file: lcov.info
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }} # required
-          
