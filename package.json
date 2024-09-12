@@ -64,8 +64,7 @@
     "rxjs": "^7.5.5",
     "single-spa": "^5.9.3",
     "single-spa-react": "^4.3.1",
-    "styled-components": "^5.3.5",
-    "twin.macro": "^3.4.1"
+    "styled-components": "^5.3.5"
   },
   "types": "dist/madie-madie-util.d.ts",
   "overrides": {
