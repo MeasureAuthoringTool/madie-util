@@ -17,6 +17,7 @@ export interface FeatureFlags {
   associateMeasures: boolean;
   qiCoreStu4Updates: boolean;
   MeasureListButtons: boolean;
+  TestCaseID: boolean;
 }
 const initialState: FeatureFlags = {
   CQLBuilderIncludes: false,
@@ -32,6 +33,7 @@ const initialState: FeatureFlags = {
   associateMeasures: false,
   qiCoreStu4Updates: false,
   MeasureListButtons: false,
+  TestCaseID: false,
 };
 
 let state: FeatureFlags | null = initialState;
