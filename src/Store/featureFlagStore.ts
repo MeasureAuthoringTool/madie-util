@@ -12,7 +12,6 @@ export interface FeatureFlags {
   qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
   CQLBuilderDefinitions: boolean;
-  ShiftTestCasesDates: boolean;
   associateMeasures: boolean;
   qiCoreStu4Updates: boolean;
   MeasureListButtons: boolean;
@@ -28,7 +27,6 @@ const initialState: FeatureFlags = {
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   CQLBuilderDefinitions: false,
-  ShiftTestCasesDates: false,
   associateMeasures: false,
   qiCoreStu4Updates: false,
   MeasureListButtons: false,
