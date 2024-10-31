@@ -11,7 +11,6 @@ export interface FeatureFlags {
   qdmHideJson: boolean;
   qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
-  qdmCodeSearch: boolean;
   QDMValueSetSearch: boolean;
   CQLBuilderDefinitions: boolean;
   ShiftTestCasesDates: boolean;
@@ -29,7 +28,6 @@ const initialState: FeatureFlags = {
   qiCoreBonnieTestCases: false,
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
-  qdmCodeSearch: false,
   QDMValueSetSearch: false,
   CQLBuilderDefinitions: false,
   ShiftTestCasesDates: false,
