@@ -3,7 +3,7 @@ import DOMPurify from "dompurify";
 const wafIntercept = (error) => {
   // Check for WAF block
   if (
-    (error?.response?.status === 403 || error?.response?.status === 200) &&
+    error?.response?.status === 403 &&
     error?.response?.headers["content-type"].includes("text/html") &&
     (JSON.stringify(error.response.data).includes("soc@hcqis.org") ||
       JSON.stringify(error.response.data).includes("QNET_SOC@CMS.HHS.GOV"))
