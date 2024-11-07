@@ -4,9 +4,15 @@ const wafIntercept = (error) => {
   // Check for WAF block
   if (
     error?.response?.status === 403 &&
-    error?.response?.headers["content-type"].includes("text/html") &&
-    (JSON.stringify(error.response.data).includes("soc@hcqis.org") ||
-      JSON.stringify(error.response.data).includes("QNET_SOC@CMS.HHS.GOV"))
+    error?.response?.headers["content-type"]
+      .toLowerCase()
+      .includes("text/html") &&
+    (JSON.stringify(error.response.data)
+      .toLocaleLowerCase()
+      .includes("soc@hcqis.org") ||
+      JSON.stringify(error.response.data)
+        .toLowerCase()
+        .includes("qnet_soc@cms.hhs.gov"))
   ) {
     // eslint-disable-next-line no-console
     console.log("WAF Interceptor Triggered");
