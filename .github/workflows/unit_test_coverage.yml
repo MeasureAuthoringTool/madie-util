@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [20, 21, 18]
+        version: [20, 22, 18]
     name: Checkout, install, lint, build and test with coverage
     runs-on: ubuntu-latest
 
@@ -67,6 +67,7 @@ jobs:
         with:
           name: coverage
           path: src/coverage/lcov.info
+          overwrite: true
 
   upload-codacy-coverage:
     name: Upload code coverage to Codacy
