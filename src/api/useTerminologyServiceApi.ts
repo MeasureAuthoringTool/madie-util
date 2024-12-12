@@ -48,6 +48,27 @@ export class TerminologyServiceApi {
       });
     return "failure";
   }
+
+  async logoutUMLS(): Promise<Boolean> {
+    const baseUrl = await getServiceUrl();
+    const resp = await axios
+      .delete(`${baseUrl}/vsac/umls-credentials`, {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+          "Content-Type": "text/plain",
+        },
+        timeout: 15000,
+      })
+      .then((resp) => {
+        if (resp.status === 200) {
+          return true;
+        }
+      })
+      .catch((error) => {
+        throw error;
+      });
+    return false;
+  }
 }
 
 export const getServiceUrl = async () => {
