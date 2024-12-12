@@ -66,7 +66,7 @@ export class TerminologyServiceApi {
       .catch((error) => {
         // Log the error or handle it as needed
         console.error("UMLS Logout failed:", error);
-        return false;
+        throw error;
       });
     return false;
   }
