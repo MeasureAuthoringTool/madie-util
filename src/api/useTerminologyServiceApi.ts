@@ -60,12 +60,13 @@ export class TerminologyServiceApi {
         timeout: 15000,
       })
       .then((resp) => {
-        if (resp.status === 200) {
-          return true;
-        }
+        // Check response status and return true if successful
+        return resp.status === 200;
       })
       .catch((error) => {
-        throw error;
+        // Log the error or handle it as needed
+        console.error("UMLS Logout failed:", error);
+        return false;
       });
     return false;
   }
