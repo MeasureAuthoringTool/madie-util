@@ -15,6 +15,7 @@ export interface FeatureFlags {
   MeasureListButtons: boolean;
   TestCaseID: boolean;
   MeasureButtons: boolean;
+  stu6TestCaseValidation: boolean;
 }
 const initialState: FeatureFlags = {
   CQLBuilderIncludes: false,
@@ -28,6 +29,7 @@ const initialState: FeatureFlags = {
   MeasureListButtons: false,
   TestCaseID: false,
   MeasureButtons: false,
+  stu6TestCaseValidation: false,
 };
 
 let state: FeatureFlags | null = initialState;
