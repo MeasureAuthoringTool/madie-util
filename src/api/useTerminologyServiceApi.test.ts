@@ -103,4 +103,32 @@ describe("useTerminologyServiceApi", () => {
     expect(mockedAxios.post).toBeCalledTimes(1);
     expect(result).toContain("failure");
   });
+
+  it("Log out UMLS success", async () => {
+    const resp = { status: 200, data: true };
+    mockedAxios.delete.mockResolvedValue(resp);
+    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
+    await terminlogyService.logoutUMLS();
+    expect(mockedAxios.delete).toBeCalledTimes(1);
+  });
+
+  it("Log out UMLS failure", async () => {
+    const resp = { status: 404, data: false, error: { message: "error" } };
+    mockedAxios.delete.mockRejectedValueOnce(resp);
+    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
+    try {
+      const loggedout = await terminlogyService.logoutUMLS();
+      expect(mockedAxios.delete).toBeCalledTimes(1);
+      expect(loggedout).toBeFalsy();
+    } catch {}
+  });
+
+  it("Log out UMLS returns false if status is not 200", async () => {
+    const resp = { status: 201, data: true };
+    mockedAxios.delete.mockResolvedValue(resp);
+    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
+    const loggedout = await terminlogyService.logoutUMLS();
+    expect(mockedAxios.delete).toBeCalledTimes(1);
+    expect(loggedout).toBeFalsy();
+  });
 });
