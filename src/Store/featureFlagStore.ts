@@ -11,6 +11,7 @@ export interface FeatureFlags {
   qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
   MeasureButtons: boolean;
+  stu6TestCaseValidation: boolean;
 }
 const initialState: FeatureFlags = {
   CQLBuilderParameters: false,
@@ -20,6 +21,7 @@ const initialState: FeatureFlags = {
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   MeasureButtons: false,
+  stu6TestCaseValidation: false,
 };
 
 let state: FeatureFlags | null = initialState;
