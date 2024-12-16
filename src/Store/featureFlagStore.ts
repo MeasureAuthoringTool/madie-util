@@ -4,30 +4,22 @@ import { BehaviorSubject } from "rxjs";
 // immutable object that retains state, tracks updates
 const subject = new BehaviorSubject<FeatureFlags | null>(null);
 export interface FeatureFlags {
-  CQLBuilderIncludes: boolean;
   CQLBuilderParameters: boolean;
   qiCoreElementsTab: boolean;
   qiCore6: boolean;
   qdmHideJson: boolean;
   qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
-  CQLBuilderDefinitions: boolean;
-  MeasureListButtons: boolean;
-  TestCaseID: boolean;
   MeasureButtons: boolean;
   stu6TestCaseValidation: boolean;
 }
 const initialState: FeatureFlags = {
-  CQLBuilderIncludes: false,
   CQLBuilderParameters: false,
   qiCore6: false,
   qiCoreElementsTab: false,
   qiCoreBonnieTestCases: false,
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
-  CQLBuilderDefinitions: false,
-  MeasureListButtons: false,
-  TestCaseID: false,
   MeasureButtons: false,
   stu6TestCaseValidation: false,
 };
