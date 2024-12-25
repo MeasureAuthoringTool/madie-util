@@ -12,6 +12,7 @@ export interface FeatureFlags {
   enableQdmRepeatTransfer: boolean;
   MeasureButtons: boolean;
   stu6TestCaseValidation: boolean;
+  TestCaseListActionCenter: boolean;
 }
 const initialState: FeatureFlags = {
   CQLBuilderParameters: false,
@@ -22,6 +23,7 @@ const initialState: FeatureFlags = {
   enableQdmRepeatTransfer: false,
   MeasureButtons: false,
   stu6TestCaseValidation: false,
+  TestCaseListActionCenter: false,
 };
 
 let state: FeatureFlags | null = initialState;
