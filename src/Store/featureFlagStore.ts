@@ -13,6 +13,7 @@ export interface FeatureFlags {
   MeasureButtons: boolean;
   stu6TestCaseValidation: boolean;
   TestCaseListActionCenter: boolean;
+  QICoreCodeSearch: boolean;
 }
 const initialState: FeatureFlags = {
   CQLBuilderParameters: false,
@@ -24,6 +25,7 @@ const initialState: FeatureFlags = {
   MeasureButtons: false,
   stu6TestCaseValidation: false,
   TestCaseListActionCenter: false,
+  QICoreCodeSearch: false,
 };
 
 let state: FeatureFlags | null = initialState;
