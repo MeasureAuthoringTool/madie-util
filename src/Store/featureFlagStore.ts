@@ -14,6 +14,7 @@ export interface FeatureFlags {
   stu6TestCaseValidation: boolean;
   TestCaseListActionCenter: boolean;
   QICoreCodeSearch: boolean;
+  QICoreValueSetSearch: boolean;
 }
 const initialState: FeatureFlags = {
   CQLBuilderParameters: false,
@@ -26,6 +27,7 @@ const initialState: FeatureFlags = {
   stu6TestCaseValidation: false,
   TestCaseListActionCenter: false,
   QICoreCodeSearch: false,
+  QICoreValueSetSearch: false,
 };
 
 let state: FeatureFlags | null = initialState;
