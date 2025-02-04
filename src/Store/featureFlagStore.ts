@@ -10,8 +10,6 @@ export interface FeatureFlags {
   enableQdmRepeatTransfer: boolean;
   stu6TestCaseValidation: boolean;
   TestCaseListActionCenter: boolean;
-  QICoreCodeSearch: boolean;
-  QICoreValueSetSearch: boolean;
   CopyTestCases: boolean;
 }
 const initialState: FeatureFlags = {
@@ -21,8 +19,6 @@ const initialState: FeatureFlags = {
   enableQdmRepeatTransfer: false,
   stu6TestCaseValidation: false,
   TestCaseListActionCenter: false,
-  QICoreCodeSearch: false,
-  QICoreValueSetSearch: false,
   CopyTestCases: false,
 };
 
