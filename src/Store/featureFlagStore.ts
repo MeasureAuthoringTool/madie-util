@@ -9,7 +9,6 @@ export interface FeatureFlags {
   qdmHideJson: boolean;
   qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
-  MeasureButtons: boolean;
   stu6TestCaseValidation: boolean;
   TestCaseListActionCenter: boolean;
   QICoreCodeSearch: boolean;
@@ -22,7 +21,6 @@ const initialState: FeatureFlags = {
   qiCoreBonnieTestCases: false,
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
-  MeasureButtons: false,
   stu6TestCaseValidation: false,
   TestCaseListActionCenter: false,
   QICoreCodeSearch: false,
