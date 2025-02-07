@@ -11,6 +11,7 @@ export interface FeatureFlags {
   stu6TestCaseValidation: boolean;
   TestCaseListActionCenter: boolean;
   CopyTestCases: boolean;
+  LibraryListCheckboxes: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -20,6 +21,7 @@ const initialState: FeatureFlags = {
   stu6TestCaseValidation: false,
   TestCaseListActionCenter: false,
   CopyTestCases: false,
+  LibraryListCheckboxes: false,
 };
 
 let state: FeatureFlags | null = initialState;
