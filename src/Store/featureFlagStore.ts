@@ -13,8 +13,10 @@ export interface FeatureFlags {
   TestCaseListActionCenter: boolean;
   CopyTestCases: boolean;
   LibraryListCheckboxes: boolean;
+  LibraryListButtons: boolean;
   QICoreIncludeSDEValues: boolean;
   MeasureSearch: boolean;
+  ShareLibrary: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -26,8 +28,10 @@ const initialState: FeatureFlags = {
   TestCaseListActionCenter: false,
   CopyTestCases: false,
   LibraryListCheckboxes: false,
+  LibraryListButtons: false,
   QICoreIncludeSDEValues: false,
   MeasureSearch: false,
+  ShareLibrary: false,
 };
 
 let state: FeatureFlags | null = initialState;
