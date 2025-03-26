@@ -17,6 +17,7 @@ export interface FeatureFlags {
   QICoreIncludeSDEValues: boolean;
   MeasureSearch: boolean;
   ShareLibrary: boolean;
+  QICoreManifestExpansion: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -32,6 +33,7 @@ const initialState: FeatureFlags = {
   QICoreIncludeSDEValues: false,
   MeasureSearch: false,
   ShareLibrary: false,
+  QICoreManifestExpansion: false,
 };
 
 let state: FeatureFlags | null = initialState;
