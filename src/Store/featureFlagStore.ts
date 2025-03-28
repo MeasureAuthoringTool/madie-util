@@ -18,6 +18,7 @@ export interface FeatureFlags {
   MeasureSearch: boolean;
   ShareLibrary: boolean;
   QICoreManifestExpansion: boolean;
+  QICoreMeasureReferences: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -31,6 +32,7 @@ const initialState: FeatureFlags = {
   LibraryListCheckboxes: false,
   LibraryListButtons: false,
   QICoreIncludeSDEValues: false,
+  QICoreMeasureReferences: false,
   MeasureSearch: false,
   ShareLibrary: false,
   QICoreManifestExpansion: false,
