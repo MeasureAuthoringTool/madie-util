@@ -19,6 +19,7 @@ export interface FeatureFlags {
   ShareLibrary: boolean;
   QICoreManifestExpansion: boolean;
   QICoreMeasureReferences: boolean;
+  OverlappingValueSets: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -36,6 +37,7 @@ const initialState: FeatureFlags = {
   MeasureSearch: false,
   ShareLibrary: false,
   QICoreManifestExpansion: false,
+  OverlappingValueSets: false,
 };
 
 let state: FeatureFlags | null = initialState;
