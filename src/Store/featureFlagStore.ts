@@ -15,6 +15,10 @@ export interface FeatureFlags {
   LibraryListCheckboxes: boolean;
   LibraryListButtons: boolean;
   QICoreIncludeSDEValues: boolean;
+  MeasureSearch: boolean;
+  ShareLibrary: boolean;
+  QICoreManifestExpansion: boolean;
+  QICoreMeasureReferences: boolean;
   OverlappingValueSets: boolean;
 }
 const initialState: FeatureFlags = {
@@ -29,6 +33,10 @@ const initialState: FeatureFlags = {
   LibraryListCheckboxes: false,
   LibraryListButtons: false,
   QICoreIncludeSDEValues: false,
+  QICoreMeasureReferences: false,
+  MeasureSearch: false,
+  ShareLibrary: false,
+  QICoreManifestExpansion: false,
   OverlappingValueSets: false,
 };
 
