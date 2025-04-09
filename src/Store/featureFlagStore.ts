@@ -16,6 +16,7 @@ export interface FeatureFlags {
   LibraryListButtons: boolean;
   QICoreIncludeSDEValues: boolean;
   MeasureSearch: boolean;
+  LibrarySearch: boolean;
   ShareLibrary: boolean;
   QICoreManifestExpansion: boolean;
   QICoreMeasureReferences: boolean;
@@ -35,6 +36,7 @@ const initialState: FeatureFlags = {
   QICoreIncludeSDEValues: false,
   QICoreMeasureReferences: false,
   MeasureSearch: false,
+  LibrarySearch: false,
   ShareLibrary: false,
   QICoreManifestExpansion: false,
   OverlappingValueSets: false,
