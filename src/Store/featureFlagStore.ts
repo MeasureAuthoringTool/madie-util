@@ -16,8 +16,13 @@ export interface FeatureFlags {
   LibraryListButtons: boolean;
   QICoreIncludeSDEValues: boolean;
   MeasureSearch: boolean;
+  LibrarySearch: boolean;
   ShareLibrary: boolean;
   EditTestsOnVersionedMeasures: boolean;
+  QICoreManifestExpansion: boolean;
+  QICoreMeasureReferences: boolean;
+  OverlappingValueSets: boolean;
+  MinimizeAlerts: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -31,9 +36,14 @@ const initialState: FeatureFlags = {
   LibraryListCheckboxes: false,
   LibraryListButtons: false,
   QICoreIncludeSDEValues: false,
+  QICoreMeasureReferences: false,
   MeasureSearch: false,
+  LibrarySearch: false,
   ShareLibrary: false,
   EditTestsOnVersionedMeasures: false,
+  QICoreManifestExpansion: false,
+  OverlappingValueSets: false,
+  MinimizeAlerts: false,
 };
 
 let state: FeatureFlags | null = initialState;
