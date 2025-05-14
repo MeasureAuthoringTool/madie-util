@@ -62,4 +62,14 @@ describe("Check user canEdit", () => {
     );
     expect(canEdit).not.toBeTruthy();
   });
+
+  it("should return true when measure is versioned and EditTestsOnVersionedMeasures feature flag is true", () => {
+    const canEdit = useCheckUserCanEdit(
+      "anotherU$er",
+      [{ userId: JOHN_DOE, roles: ["SHARED_WITH"] }],
+      false,
+      true
+    );
+    expect(canEdit).toBeTruthy();
+  });
 });
