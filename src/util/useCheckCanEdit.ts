@@ -4,12 +4,16 @@ import { Acl } from "@madie/madie-models/dist/Measure";
 const useCheckUserCanEdit = (
   createdBy: string,
   acls: Array<Acl>,
-  draft: boolean = true
+  draft: boolean = true,
+  EditTestsOnVersionedMeasures?: boolean
 ): boolean => {
   const { getUserName } = useOktaTokens();
   const userName = getUserName();
   // versioned measures/libraries are always uneditable.
   if (!draft) {
+    if (EditTestsOnVersionedMeasures) {
+      return true;
+    }
     return false;
   }
 
