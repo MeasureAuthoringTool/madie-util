@@ -5,7 +5,7 @@ const useCheckUserCanEdit = (
   createdBy: string,
   acls: Array<Acl>,
   draft: boolean = true,
-  EditTestsOnVersionedMeasures?: boolean,
+  EditTestsOnVersionedMeasures?: boolean
 ): boolean => {
   const { getUserName } = useOktaTokens();
   const userName = getUserName();
