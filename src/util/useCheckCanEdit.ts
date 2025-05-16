@@ -5,13 +5,13 @@ const useCheckUserCanEdit = (
   createdBy: string,
   acls: Array<Acl>,
   draft: boolean = true,
-  EditTestsOnVersionedMeasures?: boolean
+  editTestsOnVersionedMeasures?: boolean
 ): boolean => {
   const { getUserName } = useOktaTokens();
   const userName = getUserName();
   // versioned measures/libraries are always uneditable.
   if (!draft) {
-    if (EditTestsOnVersionedMeasures) {
+    if (editTestsOnVersionedMeasures) {
       return true;
     }
     return false;
