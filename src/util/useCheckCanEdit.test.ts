@@ -80,6 +80,6 @@ describe("Check user canEdit", () => {
       false,
       true
     );
-    expect(canEdit).not.toBeTruthy();
+    expect(canEdit).not.toBeTruthyq();
   });
 });
