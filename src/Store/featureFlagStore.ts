@@ -15,6 +15,7 @@ export interface FeatureFlags {
   LibraryListCheckboxes: boolean;
   LibraryListButtons: boolean;
   QICoreIncludeSDEValues: boolean;
+  QDMIncludeRAVValues: boolean;
   MeasureSearch: boolean;
   LibrarySearch: boolean;
   ShareLibrary: boolean;
@@ -36,6 +37,7 @@ const initialState: FeatureFlags = {
   LibraryListCheckboxes: false,
   LibraryListButtons: false,
   QICoreIncludeSDEValues: false,
+  QDMIncludeRAVValues: false,
   QICoreMeasureReferences: false,
   MeasureSearch: false,
   LibrarySearch: false,
