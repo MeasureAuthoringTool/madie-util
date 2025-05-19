@@ -19,6 +19,7 @@ export interface FeatureFlags {
   MeasureSearch: boolean;
   LibrarySearch: boolean;
   ShareLibrary: boolean;
+  EditTestsOnVersionedMeasures: boolean;
   QICoreManifestExpansion: boolean;
   QICoreMeasureReferences: boolean;
   OverlappingValueSets: boolean;
@@ -41,6 +42,7 @@ const initialState: FeatureFlags = {
   MeasureSearch: false,
   LibrarySearch: false,
   ShareLibrary: false,
+  EditTestsOnVersionedMeasures: false,
   QICoreManifestExpansion: false,
   OverlappingValueSets: false,
   MinimizeAlerts: false,
