@@ -9,19 +9,10 @@ export interface FeatureFlags {
   qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
   stu6TestCaseValidation: boolean;
-  ShareMeasure: boolean;
-  TestCaseListActionCenter: boolean;
-  CopyTestCases: boolean;
-  LibraryListCheckboxes: boolean;
-  LibraryListButtons: boolean;
-  QICoreIncludeSDEValues: boolean;
   QDMIncludeRAVValues: boolean;
   MeasureSearch: boolean;
   LibrarySearch: boolean;
-  ShareLibrary: boolean;
   EditTestsOnVersionedMeasures: boolean;
-  QICoreManifestExpansion: boolean;
-  QICoreMeasureReferences: boolean;
   OverlappingValueSets: boolean;
   MinimizeAlerts: boolean;
 }
@@ -31,19 +22,10 @@ const initialState: FeatureFlags = {
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   stu6TestCaseValidation: false,
-  ShareMeasure: false,
-  TestCaseListActionCenter: false,
-  CopyTestCases: false,
-  LibraryListCheckboxes: false,
-  LibraryListButtons: false,
-  QICoreIncludeSDEValues: false,
   QDMIncludeRAVValues: false,
-  QICoreMeasureReferences: false,
   MeasureSearch: false,
   LibrarySearch: false,
-  ShareLibrary: false,
   EditTestsOnVersionedMeasures: false,
-  QICoreManifestExpansion: false,
   OverlappingValueSets: false,
   MinimizeAlerts: false,
 };
