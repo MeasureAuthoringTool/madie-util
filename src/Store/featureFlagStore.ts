@@ -15,6 +15,8 @@ export interface FeatureFlags {
   EditTestsOnVersionedMeasures: boolean;
   OverlappingValueSets: boolean;
   MinimizeAlerts: boolean;
+  EnhancedTextFormatting: boolean;
+  qiCore7: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -28,6 +30,8 @@ const initialState: FeatureFlags = {
   EditTestsOnVersionedMeasures: false,
   OverlappingValueSets: false,
   MinimizeAlerts: false,
+  EnhancedTextFormatting: false,
+  qiCore7: false,
 };
 
 let state: FeatureFlags | null = initialState;
