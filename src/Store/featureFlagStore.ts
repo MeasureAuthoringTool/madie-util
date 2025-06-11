@@ -10,6 +10,7 @@ export interface FeatureFlags {
   enableQdmRepeatTransfer: boolean;
   stu6TestCaseValidation: boolean;
   QDMIncludeRAVValues: boolean;
+  QICoreIncludeRAVValues: boolean;
   MeasureSearch: boolean;
   LibrarySearch: boolean;
   EditTestsOnVersionedMeasures: boolean;
@@ -25,6 +26,7 @@ const initialState: FeatureFlags = {
   enableQdmRepeatTransfer: false,
   stu6TestCaseValidation: false,
   QDMIncludeRAVValues: false,
+  QICoreIncludeRAVValues: false,
   MeasureSearch: false,
   LibrarySearch: false,
   EditTestsOnVersionedMeasures: false,
