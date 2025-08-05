@@ -16,6 +16,7 @@ export interface FeatureFlags {
   EditTestsOnVersionedMeasures: boolean;
   OverlappingValueSets: boolean;
   MinimizeAlerts: boolean;
+  Locking: boolean;
   EnhancedTextFormatting: boolean;
   qiCore7: boolean;
 }
@@ -32,6 +33,7 @@ const initialState: FeatureFlags = {
   EditTestsOnVersionedMeasures: false,
   OverlappingValueSets: false,
   MinimizeAlerts: false,
+  Locking: false,
   EnhancedTextFormatting: false,
   qiCore7: false,
 };
