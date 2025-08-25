@@ -20,6 +20,7 @@ export interface FeatureFlags {
   EnhancedTextFormatting: boolean;
   qiCore7: boolean;
   TransferMeasure: boolean;
+  MeasureHistory: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -38,6 +39,7 @@ const initialState: FeatureFlags = {
   EnhancedTextFormatting: false,
   qiCore7: false,
   TransferMeasure: false,
+  MeasureHistory: false,
 };
 
 let state: FeatureFlags | null = initialState;
