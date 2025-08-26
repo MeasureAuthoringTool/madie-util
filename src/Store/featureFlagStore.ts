@@ -19,6 +19,7 @@ export interface FeatureFlags {
   EnhancedTextFormatting: boolean;
   qiCore7: boolean;
   TransferMeasure: boolean;
+  TransferLibrary: boolean;
   MeasureHistory: boolean;
 }
 const initialState: FeatureFlags = {
@@ -37,6 +38,7 @@ const initialState: FeatureFlags = {
   EnhancedTextFormatting: false,
   qiCore7: false,
   TransferMeasure: false,
+  TransferLibrary: false,
   MeasureHistory: false,
 };
 
