@@ -6,7 +6,6 @@ const subject = new BehaviorSubject<FeatureFlags | null>(null);
 export interface FeatureFlags {
   qiCoreElementsTab: boolean;
   qdmHideJson: boolean;
-  qiCoreBonnieTestCases: boolean;
   enableQdmRepeatTransfer: boolean;
   stu6TestCaseValidation: boolean;
   QDMIncludeRAVValues: boolean;
@@ -21,10 +20,10 @@ export interface FeatureFlags {
   qiCore7: boolean;
   TransferMeasure: boolean;
   TransferLibrary: boolean;
+  MeasureHistory: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
-  qiCoreBonnieTestCases: false,
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   stu6TestCaseValidation: false,
@@ -40,6 +39,7 @@ const initialState: FeatureFlags = {
   qiCore7: false,
   TransferMeasure: false,
   TransferLibrary: false,
+  MeasureHistory: false,
 };
 
 let state: FeatureFlags | null = initialState;
