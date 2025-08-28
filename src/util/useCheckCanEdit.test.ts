@@ -54,31 +54,20 @@ describe("Check user canEdit", () => {
     expect(canEdit).not.toBeTruthy();
   });
 
-  it("should return false when measure is versioned greater than 0", () => {
-    const canEdit = useCheckUserCanEdit(
-      "anotherU$er",
-      [{ userId: JOHN_DOE, roles: ["SHARED_WITH"] }],
-      false
-    );
-    expect(canEdit).not.toBeTruthy();
-  });
-
-  it("should return true when measure is versioned and EditTestsOnVersionedMeasures feature flag is true", () => {
+  it("should return true when user is the owner, even for versioned measures", () => {
     const canEdit = useCheckUserCanEdit(
       JANE_DOE,
       [{ userId: JOHN_DOE, roles: ["SHARED_WITH"] }],
-      false,
-      true
+      false // versioned measure
     );
     expect(canEdit).toBeTruthy();
   });
 
-  it("should return false when measure is versioned and EditTestsOnVersionedMeasures feature flag is true but he is not the owner or shared user", () => {
+  it("should return false when user is not the owner or shared user, even for versioned measures", () => {
     const canEdit = useCheckUserCanEdit(
       "anotherU$er",
       [{ userId: JOHN_DOE, roles: ["SHARED_WITH"] }],
-      false,
-      true
+      false // versioned measure
     );
     expect(canEdit).not.toBeTruthy();
   });

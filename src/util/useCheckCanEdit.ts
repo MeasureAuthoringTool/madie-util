@@ -4,16 +4,13 @@ import { Acl } from "@madie/madie-models/dist/Measure";
 const useCheckUserCanEdit = (
   createdBy: string,
   acls: Array<Acl>,
-  draft: boolean = true,
-  editTestsOnVersionedMeasures?: boolean
+  draft: boolean = true
 ): boolean => {
   const { getUserName } = useOktaTokens();
   const userName = getUserName();
 
-  if (!draft && !editTestsOnVersionedMeasures) {
-    return false;
-  }
-
+  // Always allow editing if user is owner or has shared access
+  // (EditTestsOnVersionedMeasures feature flag removed - always enabled)
   return (
     createdBy?.toLowerCase() === userName?.toLowerCase() ||
     acls?.some(
