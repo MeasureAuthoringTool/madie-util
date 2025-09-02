@@ -30,10 +30,9 @@ describe("Check user canEdit", () => {
   });
 
   it("should return true when measure is shared with the same user", () => {
-    const canEdit = useCheckUserCanEdit(
-      "anotherU$er", // nosec
-      [{ userId: JANE_DOE, roles: ["SHARED_WITH"] }]
-    );
+    const canEdit = useCheckUserCanEdit("anotherU$er", [
+      { userId: JANE_DOE, roles: ["SHARED_WITH"] },
+    ]);
     expect(canEdit).toBeTruthy();
   });
 
