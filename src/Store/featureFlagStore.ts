@@ -17,17 +17,17 @@ export interface FeatureFlags {
   MeasureHistory: boolean;
 }
 const initialState: FeatureFlags = {
-  qiCoreElementsTab: true,
+  qiCoreElementsTab: false,
   qdmHideJson: true,
-  enableQdmRepeatTransfer: true,
+  enableQdmRepeatTransfer: false,
   stu6TestCaseValidation: false,
-  MeasureSearch: true,
-  LibrarySearch: true,
-  Locking: true,
-  qiCore7: true,
-  TransferMeasure: true,
-  TransferLibrary: true,
-  MeasureHistory: true,
+  MeasureSearch: false,
+  LibrarySearch: false,
+  Locking: false,
+  qiCore7: false,
+  TransferMeasure: false,
+  TransferLibrary: false,
+  MeasureHistory: false,
 };
 
 let state: FeatureFlags | null = initialState;
