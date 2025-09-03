@@ -12,6 +12,14 @@ describe("Service Config Utility", () => {
       measureService: {
         baseUrl: "url",
       },
+      elmTranslationService: {
+        baseUrl: "url",
+      },
+      terminologyService: {
+        baseUrl: "url",
+      },
+      madieVersion: "1.0.3",
+      features: { export: true },
     };
     const resp = { data: config };
     mockedAxios.get.mockResolvedValue(resp);
