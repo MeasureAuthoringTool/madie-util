@@ -63,5 +63,41 @@ describe("useCqlLibraryServiceApi", () => {
         }
       );
     });
+
+    describe("useCqlLibraryServiceApi function", () => {
+      it("should create and return CqlLibraryServiceApi instance with correct config", async () => {
+        const useCqlLibraryServiceApi = (
+          await import("./useCqlLibraryServiceApi")
+        ).default;
+        const api = await useCqlLibraryServiceApi();
+
+        expect(api).toBeInstanceOf(CqlLibraryServiceApi);
+        expect(api).toEqual(
+          new CqlLibraryServiceApi("http://localhost/api", expect.any(Function))
+        );
+      });
+
+      it("should use correct baseUrl and getAccessToken from configs", async () => {
+        const useCqlLibraryServiceApi = (
+          await import("./useCqlLibraryServiceApi")
+        ).default;
+        const api = await useCqlLibraryServiceApi();
+
+        // Test the api instance makes calls with correct config
+        const mockedResponse = "test response";
+        mockedAxios.delete.mockResolvedValueOnce({ data: mockedResponse });
+
+        await api.unlockLibraries();
+
+        expect(mockedAxios.delete).toHaveBeenCalledWith(
+          "http://localhost/api/libraries/unlock",
+          {
+            headers: {
+              Authorization: "Bearer mocked-token",
+            },
+          }
+        );
+      });
+    });
   });
 });

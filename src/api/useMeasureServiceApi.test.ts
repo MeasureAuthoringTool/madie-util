@@ -1,11 +1,11 @@
 import axios from "./axios-instance";
-import { MeasureServiceApi } from "./useMeasureServiceApi";
 
 jest.mock("./axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe("MeasureServiceApi", () => {
-  let measureServiceApi: MeasureServiceApi;
+  const { MeasureServiceApi } = require("./useMeasureServiceApi");
+  let measureServiceApi: typeof MeasureServiceApi;
   const baseUrl = "http://test.com";
   const accessToken = "test-token";
   const getAccessToken = () => accessToken;
@@ -49,6 +49,46 @@ describe("MeasureServiceApi", () => {
           },
         }
       );
+    });
+
+    describe("useMeasureServiceApi", () => {
+      beforeEach(() => {
+        jest.resetModules();
+        jest.clearAllMocks();
+      });
+
+      it("should create MeasureServiceApi instance with correct config", async () => {
+        const mockServiceConfig = {
+          measureService: {
+            baseUrl: "http://test.com",
+          },
+        };
+        const mockGetAccessToken = jest.fn();
+
+        jest.mock("./useServiceConfig", () => ({
+          __esModule: true,
+          default: jest.fn().mockResolvedValue(mockServiceConfig),
+        }));
+
+        jest.mock("../hooks/useOktaTokens", () => ({
+          __esModule: true,
+          default: jest
+            .fn()
+            .mockReturnValue({ getAccessToken: mockGetAccessToken }),
+        }));
+
+        const { default: useMeasureServiceApi, MeasureServiceApi: ApiClass } =
+          await import("./useMeasureServiceApi");
+        const api = await useMeasureServiceApi();
+
+        expect(api).toBeInstanceOf(ApiClass);
+        expect(api).toEqual(
+          new MeasureServiceApi(
+            mockServiceConfig.measureService.baseUrl,
+            mockGetAccessToken
+          )
+        );
+      });
     });
   });
 });
