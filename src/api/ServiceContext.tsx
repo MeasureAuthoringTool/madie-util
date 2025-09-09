@@ -16,6 +16,11 @@ export interface ServiceConfig {
   measureService: {
     baseUrl: string;
   };
+  madieVersion?: string;
+  features?: {
+    export?: boolean;
+    qdmToFhirConversion?: boolean;
+  };
 }
 
 const ServiceContext = createContext<ServiceConfig>(null);

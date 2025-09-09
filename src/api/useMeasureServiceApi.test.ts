@@ -1,94 +1,98 @@
 import axios from "./axios-instance";
-
+import { MeasureServiceApi } from "./useMeasureServiceApi";
+import { Measure } from "@madie/madie-models";
 jest.mock("./axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-describe("MeasureServiceApi", () => {
-  const { MeasureServiceApi } = require("./useMeasureServiceApi");
-  let measureServiceApi: typeof MeasureServiceApi;
-  const baseUrl = "http://test.com";
-  const accessToken = "test-token";
-  const getAccessToken = () => accessToken;
+const measure = {
+  id: "1",
+  measureName: "CQM01",
+  cqlLibraryName: "CQM01",
+  measureSetId: "1-2-3",
+  scoring: "Continuous Variable",
+  patientBasis: true,
+  cql: "mock cql",
+  supplementalData: [
+    {
+      definition: "SDE Definition Initial Population",
+      description: "",
+    },
+  ],
+  testCaseConfiguration: {
+    sdeIncluded: true,
+  },
+} as Measure;
 
+describe("MeasureServiceApi", () => {
+  let measureServiceApi: MeasureServiceApi;
   beforeEach(() => {
-    measureServiceApi = new MeasureServiceApi(baseUrl, getAccessToken);
-    jest.clearAllMocks();
+    const getAccessToken = jest.fn();
+    measureServiceApi = new MeasureServiceApi("test.url", getAccessToken);
   });
 
-  describe("unlockMeasures", () => {
-    it("should unlock measures successfully", async () => {
-      const expectedResponse = "Measures unlocked";
-      mockedAxios.delete.mockResolvedValueOnce({ data: expectedResponse });
+  it("It should trigger success fetchMeasureBundle", async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: {} });
+    const result = await measureServiceApi.fetchMeasureBundle(measure);
+    expect(result).toEqual({});
+  });
 
-      const result = await measureServiceApi.unlockMeasures();
+  it("It should trigger catch fetchMeasureBundle", async () => {
+    const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
+    mockedAxios.get.mockRejectedValueOnce({ data: {} });
+    await expect(measureServiceApi.fetchMeasureBundle(measure)).rejects.toThrow(
+      ""
+    );
+    expect(consoleErrorMock).toHaveBeenCalledWith("Bundle Error", undefined);
+    consoleErrorMock.mockRestore();
+  });
 
-      expect(mockedAxios.delete).toHaveBeenCalledWith(
-        `${baseUrl}/measures/unlock`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-      expect(result).toBe(expectedResponse);
-    });
+  it("should succeed updateMeasure", async () => {
+    mockedAxios.put.mockResolvedValueOnce({ data: {} });
+    const result = await measureServiceApi.updateMeasure(measure);
+    expect(mockedAxios.put).toBeCalledTimes(1);
+    expect(result.data).toEqual({});
+  });
 
-    it("should throw error when unlock fails", async () => {
-      const error = new Error("Failed to unlock measures");
-      mockedAxios.delete.mockRejectedValueOnce(error);
+  it("should succeed getCqmMeasure", async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: {} });
+    const abortController = new AbortController();
+    await measureServiceApi.getCqmMeasure("id", abortController);
+    expect(mockedAxios.get).toHaveBeenCalled();
+  });
+  it("should fail getCqmMeasure", async () => {
+    mockedAxios.get.mockRejectedValueOnce(new Error("failure"));
+    const consoleWarnMock = jest.spyOn(console, "warn").mockImplementation();
+    const abortController = new AbortController();
+    await expect(
+      measureServiceApi.getCqmMeasure("id", abortController)
+    ).rejects.toThrow("");
+    expect(consoleWarnMock).toHaveBeenCalledWith(
+      "Unable to retrieve CqmMeasure"
+    );
+    expect(mockedAxios.get).toHaveBeenCalled();
+  });
 
-      await expect(measureServiceApi.unlockMeasures()).rejects.toThrowError(
-        error.message
-      );
+  it("should return the axios response for updateMeasureTestCaseConfiguration", async () => {
+    const response = { data: "updated" };
+    (axios.put as jest.Mock).mockResolvedValue(response);
 
-      expect(mockedAxios.delete).toHaveBeenCalledWith(
-        `${baseUrl}/measures/unlock`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-    });
+    const result = await measureServiceApi.updateMeasureTestCaseConfiguration(
+      measure.testCaseConfiguration,
+      measure.id
+    );
 
-    describe("useMeasureServiceApi", () => {
-      beforeEach(() => {
-        jest.resetModules();
-        jest.clearAllMocks();
-      });
+    expect(result).toBe(response);
+  });
 
-      it("should create MeasureServiceApi instance with correct config", async () => {
-        const mockServiceConfig = {
-          measureService: {
-            baseUrl: "http://test.com",
-          },
-        };
-        const mockGetAccessToken = jest.fn();
+  it("should propagate errors from axios.put for updateMeasureTestCaseConfiguration", async () => {
+    const error = new Error("Network error");
+    (axios.put as jest.Mock).mockRejectedValue(error);
 
-        jest.mock("./useServiceConfig", () => ({
-          __esModule: true,
-          default: jest.fn().mockResolvedValue(mockServiceConfig),
-        }));
-
-        jest.mock("../hooks/useOktaTokens", () => ({
-          __esModule: true,
-          default: jest
-            .fn()
-            .mockReturnValue({ getAccessToken: mockGetAccessToken }),
-        }));
-
-        const { default: useMeasureServiceApi, MeasureServiceApi: ApiClass } =
-          await import("./useMeasureServiceApi");
-        const api = await useMeasureServiceApi();
-
-        expect(api).toBeInstanceOf(ApiClass);
-        expect(api).toEqual(
-          new MeasureServiceApi(
-            mockServiceConfig.measureService.baseUrl,
-            mockGetAccessToken
-          )
-        );
-      });
-    });
+    await expect(
+      measureServiceApi.updateMeasureTestCaseConfiguration(
+        measure.testCaseConfiguration,
+        measure.id
+      )
+    ).rejects.toThrow("Network error");
   });
 });
