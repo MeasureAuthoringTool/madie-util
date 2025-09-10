@@ -20,20 +20,46 @@ describe("Check user canEdit", () => {
   });
 
   it("should return true when user name and createdBy are the same", () => {
-    const canEdit = useCheckUserCanEdit(JANE_DOE, []);
+    const canEdit = useCheckUserCanEdit(JANE_DOE, [], true);
     expect(canEdit).toBeTruthy();
   });
 
   it("should return false when user name and createdBy are not the same", () => {
-    const canEdit = useCheckUserCanEdit("anotherU$er", []);
+    const canEdit = useCheckUserCanEdit("anotherU$er", [], true);
     expect(canEdit).not.toBeTruthy();
   });
 
   it("should return true when measure is shared with the same user", () => {
+    const canEdit = useCheckUserCanEdit(
+      "anotherU$er", // nosec
+      [{ userId: JANE_DOE, roles: ["SHARED_WITH"] }],
+      true
+    );
+    expect(canEdit).toBeTruthy();
+  });
+
+  it("should return true when measure is shared with the same user with no version status supplied", () => {
     const canEdit = useCheckUserCanEdit("anotherU$er", [
       { userId: JANE_DOE, roles: ["SHARED_WITH"] },
     ]);
     expect(canEdit).toBeTruthy();
+  });
+
+  it("should return undefined when measure is shared with a different user", () => {
+    const canEdit = useCheckUserCanEdit(
+      "anotherU$er",
+      [{ userId: JOHN_DOE, roles: ["SHARED_WITH"] }],
+      true
+    );
+    expect(canEdit).not.toBeTruthy();
+  });
+
+  it("should return false when measure is versioned greater than 0", () => {
+    const canEdit = useCheckUserCanEdit(
+      "anotherU$er",
+      [{ userId: JOHN_DOE, roles: ["SHARED_WITH"] }],
+      false
+    );
   });
 
   it("should return false when measure is shared with a different user", () => {
