@@ -8,13 +8,8 @@ export interface FeatureFlags {
   qdmHideJson: boolean;
   enableQdmRepeatTransfer: boolean;
   stu6TestCaseValidation: boolean;
-  QDMIncludeRAVValues: boolean;
-  QICoreIncludeRAVValues: boolean;
   MeasureSearch: boolean;
   LibrarySearch: boolean;
-  EditTestsOnVersionedMeasures: boolean;
-  OverlappingValueSets: boolean;
-  MinimizeAlerts: boolean;
   Locking: boolean;
   EnhancedTextFormatting: boolean;
   qiCore7: boolean;
@@ -28,13 +23,8 @@ const initialState: FeatureFlags = {
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   stu6TestCaseValidation: false,
-  QDMIncludeRAVValues: false,
-  QICoreIncludeRAVValues: false,
   MeasureSearch: false,
   LibrarySearch: false,
-  EditTestsOnVersionedMeasures: false,
-  OverlappingValueSets: false,
-  MinimizeAlerts: false,
   Locking: false,
   EnhancedTextFormatting: false,
   qiCore7: false,

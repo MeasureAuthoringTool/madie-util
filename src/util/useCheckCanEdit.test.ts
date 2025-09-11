@@ -24,7 +24,7 @@ describe("Check user canEdit", () => {
     expect(canEdit).toBeTruthy();
   });
 
-  it("should return undefined when user name and createdBy are not the same", () => {
+  it("should return false when user name and createdBy are not the same", () => {
     const canEdit = useCheckUserCanEdit("anotherU$er", [], true);
     expect(canEdit).not.toBeTruthy();
   });
@@ -60,26 +60,19 @@ describe("Check user canEdit", () => {
       [{ userId: JOHN_DOE, roles: ["SHARED_WITH"] }],
       false
     );
+  });
+
+  it("should return false when measure is shared with a different user", () => {
+    const canEdit = useCheckUserCanEdit("anotherU$er", [
+      { userId: JOHN_DOE, roles: ["SHARED_WITH"] },
+    ]);
     expect(canEdit).not.toBeTruthy();
   });
 
-  it("should return true when measure is versioned and EditTestsOnVersionedMeasures feature flag is true", () => {
-    const canEdit = useCheckUserCanEdit(
-      JANE_DOE,
-      [{ userId: JOHN_DOE, roles: ["SHARED_WITH"] }],
-      false,
-      true
-    );
-    expect(canEdit).toBeTruthy();
-  });
-
-  it("should return false when measure is versioned and EditTestsOnVersionedMeasures feature flag is true but he is not the owner or shared user", () => {
-    const canEdit = useCheckUserCanEdit(
-      "anotherU$er",
-      [{ userId: JOHN_DOE, roles: ["SHARED_WITH"] }],
-      false,
-      true
-    );
+  it("should return false when user is not the owner or shared user", () => {
+    const canEdit = useCheckUserCanEdit("anotherU$er", [
+      { userId: JOHN_DOE, roles: ["SHARED_WITH"] },
+    ]);
     expect(canEdit).not.toBeTruthy();
   });
 });
