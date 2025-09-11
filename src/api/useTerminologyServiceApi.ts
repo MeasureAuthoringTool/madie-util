@@ -1,6 +1,6 @@
-import axios from "axios";
-import { ServiceConfig, getServiceConfig } from "../Config/Config";
-
+import axios from "../api/axios-instance";
+import { getServiceConfig } from "../Config/Config";
+import { ServiceConfig } from "./ServiceContext";
 import useOktaTokens from "../hooks/useOktaTokens";
 import { wafIntercept } from "../madie-madie-util";
 

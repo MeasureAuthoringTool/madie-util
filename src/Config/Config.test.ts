@@ -1,8 +1,9 @@
 import * as React from "react";
-import { getServiceConfig, ServiceConfig } from "./Config";
-import axios from "axios";
+import { getServiceConfig } from "./Config";
+import { ServiceConfig } from "../api/ServiceContext";
+import axios from "../api/axios-instance";
 
-jest.mock("axios");
+jest.mock("../api/axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe("Service Config Utility", () => {

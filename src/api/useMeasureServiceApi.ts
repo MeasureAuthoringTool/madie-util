@@ -1,6 +1,6 @@
 import axios from "./axios-instance";
 import useServiceConfig from "./useServiceConfig";
-import { ServiceConfig } from "./ServiceContext";
+
 import {
   Measure,
   Group,
@@ -14,6 +14,7 @@ import {
 import useOktaTokens from "../hooks/useOktaTokens";
 import _ from "lodash";
 import qs from "qs";
+import { Bundle } from "fhir/r4";
 
 export class MeasureServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
@@ -770,9 +771,8 @@ export class MeasureServiceApi {
 }
 
 export default function useMeasureServiceApi(): MeasureServiceApi {
-  const serviceConfig: ServiceConfig = useServiceConfig();
+  const { measureService } = useServiceConfig();
   const { getAccessToken } = useOktaTokens();
-  const { baseUrl } = serviceConfig.measureService;
-
+  const { baseUrl } = measureService;
   return new MeasureServiceApi(baseUrl, getAccessToken);
 }

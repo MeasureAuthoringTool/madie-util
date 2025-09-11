@@ -4,10 +4,10 @@ import useTerminologyServiceApi, {
   TerminologyServiceApi,
   getServiceUrl,
 } from "./useTerminologyServiceApi";
-import { ServiceConfig } from "../Config/Config";
-import axios from "axios";
+import { ServiceConfig } from "../api/ServiceContext";
+import axios from "../api/axios-instance";
 
-jest.mock("axios");
+jest.mock("./axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const mockConfig: ServiceConfig = {

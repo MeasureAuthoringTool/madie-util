@@ -1,20 +1,32 @@
 import { createContext } from "react";
 
 export interface ServiceConfig {
-  qdmElmTranslationService: {
+  qdmElmTranslationService?: {
     baseUrl: string;
   };
-  fhirElmTranslationService: {
+  fhirElmTranslationService?: {
     baseUrl: string;
   };
-  terminologyService: {
+  terminologyService?: {
     baseUrl: string;
   };
-  cqlLibraryService: {
+  cqlLibraryService?: {
     baseUrl: string;
   };
   measureService: {
     baseUrl: string;
+  };
+  elmTranslationService?: {
+    baseUrl: string;
+  };
+  loggingService?: {
+    baseUrl: string;
+  };
+  okta?: {
+    baseUrl: string;
+    issuer: string;
+    clientId: string;
+    redirectUri: string;
   };
   madieVersion?: string;
   features?: {

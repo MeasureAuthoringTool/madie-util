@@ -1,5 +1,5 @@
 import axiosReal from "axios";
-import { wafIntercept } from "../madie-madie-util";
+import wafIntercept from "../util/wafIntercept";
 
 const axios = axiosReal.create();
 if (axios && axios.interceptors && axios.interceptors.response) {
