@@ -5,11 +5,15 @@
   if we want other apps to use functions defined here, we need to
     update types file with expected values in each app consuming
 */
-import getServiceConfig from "./api/useServiceConfig";
-import ServiceContext, {
+import useServiceConfig from "./api/useServiceConfig";
+import { getOktaConfig } from "./Config/Config";
+import {
+  ServiceContext,
   ApiContextConsumer,
   ApiContextProvider,
+  type OktaConfig,
 } from "./api/ServiceContext";
+
 import { default as useKeyPress } from "./hooks/useKeyPress";
 import { default as useOktaTokens } from "./hooks/useOktaTokens";
 import { default as useOnClickOutside } from "./hooks/useOnClickOutside";
@@ -28,10 +32,10 @@ import { default as checkUserCanDelete } from "./util/useCheckCanDelete";
 import { useFeatureFlags } from "./hooks/useFeatureFlags";
 import { getOidFromString } from "./util/terminologyUtils";
 import axios from "./api/axios-instance";
-import { OktaConfig, getOktaConfig } from "./Config/Config";
 
 export {
-  getServiceConfig,
+  useServiceConfig,
+  getOktaConfig,
   ServiceContext,
   useKeyPress,
   useOktaTokens,

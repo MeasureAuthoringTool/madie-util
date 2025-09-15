@@ -1,5 +1,14 @@
 import { createContext } from "react";
 
+export type OktaConfig = {
+  baseUrl: string;
+  issuer: string;
+  clientId: string;
+  redirectUri: string;
+  scopes: string[];
+  useClassicEngine: boolean;
+};
+
 export interface ServiceConfig {
   qdmElmTranslationService?: {
     baseUrl: string;
@@ -35,9 +44,7 @@ export interface ServiceConfig {
   };
 }
 
-const ServiceContext = createContext<ServiceConfig>(null);
-
-export default ServiceContext;
+export const ServiceContext = createContext<ServiceConfig>(null);
 
 export const ApiContextProvider = ServiceContext.Provider;
 export const ApiContextConsumer = ServiceContext.Consumer;

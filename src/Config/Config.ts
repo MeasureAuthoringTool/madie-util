@@ -1,14 +1,5 @@
 import axios from "../api/axios-instance";
-import { ServiceConfig } from "../api/ServiceContext";
-
-export interface OktaConfig {
-  baseUrl: string;
-  issuer: string;
-  clientId: string;
-  redirectUri: string;
-  scopes: string[];
-  useClassicEngine: boolean;
-}
+import { ServiceConfig, OktaConfig } from "../api/ServiceContext";
 
 interface OktaEnvConfig {
   baseUrl: string;
