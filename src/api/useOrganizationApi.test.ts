@@ -2,11 +2,11 @@ import useOrganizationApi, {
   OrganizationApi,
   getServiceUrl,
 } from "./useOrganizationApi";
-import { ServiceConfig } from "../Config/Config";
-import axios from "axios";
+import { ServiceConfig } from "../api/ServiceContext";
+import axios from "../api/axios-instance";
 import { waitFor } from "@testing-library/react";
 
-jest.mock("axios");
+jest.mock("../api/axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const mockConfig: ServiceConfig = {
