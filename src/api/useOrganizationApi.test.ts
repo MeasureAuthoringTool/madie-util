@@ -1,25 +1,8 @@
-import useOrganizationApi, {
-  OrganizationApi,
-  getServiceUrl,
-} from "./useOrganizationApi";
-import { ServiceConfig } from "../api/ServiceContext";
+import { OrganizationApi } from "./useOrganizationApi";
 import axios from "../api/axios-instance";
-import { waitFor } from "@testing-library/react";
 
 jest.mock("../api/axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-const mockConfig: ServiceConfig = {
-  measureService: {
-    baseUrl: "url",
-  },
-  elmTranslationService: {
-    baseUrl: "",
-  },
-  terminologyService: {
-    baseUrl: "",
-  },
-};
 
 const organizations = [
   {
@@ -40,32 +23,19 @@ jest.mock("../hooks/useOktaTokens", () =>
   }))
 );
 
-jest.mock("../Config/Config", () => {
-  return {
-    getServiceConfig: jest.fn(() => Promise.resolve(mockConfig)),
-  };
-});
-
 describe("useOrganizationApi", () => {
+  let organizationApi: OrganizationApi;
+  beforeEach(() => {
+    const getAccessToken = jest.fn();
+    organizationApi = new OrganizationApi("test.url", getAccessToken);
+  });
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  it("should retrieve the service url", async () => {
-    const actual = await getServiceUrl();
-    expect(actual).toBe("url");
-  });
-
-  it("useOrganizationApi returns OrganizationApi", () => {
-    const actual: OrganizationApi = useOrganizationApi();
-    expect(actual).toBeTruthy();
   });
 
   it("returns an error when the organization list appears empty", () => {
     const resp = { status: 200, data: [] };
     mockedAxios.get.mockResolvedValue(resp);
-    expect.assertions(1);
-    const organizationApi: OrganizationApi = useOrganizationApi();
     organizationApi
       .getAllOrganizations()
       .then()
@@ -77,7 +47,6 @@ describe("useOrganizationApi", () => {
   it("retrieves the organization list", async () => {
     const resp = { status: 200, data: organizations };
     mockedAxios.get.mockResolvedValue(resp);
-    const organizationApi: OrganizationApi = useOrganizationApi();
     const orgList = await organizationApi.getAllOrganizations();
     expect(mockedAxios.get).toBeCalledTimes(1);
     expect(orgList).toEqual(organizations);

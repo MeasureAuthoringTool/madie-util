@@ -10,16 +10,18 @@ interface OktaEnvConfig {
 }
 
 export async function getServiceConfig(): Promise<ServiceConfig> {
-  const serviceConfig: ServiceConfig = (
-    await axios.get<ServiceConfig>("/env-config/serviceConfig.json")
-  ).data;
-  if (
-    !(serviceConfig?.measureService && serviceConfig.measureService.baseUrl)
-  ) {
+  try {
+    const res = await axios.get<ServiceConfig>(
+      "/env-config/serviceConfig.json"
+    );
+    if (!res?.data) {
+      throw new Error("Service Config not found");
+    }
+    return res.data;
+  } catch (err) {
+    console.warn("An error occurred while loading the service config: ", err);
     throw new Error("Invalid Service Config");
   }
-
-  return serviceConfig;
 }
 
 export async function getOktaConfig(): Promise<OktaConfig> {
