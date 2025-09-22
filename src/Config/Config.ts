@@ -14,13 +14,13 @@ export async function getServiceConfig(): Promise<ServiceConfig> {
     const res = await axios.get<ServiceConfig>(
       "/env-config/serviceConfig.json"
     );
-    if (!res?.data) {
-      throw new Error("Service Config not found");
+    if (!res || res.data == null) {
+      throw new Error("Failed to fetch valid service config");
     }
     return res.data;
   } catch (err) {
-    console.warn("An error occurred while loading the service config: ", err);
-    throw new Error("Invalid Service Config");
+    console.warn("Unexpected error loading service config", err);
+    throw new Error("Failed to load service configuration");
   }
 }
 
