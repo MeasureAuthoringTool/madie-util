@@ -100,10 +100,10 @@ describe("MeasureServiceApi", () => {
     const resp: any = { status: 200, data: "OK to proceed" };
     mockedAxios.get.mockResolvedValueOnce(resp);
 
-    const result = await measureServiceApi.checkMeasureLocked("testMeasureId");
+    const result = await measureServiceApi.checkMeasureLocked("measureId");
 
     expect(mockedAxios.get).toBeCalledWith(
-      "test.url/measures/testMeasureId/lock-by-other-user",
+      "test.url/measures/measureId/lock-by-other-user",
       expect.any(Object) // headers
     );
     expect(result).toEqual("OK to proceed");
@@ -115,7 +115,7 @@ describe("MeasureServiceApi", () => {
     );
 
     await expect(
-      measureServiceApi.checkMeasureLocked("testMeasureId")
+      measureServiceApi.checkMeasureLocked(measure.id)
     ).rejects.toThrow(errorMessage);
   });
 });
