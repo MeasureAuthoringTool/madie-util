@@ -6,7 +6,7 @@
     update types file with expected values in each app consuming
 */
 import useServiceConfig from "./api/useServiceConfig";
-import { getOktaConfig } from "./Config/Config";
+import { getOktaConfig, getServiceConfig } from "./Config/Config";
 import {
   ServiceContext,
   ApiContextConsumer,
@@ -35,6 +35,7 @@ import axios from "./api/axios-instance";
 
 export {
   useServiceConfig,
+  getServiceConfig,
   getOktaConfig,
   ServiceContext,
   useKeyPress,

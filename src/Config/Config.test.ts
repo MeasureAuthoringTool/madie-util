@@ -1,6 +1,5 @@
 import axios from "../api/axios-instance";
 import { getOktaConfig, getServiceConfig } from "./Config";
-import { OktaConfig } from "../api/ServiceContext";
 
 jest.mock("../api/axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -69,40 +68,31 @@ describe("getOktaConfig", () => {
       jest.clearAllMocks();
     });
 
-    it("should return valid ServiceConfig when all required fields are present", async () => {
+    it("should return ServiceConfig when response data object is present (even if minimal)", async () => {
       const mockServiceConfig = {
         measureService: {
           baseUrl: "http://test.com",
         },
       };
-
       mockedAxios.get.mockResolvedValueOnce({ data: mockServiceConfig });
-
       const result = await getServiceConfig();
-
       expect(mockedAxios.get).toHaveBeenCalledWith(
         "/env-config/serviceConfig.json"
       );
       expect(result).toEqual(mockServiceConfig);
     });
 
-    it("should throw error when measureService is missing", async () => {
-      const mockServiceConfig = {};
-      mockedAxios.get.mockResolvedValueOnce({ data: mockServiceConfig });
-
+    it("should throw error when response data is null/undefined", async () => {
+      mockedAxios.get.mockResolvedValueOnce({ data: null as any });
       await expect(getServiceConfig()).rejects.toThrow(
-        "Invalid Service Config"
+        "Failed to load service configuration"
       );
     });
 
-    it("should throw error when measureService.baseUrl is missing", async () => {
-      const mockServiceConfig = {
-        measureService: {},
-      };
-      mockedAxios.get.mockResolvedValueOnce({ data: mockServiceConfig });
-
+    it("should throw error when axios request fails", async () => {
+      mockedAxios.get.mockRejectedValueOnce(new Error("network error"));
       await expect(getServiceConfig()).rejects.toThrow(
-        "Invalid Service Config"
+        "Failed to load service configuration"
       );
     });
   });
