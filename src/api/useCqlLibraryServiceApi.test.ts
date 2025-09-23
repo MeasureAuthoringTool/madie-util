@@ -1,6 +1,5 @@
 import axios from "./axios-instance";
 import { CqlLibraryServiceApi } from "./useCqlLibraryServiceApi";
-import { OwnershipType } from "@madie/madie-models";
 
 jest.mock("./axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -36,7 +35,7 @@ describe("useCqlLibraryServiceApi", () => {
       const result = await cqlLibraryService.unlockLibraries();
 
       expect(mockedAxios.delete).toHaveBeenCalledWith(
-        `${mockBaseUrl}/libraries/unlock`,
+        `${mockBaseUrl}/cql-libraries/unlock`,
         {
           headers: {
             Authorization: `Bearer ${mockToken}`,
@@ -55,7 +54,7 @@ describe("useCqlLibraryServiceApi", () => {
       );
 
       expect(mockedAxios.delete).toHaveBeenCalledWith(
-        `${mockBaseUrl}/libraries/unlock`,
+        `${mockBaseUrl}/cql-libraries/unlock`,
         {
           headers: {
             Authorization: `Bearer ${mockToken}`,
@@ -90,7 +89,7 @@ describe("useCqlLibraryServiceApi", () => {
         await api.unlockLibraries();
 
         expect(mockedAxios.delete).toHaveBeenCalledWith(
-          "http://localhost/api/libraries/unlock",
+          "http://localhost/api/cql-libraries/unlock",
           {
             headers: {
               Authorization: "Bearer mocked-token",

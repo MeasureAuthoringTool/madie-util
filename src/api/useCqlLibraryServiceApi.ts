@@ -298,7 +298,7 @@ export class CqlLibraryServiceApi {
   async unlockLibraries(): Promise<String> {
     try {
       const response = await axios.delete<String>(
-        `${this.baseUrl}/libraries/unlock`,
+        `${this.baseUrl}/cql-libraries/unlock`,
         {
           headers: {
             Authorization: `Bearer ${this.getAccessToken()}`,
