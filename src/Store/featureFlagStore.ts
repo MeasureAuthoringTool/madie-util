@@ -16,6 +16,7 @@ export interface FeatureFlags {
   TransferLibrary: boolean;
   MeasureHistory: boolean;
   Calculator: boolean;
+  LibraryHistory: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -30,6 +31,7 @@ const initialState: FeatureFlags = {
   TransferLibrary: false,
   MeasureHistory: false,
   Calculator: false,
+  LibraryHistory: false,
 };
 
 let state: FeatureFlags | null = initialState;

@@ -1,88 +1,75 @@
-import axios from "axios";
-import { ServiceConfig, getServiceConfig } from "../Config/Config";
-
+import axios from "../api/axios-instance";
 import useOktaTokens from "../hooks/useOktaTokens";
 import { wafIntercept } from "../madie-madie-util";
+import useServiceConfig from "./useServiceConfig";
 
 export class TerminologyServiceApi {
-  constructor(private getAccessToken: () => string) {}
+  constructor(private baseUrl: string, private getAccessToken: () => string) {}
 
   async checkLogin(): Promise<Boolean> {
-    const baseUrl = await getServiceUrl();
-    const resp = await axios
-      .get(`${baseUrl}/vsac/umls-credentials/status`, {
-        headers: {
-          Authorization: `Bearer ${this.getAccessToken()}`,
-          "Content-Type": "text/plain",
-        },
-        timeout: 15000,
-      })
-      .then((resp) => {
-        if (resp.status === 200) {
-          return true;
+    try {
+      const resp = await axios.get(
+        `${this.baseUrl}/vsac/umls-credentials/status`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+            "Content-Type": "text/plain",
+          },
+          timeout: 15000,
         }
-      })
-      .catch((error) => {
-        throw error;
-      });
-    return false;
+      );
+      return resp.status === 200;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async loginUMLS(apiKey: string): Promise<String> {
-    const baseUrl = await getServiceUrl();
-    const resp = await axios
-      .post(`${baseUrl}/vsac/umls-credentials`, apiKey, {
-        headers: {
-          Authorization: `Bearer ${this.getAccessToken()}`,
-          "Content-Type": "text/plain",
-        },
-        timeout: 15000,
-      })
-      .then((resp) => {
-        if (resp.status === 200) {
-          return "status: " + resp.status + " response: " + resp.data;
+    try {
+      const resp = await axios.post(
+        `${this.baseUrl}/vsac/umls-credentials`,
+        apiKey,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+            "Content-Type": "text/plain",
+          },
+          timeout: 15000,
         }
-      })
-      .catch((error) => {
-        throw error;
-      });
-    return "failure";
+      );
+      if (resp.status === 200) {
+        return "status: " + resp.status + " response: " + resp.data;
+      }
+      return "failure";
+    } catch (error) {
+      throw error;
+    }
   }
 
   async logoutUMLS(): Promise<Boolean> {
-    const baseUrl = await getServiceUrl();
-    const resp = await axios
-      .delete(`${baseUrl}/vsac/umls-credentials`, {
+    try {
+      const resp = await axios.delete(`${this.baseUrl}/vsac/umls-credentials`, {
         headers: {
           Authorization: `Bearer ${this.getAccessToken()}`,
           "Content-Type": "text/plain",
         },
         timeout: 15000,
-      })
-      .then((resp) => {
-        // Check response status and return true if successful
-        return resp.status === 200;
-      })
-      .catch((error) => {
-        // Log the error or handle it as needed
-        console.error("UMLS Logout failed:", error);
-        throw error;
       });
-    return false;
+      return resp.status === 200;
+    } catch (error) {
+      console.error("UMLS Logout failed:", error);
+      throw error;
+    }
   }
 }
 
-export const getServiceUrl = async () => {
-  const config: ServiceConfig = await getServiceConfig();
-  const serviceUrl: string = config?.terminologyService?.baseUrl;
-
-  return serviceUrl;
-};
 axios.interceptors.response.use((response) => {
   return response;
 }, wafIntercept);
 
 export default function useTerminologyServiceApi(): TerminologyServiceApi {
+  const { terminologyService } = useServiceConfig();
+  const { baseUrl } = terminologyService;
   const { getAccessToken } = useOktaTokens();
-  return new TerminologyServiceApi(getAccessToken);
+  return new TerminologyServiceApi(baseUrl, getAccessToken);
 }

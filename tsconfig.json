@@ -2,10 +2,18 @@
   "extends": "ts-config-single-spa",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "declarationDir": "dist"
+    "declarationDir": "dist",
+    "module": "commonjs"
+    // "target": "es2015",
+    // "declaration": true,
+    // "declarationMap": true,
+    // "sourceMap": true,
+    // "resolveJsonModule": true,
+    // "skipLibCheck": true,
+    // "esModuleInterop": true,
+    // "allowSyntheticDefaultImports": true
   },
   "files": ["src/madie-madie-util.tsx"],
   "include": ["src/**/*"],
-  "exclude": ["src/**/*.test*"],
-  "declarationMap": true
+  "exclude": ["src/**/*.test*"]
 }

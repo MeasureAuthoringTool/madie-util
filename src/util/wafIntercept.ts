@@ -29,7 +29,6 @@ const wafIntercept = (error) => {
     document.dispatchEvent(wafEvent);
     throw new Error(purifiedBody); // no tags allowed, removes all HTML tags.
   }
-
   return Promise.reject(error);
 };
 export default wafIntercept;

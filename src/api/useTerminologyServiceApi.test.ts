@@ -1,13 +1,10 @@
-import * as React from "react";
-import { waitFor } from "@testing-library/react";
 import useTerminologyServiceApi, {
   TerminologyServiceApi,
-  getServiceUrl,
 } from "./useTerminologyServiceApi";
-import { ServiceConfig } from "../Config/Config";
-import axios from "axios";
+import { ServiceConfig } from "./ServiceContext";
+import axios from "../api/axios-instance";
 
-jest.mock("axios");
+jest.mock("../api/axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const mockConfig: ServiceConfig = {
@@ -28,107 +25,110 @@ jest.mock("../hooks/useOktaTokens", () =>
   }))
 );
 
-jest.mock("../Config/Config", () => {
-  return {
-    getServiceConfig: jest.fn(() => Promise.resolve(mockConfig)),
-  };
-});
-
 describe("useTerminologyServiceApi", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("should retrieve the service url", async () => {
-    const actual = await getServiceUrl();
-    expect(actual).toBe("url");
-  });
+  describe("TerminologyServiceApi", () => {
+    let api: TerminologyServiceApi;
+    const baseUrl = "url";
+    const getAccessToken = () => "test.jwt";
 
-  it("useTerminologyServiceApi returns TerminologyServiceApi", () => {
-    const actual: TerminologyServiceApi = useTerminologyServiceApi();
-    expect(actual).toBeTruthy();
-  });
+    beforeEach(() => {
+      api = new TerminologyServiceApi(baseUrl, getAccessToken);
+    });
 
-  it("checkLogin to UMLS success", async () => {
-    const resp = { status: 200, data: true };
-    mockedAxios.get.mockResolvedValue(resp);
-    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
-    await terminlogyService.checkLogin();
-    expect(mockedAxios.get).toBeCalledTimes(1);
-  });
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
 
-  it("checkLogin to UMLS failure", async () => {
-    const resp = { status: 404, data: false, error: { message: "error" } };
-    mockedAxios.get.mockRejectedValueOnce(resp);
-    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
-    try {
-      const loggedIn = await terminlogyService.checkLogin();
-      expect(mockedAxios.get).toBeCalledTimes(1);
-      expect(loggedIn).toBeFalsy();
-    } catch {}
-  });
+    describe("checkLogin", () => {
+      it("returns true when status is 200", async () => {
+        mockedAxios.get.mockResolvedValueOnce({ status: 200 });
+        const result = await api.checkLogin();
+        expect(mockedAxios.get).toHaveBeenCalledWith(
+          `${baseUrl}/vsac/umls-credentials/status`,
+          expect.objectContaining({
+            headers: {
+              Authorization: `Bearer ${getAccessToken()}`,
+              "Content-Type": "text/plain",
+            },
+            timeout: 15000,
+          })
+        );
+        expect(result).toBe(true);
+      });
 
-  it("checkLogin returns false if status is not 200", async () => {
-    const resp = { status: 201, data: true };
-    mockedAxios.get.mockResolvedValue(resp);
-    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
-    const loggedIn = await terminlogyService.checkLogin();
-    expect(mockedAxios.get).toBeCalledTimes(1);
-    expect(loggedIn).toBeFalsy();
-  });
+      it("throws error when axios fails", async () => {
+        mockedAxios.get.mockRejectedValueOnce(new Error("fail"));
+        await expect(api.checkLogin()).rejects.toThrow("fail");
+      });
 
-  it("Login to UMLS success", async () => {
-    const resp = { status: 200, data: "success" };
-    mockedAxios.post.mockResolvedValue(resp);
-    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
-    await terminlogyService.loginUMLS("test");
-    expect(mockedAxios.post).toBeCalledTimes(1);
-  });
+      it("returns false when status is not 200", async () => {
+        mockedAxios.get.mockResolvedValueOnce({ status: 401 });
+        const result = await api.checkLogin();
+        expect(result).toBe(false);
+      });
+    });
 
-  it("Login to UMLS failure", async () => {
-    const resp = { status: 404, data: "failure", error: { message: "error" } };
-    mockedAxios.post.mockRejectedValueOnce(resp);
-    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
-    try {
-      await terminlogyService.loginUMLS("test");
-      expect(mockedAxios.post).toBeCalledTimes(1);
-    } catch {}
-  });
+    describe("loginUMLS", () => {
+      it("returns status and response when status is 200", async () => {
+        mockedAxios.post.mockResolvedValueOnce({ status: 200, data: "ok" });
+        const result = await api.loginUMLS("api-key");
+        expect(mockedAxios.post).toHaveBeenCalledWith(
+          `${baseUrl}/vsac/umls-credentials`,
+          "api-key",
+          expect.objectContaining({
+            headers: {
+              Authorization: `Bearer ${getAccessToken()}`,
+              "Content-Type": "text/plain",
+            },
+            timeout: 15000,
+          })
+        );
+        expect(result).toBe("status: 200 response: ok");
+      });
 
-  it("Login to UMLS will not be successful unless status is 200", async () => {
-    const resp = { status: 201, data: "success" };
-    mockedAxios.post.mockResolvedValue(resp);
-    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
-    const result = await terminlogyService.loginUMLS("test");
-    expect(mockedAxios.post).toBeCalledTimes(1);
-    expect(result).toContain("failure");
-  });
+      it("throws error when axios fails", async () => {
+        mockedAxios.post.mockRejectedValueOnce(new Error("fail"));
+        await expect(api.loginUMLS("api-key")).rejects.toThrow("fail");
+      });
 
-  it("Log out UMLS success", async () => {
-    const resp = { status: 200, data: true };
-    mockedAxios.delete.mockResolvedValue(resp);
-    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
-    await terminlogyService.logoutUMLS();
-    expect(mockedAxios.delete).toBeCalledTimes(1);
-  });
+      it("returns 'failure' when status is not 200", async () => {
+        mockedAxios.post.mockResolvedValueOnce({ status: 401, data: "bad" });
+        const result = await api.loginUMLS("api-key");
+        expect(result).toBe("failure");
+      });
+    });
 
-  it("Log out UMLS failure", async () => {
-    const resp = { status: 404, data: false, error: { message: "error" } };
-    mockedAxios.delete.mockRejectedValueOnce(resp);
-    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
-    try {
-      const loggedout = await terminlogyService.logoutUMLS();
-      expect(mockedAxios.delete).toBeCalledTimes(1);
-      expect(loggedout).toBeFalsy();
-    } catch {}
-  });
+    describe("logoutUMLS", () => {
+      it("returns true when status is 200", async () => {
+        mockedAxios.delete.mockResolvedValueOnce({ status: 200 });
+        const result = await api.logoutUMLS();
+        expect(mockedAxios.delete).toHaveBeenCalledWith(
+          `${baseUrl}/vsac/umls-credentials`,
+          expect.objectContaining({
+            headers: {
+              Authorization: `Bearer ${getAccessToken()}`,
+              "Content-Type": "text/plain",
+            },
+            timeout: 15000,
+          })
+        );
+        expect(result).toBe(true);
+      });
 
-  it("Log out UMLS returns false if status is not 200", async () => {
-    const resp = { status: 201, data: true };
-    mockedAxios.delete.mockResolvedValue(resp);
-    const terminlogyService: TerminologyServiceApi = useTerminologyServiceApi();
-    const loggedout = await terminlogyService.logoutUMLS();
-    expect(mockedAxios.delete).toBeCalledTimes(1);
-    expect(loggedout).toBeFalsy();
+      it("throws error when axios fails", async () => {
+        mockedAxios.delete.mockRejectedValueOnce(new Error("fail"));
+        await expect(api.logoutUMLS()).rejects.toThrow("fail");
+      });
+
+      it("returns false when status is not 200", async () => {
+        mockedAxios.delete.mockResolvedValueOnce({ status: 401 });
+        const result = await api.logoutUMLS();
+        expect(result).toBe(false);
+      });
+    });
   });
 });
