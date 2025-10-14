@@ -11,7 +11,6 @@ export interface FeatureFlags {
   MeasureSearch: boolean;
   LibrarySearch: boolean;
   Locking: boolean;
-  EnhancedTextFormatting: boolean;
   qiCore7: boolean;
   TransferMeasure: boolean;
   TransferLibrary: boolean;
@@ -27,7 +26,6 @@ const initialState: FeatureFlags = {
   MeasureSearch: false,
   LibrarySearch: false,
   Locking: false,
-  EnhancedTextFormatting: false,
   qiCore7: false,
   TransferMeasure: false,
   TransferLibrary: false,
