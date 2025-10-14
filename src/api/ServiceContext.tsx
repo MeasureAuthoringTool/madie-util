@@ -53,7 +53,7 @@ export interface ServiceConfig {
   };
 }
 
-export const ServiceContext = createContext<ServiceConfig>(null);
+export const ServiceContext = createContext<ServiceConfig | null>(null);
 
 export const ApiContextProvider = ServiceContext.Provider;
 export const ApiContextConsumer = ServiceContext.Consumer;

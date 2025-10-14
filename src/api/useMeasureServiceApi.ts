@@ -10,6 +10,7 @@ import {
   OwnershipType,
   TestCaseConfiguration,
   MeasureSearchCriteria,
+  MeasureHistoryActions,
 } from "@madie/madie-models";
 import useOktaTokens from "../hooks/useOktaTokens";
 import _ from "lodash";
@@ -211,7 +212,7 @@ export class MeasureServiceApi {
     }
   }
 
-  async associateCmdId(
+  async associateCmsId(
     qiCoreMeasureId: string,
     qdmMeasureId: string,
     copyMetaData: boolean
@@ -766,6 +767,67 @@ export class MeasureServiceApi {
       return response.data;
     } catch (error) {
       throw new Error(error);
+    }
+  }
+  async transferMeasures(
+    measureIds: Array<string>,
+    harpId: string,
+    retainShareAccess: boolean
+  ): Promise<any> {
+    try {
+      const response = await axios.put(
+        `${this.baseUrl}/measures/transfer`,
+        measureIds,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+            harpId: `${harpId}`,
+          },
+          params: {
+            retainShareAccess,
+          },
+        }
+      );
+      return response.data;
+    } catch (err) {
+      console.error("Failed to transfer measures", err);
+      throw err;
+    }
+  }
+  async getMeasureHistoryLogs(
+    measureId: String
+  ): Promise<MeasureHistoryActions[]> {
+    try {
+      const result = await axios.get(
+        `${this.baseUrl}/measures/${measureId}/history`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+        }
+      );
+      return result.data;
+    } catch (err) {
+      const message = `Unable to retrieve Measure History Logs`;
+      console.warn(message);
+      throw err;
+    }
+  }
+  async checkTestCasesLocked(measureId: string): Promise<boolean> {
+    try {
+      const response = await axios.get(
+        `${this.baseUrl}/measures/${measureId}/test-cases/lock-by-other-user`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      const message = `Unable to retrieve Test Cases lock info`;
+      console.warn(message);
+      throw error;
     }
   }
 }

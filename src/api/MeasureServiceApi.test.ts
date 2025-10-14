@@ -502,7 +502,7 @@ describe("MeasureServiceApi Tests", () => {
     mockedAxios.put.mockRejectedValueOnce(resp);
 
     try {
-      await measureServiceApi.associateCmdId(
+      await measureServiceApi.associateCmsId(
         "qiCoreMeasureId",
         "qdmMeasureId",
         false
@@ -527,7 +527,7 @@ describe("MeasureServiceApi Tests", () => {
     const resp: any = { status: 200, data: measureSet };
     mockedAxios.put.mockResolvedValue(resp);
 
-    await measureServiceApi.associateCmdId(
+    await measureServiceApi.associateCmsId(
       "qiCoreMeasureId",
       "qdmMeasureId",
       true

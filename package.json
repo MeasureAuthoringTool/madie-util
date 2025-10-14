@@ -58,7 +58,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
-    "@madie/madie-models": "^1.4.43",
+    "@madie/madie-models": "^1.4.46",
     "axios": "^1.6.7",
     "dompurify": "^3.1.5",
     "react": "^17.0.2",
