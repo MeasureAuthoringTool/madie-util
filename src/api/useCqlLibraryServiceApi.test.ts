@@ -1,7 +1,6 @@
 import axios from "./axios-instance";
 import { CqlLibraryServiceApi } from "./useCqlLibraryServiceApi";
 import { OwnershipType } from "@madie/madie-models";
-
 jest.mock("./axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 

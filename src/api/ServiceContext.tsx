@@ -31,6 +31,15 @@ export interface ServiceConfig {
   loggingService?: {
     baseUrl: string;
   };
+  testCaseService?: {
+    baseUrl: string;
+  };
+  excelExportService?: {
+    baseUrl: string;
+  };
+  fhirService?: {
+    baseUrl: string;
+  };
   okta?: {
     baseUrl: string;
     issuer: string;
