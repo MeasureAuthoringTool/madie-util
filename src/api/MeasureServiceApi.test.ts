@@ -791,4 +791,48 @@ describe("MeasureServiceApi Tests", () => {
       measureServiceApi.unlockMeasure("testMeasureId")
     ).rejects.toThrow(errorMessage);
   });
+  it("transferMeasures success", async () => {
+    const measureIds = ["id1", "id2", "id3"];
+    const harpId = "newHarpId";
+
+    mockedAxios.put.mockResolvedValue({ status: 200, data: [] });
+
+    const result = await measureServiceApi.transferMeasures(
+      measureIds,
+      harpId,
+      true
+    );
+
+    expect(mockedAxios.put).toBeCalledTimes(1);
+    expect(result).toEqual({ status: 200, data: [] });
+  });
+
+  it("transferMeasures partial failure", async () => {
+    const measureIds = ["id1", "id2", "id3"];
+    const harpId = "newHarpId";
+
+    mockedAxios.put.mockResolvedValue({ status: 206, data: ["id2"] });
+
+    const result = await measureServiceApi.transferMeasures(
+      measureIds,
+      harpId,
+      true
+    );
+
+    expect(mockedAxios.put).toBeCalledTimes(1);
+    expect(result).toEqual({ status: 206, data: ["id2"] });
+  });
+
+  it("transferMeasures failure", async () => {
+    const measureIds = ["id1", "id2"];
+    const harpId = "newHarpId";
+
+    mockedAxios.put.mockRejectedValue(new Error("Failed transfer"));
+
+    await expect(
+      measureServiceApi.transferMeasures(measureIds, harpId, true)
+    ).rejects.toThrow("Failed transfer");
+
+    expect(mockedAxios.put).toBeCalledTimes(1);
+  });
 });
