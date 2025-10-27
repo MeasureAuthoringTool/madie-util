@@ -811,7 +811,7 @@ describe("MeasureServiceApi Tests", () => {
     const measureIds = ["id1", "id2", "id3"];
     const harpId = "newHarpId";
 
-    mockedAxios.put.mockResolvedValue({ status: 206, data: ["id2"] });
+    mockedAxios.put.mockResolvedValue({ status: 207, data: ["id2"] });
 
     const result = await measureServiceApi.transferMeasures(
       measureIds,
@@ -820,7 +820,7 @@ describe("MeasureServiceApi Tests", () => {
     );
 
     expect(mockedAxios.put).toBeCalledTimes(1);
-    expect(result).toEqual({ status: 206, data: ["id2"] });
+    expect(result).toEqual({ status: 207, data: ["id2"] });
   });
 
   it("transferMeasures failure", async () => {
