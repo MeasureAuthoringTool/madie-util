@@ -788,7 +788,7 @@ export class MeasureServiceApi {
           },
         }
       );
-      return response.data;
+      return response;
     } catch (err) {
       console.error("Failed to transfer measures", err);
       throw err;
