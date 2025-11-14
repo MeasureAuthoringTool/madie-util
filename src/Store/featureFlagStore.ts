@@ -19,6 +19,7 @@ export interface FeatureFlags {
   LibraryHistory: boolean;
   CompareLibraryVersions: boolean;
   CompareMeasureVersions: boolean;
+  ExecutionConfigurationTab: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -36,6 +37,7 @@ const initialState: FeatureFlags = {
   LibraryHistory: false,
   CompareLibraryVersions: false,
   CompareMeasureVersions: false,
+  ExecutionConfigurationTab: false,
 };
 
 let state: FeatureFlags | null = initialState;
