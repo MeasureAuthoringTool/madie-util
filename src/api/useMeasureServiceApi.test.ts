@@ -1,6 +1,6 @@
 import axios from "./axios-instance";
 import { MeasureServiceApi } from "./useMeasureServiceApi";
-import { Measure } from "@madie/madie-models";
+import { Group, Measure } from "@madie/madie-models";
 jest.mock("./axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -94,5 +94,47 @@ describe("MeasureServiceApi", () => {
         measure.id
       )
     ).rejects.toThrow("Network error");
+  });
+
+  it("Should succeed updateGroup", async () => {
+    mockedAxios.put.mockClear();
+    const group = {
+      id: "groupId",
+      displayId: "Updated Group",
+    } as unknown as Group;
+    mockedAxios.put.mockResolvedValueOnce({ data: group });
+    const result = await measureServiceApi.updateGroup(group, "measureId");
+    expect(mockedAxios.put).toBeCalledTimes(1);
+    expect(result).toEqual(group);
+  });
+
+  it("Should fail updateGroup", async () => {
+    mockedAxios.put.mockClear();
+    const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
+    const errorMessage = "Failed to update the group.";
+    mockedAxios.put.mockRejectedValueOnce({
+      status: 500,
+      response: { data: {} },
+    });
+    await expect(
+      measureServiceApi.updateGroup("measureId", "groupId", {})
+    ).rejects.toThrow(errorMessage);
+    expect(consoleErrorMock).toHaveBeenCalled();
+    consoleErrorMock.mockRestore();
+  });
+
+  it("Should fail updateGroup with 423 error", async () => {
+    mockedAxios.put.mockClear();
+    const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
+    const errorMessage = "Group is locked for editing.";
+    mockedAxios.put.mockRejectedValueOnce({
+      status: 423,
+      response: { data: { message: errorMessage } },
+    });
+    await expect(
+      measureServiceApi.updateGroup("measureId", "groupId", {})
+    ).rejects.toThrow(errorMessage);
+    expect(consoleErrorMock).toHaveBeenCalled();
+    consoleErrorMock.mockRestore();
   });
 });

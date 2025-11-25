@@ -255,7 +255,9 @@ export class MeasureServiceApi {
     } catch (err) {
       const message = this.buildErrorMessage(
         err,
-        "Failed to update the group."
+        err.status === 423
+          ? err?.response?.data?.message
+          : "Failed to update the group."
       );
       console.error(message, err);
       throw new Error(message);
