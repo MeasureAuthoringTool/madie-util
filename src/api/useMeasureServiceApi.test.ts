@@ -22,6 +22,10 @@ const measure = {
     sdeIncluded: true,
   },
 } as Measure;
+const group = {
+  id: "groupId",
+  displayId: "Updated Group",
+} as unknown as Group;
 
 describe("MeasureServiceApi", () => {
   let measureServiceApi: MeasureServiceApi;
@@ -98,10 +102,6 @@ describe("MeasureServiceApi", () => {
 
   it("Should succeed updateGroup", async () => {
     mockedAxios.put.mockClear();
-    const group = {
-      id: "groupId",
-      displayId: "Updated Group",
-    } as unknown as Group;
     mockedAxios.put.mockResolvedValueOnce({ data: group });
     const result = await measureServiceApi.updateGroup(group, "measureId");
     expect(mockedAxios.put).toBeCalledTimes(1);
@@ -117,7 +117,7 @@ describe("MeasureServiceApi", () => {
       response: { data: {} },
     });
     await expect(
-      measureServiceApi.updateGroup("measureId", "groupId", {})
+      measureServiceApi.updateGroup(group, "groupId")
     ).rejects.toThrow(errorMessage);
     expect(consoleErrorMock).toHaveBeenCalled();
     consoleErrorMock.mockRestore();
@@ -132,7 +132,7 @@ describe("MeasureServiceApi", () => {
       response: { data: { message: errorMessage } },
     });
     await expect(
-      measureServiceApi.updateGroup("measureId", "groupId", {})
+      measureServiceApi.updateGroup(group, "groupId")
     ).rejects.toThrow(errorMessage);
     expect(consoleErrorMock).toHaveBeenCalled();
     consoleErrorMock.mockRestore();
