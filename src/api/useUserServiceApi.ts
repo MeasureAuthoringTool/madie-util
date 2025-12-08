@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import axios from "../api/axios-instance";
 import useServiceConfig from "./useServiceConfig";
 import useOktaTokens from "../hooks/useOktaTokens";
