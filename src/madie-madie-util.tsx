@@ -24,6 +24,7 @@ import { routeHandlerStore } from "./Store/routeHandlerStore";
 import { featureFlagsStore } from "./Store/featureFlagStore";
 import { default as useTerminologyServiceApi } from "./api/useTerminologyServiceApi";
 import { default as useMeasureServiceApi } from "./api/useMeasureServiceApi";
+import { default as useUserServiceApi } from "./api/useUserServiceApi";
 import { default as useCqlLibraryServiceApi } from "./api/useCqlLibraryServiceApi";
 import { default as useOrganizationApi } from "./api/useOrganizationApi";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
@@ -47,6 +48,7 @@ export {
   featureFlagsStore,
   useTerminologyServiceApi,
   useMeasureServiceApi,
+  useUserServiceApi,
   useCqlLibraryServiceApi,
   useOrganizationApi,
   useDocumentTitle,
