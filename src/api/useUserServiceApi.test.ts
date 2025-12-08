@@ -7,7 +7,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 jest.mock("../hooks/useOktaTokens", () =>
   jest.fn(() => ({
     getAccessToken: () => "test.jwt",
-  }))
+  })),
 );
 
 describe("UserServiceApi", () => {
@@ -41,7 +41,7 @@ describe("UserServiceApi", () => {
   it("throws an error when unable to retrieve owner details", async () => {
     mockedAxios.get.mockRejectedValue(new Error("Network error"));
     await expect(
-      userServiceApi.getMeasureOwnerDetails("badid")
+      userServiceApi.getMeasureOwnerDetails("badid"),
     ).rejects.toThrow("Unable to retrieve the owner, please try later.");
   });
 });

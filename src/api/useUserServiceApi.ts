@@ -13,7 +13,7 @@ export class UserServiceApi {
           headers: {
             Authorization: `Bearer ${this.getAccessToken()}`,
           },
-        }
+        },
       );
       return response.data;
     } catch (err) {
