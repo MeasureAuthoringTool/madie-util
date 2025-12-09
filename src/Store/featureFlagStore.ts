@@ -41,6 +41,7 @@ const initialState: FeatureFlags = {
   CompareMeasureVersions: false,
   ExecutionConfigurationTab: false,
   QICoreCompositeMeasure: false,
+  DisplayOwner: false,
 };
 
 let state: FeatureFlags | null = initialState;
