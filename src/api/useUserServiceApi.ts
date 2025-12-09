@@ -1,11 +1,12 @@
 import axios from "../api/axios-instance";
 import useServiceConfig from "./useServiceConfig";
 import useOktaTokens from "../hooks/useOktaTokens";
+import { UserDetails } from "@madie/madie-models";
 
 export class UserServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
 
-  async getMeasureOwnerDetails(harpId: string) {
+  async getMeasureOwnerDetails(harpId: string): Promise<UserDetails> {
     try {
       const response = await axios.get<any>(
         `${this.baseUrl}/users/${harpId}/details`,
