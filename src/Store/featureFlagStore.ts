@@ -21,6 +21,7 @@ export interface FeatureFlags {
   CompareMeasureVersions: boolean;
   ExecutionConfigurationTab: boolean;
   QICoreCompositeMeasure: boolean;
+  DisplayOwner: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -40,6 +41,7 @@ const initialState: FeatureFlags = {
   CompareMeasureVersions: false,
   ExecutionConfigurationTab: false,
   QICoreCompositeMeasure: false,
+  DisplayOwner: false,
 };
 
 let state: FeatureFlags | null = initialState;
