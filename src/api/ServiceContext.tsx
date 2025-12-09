@@ -40,6 +40,9 @@ export interface ServiceConfig {
   fhirService?: {
     baseUrl: string;
   };
+  userService?: {
+    baseUrl: string;
+  };
   okta?: {
     baseUrl: string;
     issuer: string;
