@@ -29,7 +29,7 @@ describe("UserServiceApi", () => {
     const resp = { status: 200, data: ownerDetails };
     mockedAxios.get.mockResolvedValue(resp);
 
-    const result = await userServiceApi.getMeasureOwnerDetails("abc123");
+    const result = await userServiceApi.getOwnerDetails("abc123");
     expect(mockedAxios.get).toBeCalledWith("test.url/users/abc123/details", {
       headers: {
         Authorization: "Bearer test.jwt",
@@ -40,8 +40,8 @@ describe("UserServiceApi", () => {
 
   it("throws an error when unable to retrieve owner details", async () => {
     mockedAxios.get.mockRejectedValue(new Error("Network error"));
-    await expect(
-      userServiceApi.getMeasureOwnerDetails("badid")
-    ).rejects.toThrow("Unable to retrieve the owner, please try later.");
+    await expect(userServiceApi.getOwnerDetails("badid")).rejects.toThrow(
+      "Unable to retrieve the owner, please try later."
+    );
   });
 });

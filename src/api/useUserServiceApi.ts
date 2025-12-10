@@ -6,7 +6,7 @@ import { UserDetails } from "@madie/madie-models";
 export class UserServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
 
-  async getMeasureOwnerDetails(harpId: string): Promise<UserDetails> {
+  async getOwnerDetails(harpId: string): Promise<UserDetails> {
     try {
       const response = await axios.get<any>(
         `${this.baseUrl}/users/${harpId}/details`,
