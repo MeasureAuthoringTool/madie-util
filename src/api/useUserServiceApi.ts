@@ -23,10 +23,6 @@ export class UserServiceApi {
     }
   }
 
-  async getMeasureOwnerDetails(harpId: string): Promise<UserDetails> {
-    return this.getOwnerDetails(harpId);
-  }
-
   async getBulkUserDetails(
     harpIds: string[]
   ): Promise<{ [harpId: string]: UserDetails }> {

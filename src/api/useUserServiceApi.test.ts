@@ -54,24 +54,6 @@ describe("UserServiceApi", () => {
     );
   });
 
-  it("returns measure owner details by calling getOwnerDetails", async () => {
-    const ownerDetails = {
-      harpId: "def456",
-      firstName: "Measure",
-      lastName: "Owner",
-    };
-    const resp = { status: 200, data: ownerDetails };
-    mockedAxios.get.mockResolvedValue(resp);
-
-    const result = await userServiceApi.getMeasureOwnerDetails("def456");
-    expect(mockedAxios.get).toBeCalledWith("test.url/users/def456/details", {
-      headers: {
-        Authorization: "Bearer test.jwt",
-      },
-    });
-    expect(result).toEqual(ownerDetails);
-  });
-
   it("returns bulk user details for multiple harpIds", async () => {
     const bulkUserDetails = {
       abc123: {
