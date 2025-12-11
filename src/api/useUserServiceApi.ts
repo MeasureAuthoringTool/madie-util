@@ -22,6 +22,30 @@ export class UserServiceApi {
       throw new Error(message);
     }
   }
+
+  async getMeasureOwnerDetails(harpId: string): Promise<UserDetails> {
+    return this.getOwnerDetails(harpId);
+  }
+
+  async getBulkUserDetails(
+    harpIds: string[]
+  ): Promise<{ [harpId: string]: UserDetails }> {
+    try {
+      const response = await axios.post<{ [harpId: string]: UserDetails }>(
+        `${this.baseUrl}/users/details`,
+        { harpIds },
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (err) {
+      const message = "Unable to retrieve bulk user details, please try later.";
+      throw new Error(message);
+    }
+  }
 }
 
 export default function useUserServiceApi(): UserServiceApi {
