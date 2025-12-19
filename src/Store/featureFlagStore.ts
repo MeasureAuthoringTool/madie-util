@@ -22,6 +22,7 @@ export interface FeatureFlags {
   ExecutionConfigurationTab: boolean;
   QICoreCompositeMeasure: boolean;
   DisplayOwner: boolean;
+  MakeJSONMatchUI: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -42,6 +43,7 @@ const initialState: FeatureFlags = {
   ExecutionConfigurationTab: false,
   QICoreCompositeMeasure: false,
   DisplayOwner: false,
+  MakeJSONMatchUI: false,
 };
 
 let state: FeatureFlags | null = initialState;
