@@ -437,9 +437,7 @@ export class MeasureServiceApi {
     sort: string = "lastModifiedAt",
     direction: string = "DESC",
     searchCriteria: MeasureSearchCriteria,
-    abortController: AbortController,
-    // TODO Remove parameter when either measureSearch or EditTestsOnVersionedMeasure is removed.
-    invocationSource?: string
+    abortController: AbortController
   ): Promise<any> {
     try {
       limit = limit === "All" ? 1000 : limit; // if limit is "All", set it to a high number to fetch all results
@@ -457,7 +455,6 @@ export class MeasureServiceApi {
             page,
             sort,
             direction,
-            invocationSource,
           },
           // Serialize ownershipTypes array as repeated params (?ownershipTypes=OWNED&ownershipTypes=SHARED)
           // By default, qs.stringify adds brackets (?ownershipTypes[]=OWNED&ownershipTypes[]=SHARED), which Spring does not parse.
