@@ -475,6 +475,23 @@ export class MeasureServiceApi {
     }
   }
 
+  async getCqlDiff(oldMeasureId: string, newMeasureId: string): Promise<any> {
+    try {
+      const response = await axios.get(
+        `${this.baseUrl}/measures/${oldMeasureId}/compare/${newMeasureId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (err) {
+      console.error("Failed to get CQL diff", err);
+      throw err;
+    }
+  }
+
   async getSharedMeasures(measureIds: string[]): Promise<any> {
     try {
       const response = await axios.get(

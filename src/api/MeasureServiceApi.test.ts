@@ -556,6 +556,57 @@ describe("MeasureServiceApi Tests", () => {
     ).rejects.toThrow(errorMessage);
   });
 
+  it("test getCqlDiff success", async () => {
+    const oldMeasureId = "oldMeasureId";
+    const newMeasureId = "newMeasureId";
+
+    const mockDiffResponse = {
+      comparisons: [
+        { oldText: "define OldLogic: true", newText: "define NewLogic: false" },
+      ],
+    };
+    mockedAxios.get.mockResolvedValueOnce({
+      status: 200,
+      data: mockDiffResponse,
+    });
+
+    const diff = await measureServiceApi.getCqlDiff(oldMeasureId, newMeasureId);
+
+    expect(mockedAxios.get).toBeCalledTimes(1);
+    expect(mockedAxios.get).toBeCalledWith(
+      `${baseUrl}/measures/${oldMeasureId}/compare/${newMeasureId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken()}`,
+        },
+      }
+    );
+    expect(diff).toEqual(mockDiffResponse);
+  });
+
+  it("test getCqlDiff failure", async () => {
+    const oldMeasureId = "oldMeasureId";
+    const newMeasureId = "newMeasureId";
+
+    const errorMessage = "Failed to get CQL diff";
+    const error = new Error(errorMessage);
+    mockedAxios.get.mockRejectedValueOnce(error);
+
+    await expect(
+      measureServiceApi.getCqlDiff(oldMeasureId, newMeasureId)
+    ).rejects.toThrow(errorMessage);
+
+    expect(mockedAxios.get).toBeCalledTimes(1);
+    expect(mockedAxios.get).toBeCalledWith(
+      `${baseUrl}/measures/${oldMeasureId}/compare/${newMeasureId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken()}`,
+        },
+      }
+    );
+  });
+
   it("test getSharedMeasures success", async () => {
     const data = {
       measureId1: ["userId1"],
