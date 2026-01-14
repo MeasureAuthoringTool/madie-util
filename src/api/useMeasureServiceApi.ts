@@ -846,6 +846,27 @@ export class MeasureServiceApi {
       throw error;
     }
   }
+
+  async getHumanReadableDiff(
+    oldMeasureId: string,
+    newMeasureId: string
+  ): Promise<any> {
+    try {
+      const response = await axios.get(`${this.baseUrl}/html-diff`, {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+        params: {
+          oldMeasureId: oldMeasureId,
+          newMeasureId: newMeasureId,
+        },
+      });
+      return response.data;
+    } catch (err) {
+      console.error("Failed to get Human Readable diff", err);
+      throw err;
+    }
+  }
 }
 
 export default function useMeasureServiceApi(): MeasureServiceApi {
