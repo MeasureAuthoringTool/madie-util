@@ -886,4 +886,72 @@ describe("MeasureServiceApi Tests", () => {
 
     expect(mockedAxios.put).toBeCalledTimes(1);
   });
+
+  it("test getHumanReadableDiff success", async () => {
+    const oldMeasureId = "oldMeasureId";
+    const newMeasureId = "newMeasureId";
+
+    const mockDiffResponse = {
+      oldHtml: "<div>Old Content</div>",
+      newHtml: "<div>New Content</div>",
+      differences: [
+        {
+          field: "Version Number",
+          oldValue:
+            "0.3.<span style='background-color:#FFB6C1;text-decoration:line-through;'>002<span style='background-color:#FFB6C1;text-decoration:line-through;'>",
+          newValue:
+            "0.3.<span style='background-color:#90EE90;'>003<span style='background-color:#90EE90;'>",
+        },
+        {
+          field: "Use Context",
+          oldValue:
+            "org.hl7.fhir.r5.model.<span style='background-color:#FFB6C1;text-decoration:line-through;'>UsageContext@46654282<span style='background-color:#FFB6C1;text-decoration:line-through;'>",
+          newValue:
+            "org.hl7.fhir.r5.model.<span style='background-color:#90EE90;'>UsageContext@7d873d<span style='background-color:#90EE90;'>",
+        },
+        {
+          field: "Version Specific Identifier",
+          oldValue:
+            "<span style='background-color:#FFB6C1;text-decoration:line-through;'>urn:uuid:50bd152a<span style='background-color:#FFB6C1;text-decoration:line-through;'>-<span style='background-color:#FFB6C1;text-decoration:line-through;'>d296<span style='background-color:#FFB6C1;text-decoration:line-through;'>-<span style='background-color:#FFB6C1;text-decoration:line-through;'>450f<span style='background-color:#FFB6C1;text-decoration:line-through;'>-<span style='background-color:#FFB6C1;text-decoration:line-through;'>83d5<span style='background-color:#FFB6C1;text-decoration:line-through;'>-<span style='background-color:#FFB6C1;text-decoration:line-through;'>a92c69b2f99c<span style='background-color:#FFB6C1;text-decoration:line-through;'>",
+          newValue:
+            "<span style='background-color:#90EE90;'>urn:uuid:df60a54f<span style='background-color:#90EE90;'>-<span style='background-color:#90EE90;'>5759<span style='background-color:#90EE90;'>-<span style='background-color:#90EE90;'>4e28<span style='background-color:#90EE90;'>-<span style='background-color:#90EE90;'>b7bd<span style='background-color:#90EE90;'>-<span style='background-color:#90EE90;'>5c6e3ff0ed90<span style='background-color:#90EE90;'>",
+        },
+      ],
+    };
+    mockedAxios.get.mockResolvedValueOnce({
+      status: 200,
+      data: mockDiffResponse,
+    });
+
+    const diff = await measureServiceApi.getHumanReadableDiff(
+      oldMeasureId,
+      newMeasureId
+    );
+
+    expect(mockedAxios.get).toBeCalledTimes(1);
+    expect(mockedAxios.get).toBeCalledWith(`${baseUrl}/html-diff`, {
+      headers: {
+        Authorization: `Bearer ${accessToken()}`,
+      },
+      params: {
+        oldMeasureId: oldMeasureId,
+        newMeasureId: newMeasureId,
+      },
+    });
+    expect(diff).toEqual(mockDiffResponse);
+  });
+
+  it("test getHumanReadableDiff fail", async () => {
+    const oldMeasureId = "oldMeasureId";
+    const newMeasureId = "newMeasureId";
+
+    const errorMessage = "Diff failed";
+    mockedAxios.get.mockImplementationOnce(() =>
+      Promise.reject(new Error(errorMessage))
+    );
+
+    await expect(
+      measureServiceApi.getHumanReadableDiff(oldMeasureId, newMeasureId)
+    ).rejects.toThrow(errorMessage);
+  });
 });
