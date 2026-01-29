@@ -137,4 +137,19 @@ describe("MeasureServiceApi", () => {
     expect(consoleErrorMock).toHaveBeenCalled();
     consoleErrorMock.mockRestore();
   });
+
+  it("Should fail deleteGroup with 423 error", async () => {
+    mockedAxios.delete.mockClear();
+    const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
+    const errorMessage = "Group is locked for editing.";
+    mockedAxios.delete.mockRejectedValueOnce({
+      status: 423,
+      response: { data: { message: errorMessage } },
+    });
+    await expect(
+      measureServiceApi.deleteMeasureGroup(group.id, "measureId")
+    ).rejects.toThrow(errorMessage);
+    expect(consoleErrorMock).toHaveBeenCalled();
+    consoleErrorMock.mockRestore();
+  });
 });

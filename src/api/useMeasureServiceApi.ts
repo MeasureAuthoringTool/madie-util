@@ -205,7 +205,9 @@ export class MeasureServiceApi {
     } catch (err) {
       const message = this.buildErrorMessage(
         err,
-        "Failed to delete the measure group."
+        err.status === 423
+          ? err?.response?.data?.message
+          : "Failed to delete the measure group."
       );
       console.error(message, err);
       throw new Error(message);
