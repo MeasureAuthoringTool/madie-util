@@ -1,7 +1,7 @@
 import axios from "../api/axios-instance";
 import useServiceConfig from "./useServiceConfig";
 import useOktaTokens from "../hooks/useOktaTokens";
-import { UserDetails } from "@madie/madie-models";
+import { UserDetails, UserLogin } from "@madie/madie-models";
 
 export class UserServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
@@ -19,6 +19,28 @@ export class UserServiceApi {
       return response.data;
     } catch (err) {
       const message = "Unable to retrieve the owner, please try later.";
+      throw new Error(message);
+    }
+  }
+
+  async loginUser(accessTokenObj: any): Promise<UserLogin> {
+    if (!accessTokenObj || !accessTokenObj.claims) {
+      throw new Error("No access token available for user login.");
+    }
+    try {
+      const userName = accessTokenObj.claims.sub;
+      const response = await axios.put<any>(
+        `${this.baseUrl}/users/${userName}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessTokenObj.accessToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (err) {
+      const message = "Unable to login user, please try later.";
       throw new Error(message);
     }
   }
