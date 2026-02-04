@@ -44,4 +44,60 @@ describe("UserServiceApi", () => {
       "Unable to retrieve the owner, please try later."
     );
   });
+
+  it("successfully logs in user with valid access token", async () => {
+    const accessTokenObj = {
+      claims: {
+        sub: "testuser123",
+      },
+      accessToken: "valid.access.token",
+    };
+    const userLoginResponse = {
+      id: "testuser123",
+      status: "ACTIVE",
+      loginDate: "2026-02-04T10:00:00Z",
+    };
+    const resp = { status: 200, data: userLoginResponse };
+    mockedAxios.put.mockResolvedValue(resp);
+
+    const result = await userServiceApi.loginUser(accessTokenObj);
+    expect(mockedAxios.put).toBeCalledWith(
+      "test.url/users/testuser123",
+      {},
+      {
+        headers: {
+          Authorization: "Bearer valid.access.token",
+        },
+      }
+    );
+    expect(result).toEqual(userLoginResponse);
+  });
+
+  it("throws an error when access token object is null", async () => {
+    await expect(userServiceApi.loginUser(null)).rejects.toThrow(
+      "No access token available for user login."
+    );
+  });
+
+  it("throws an error when access token object has no claims", async () => {
+    const accessTokenObj = {
+      accessToken: "valid.access.token",
+    };
+    await expect(userServiceApi.loginUser(accessTokenObj)).rejects.toThrow(
+      "No access token available for user login."
+    );
+  });
+
+  it("throws an error when unable to login user", async () => {
+    const accessTokenObj = {
+      claims: {
+        sub: "testuser123",
+      },
+      accessToken: "valid.access.token",
+    };
+    mockedAxios.put.mockRejectedValue(new Error("Network error"));
+    await expect(userServiceApi.loginUser(accessTokenObj)).rejects.toThrow(
+      "Unable to login user, please try later."
+    );
+  });
 });
