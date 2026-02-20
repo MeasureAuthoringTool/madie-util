@@ -147,6 +147,26 @@ export class MeasureServiceApi {
     }
   }
 
+  async fetchMeasuresByIds(measureIds: string[]): Promise<any[]> {
+    try {
+      const response = await axios.post<any[]>(
+        `${this.baseUrl}/measures/by-ids`,
+        measureIds,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (err) {
+      const message = `Unable to fetch measures by IDs`;
+      console.error(message, err);
+      throw new Error(message);
+    }
+  }
+
   async deleteMeasure(id: string): Promise<Response> {
     return await axios.delete(`${this.baseUrl}/measures/${id}/delete`, {
       headers: {
