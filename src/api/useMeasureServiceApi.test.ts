@@ -152,4 +152,26 @@ describe("MeasureServiceApi", () => {
     expect(consoleErrorMock).toHaveBeenCalled();
     consoleErrorMock.mockRestore();
   });
+
+  it("returns data on success", async () => {
+    const ids = ["1"];
+    const returned = [{ id: "1" }];
+    mockedAxios.post.mockResolvedValueOnce({ data: returned });
+
+    const result = await measureServiceApi.fetchMeasuresByIds(ids);
+
+    expect(result).toEqual(returned);
+  });
+
+  it("logs error and throws on failure", async () => {
+    const consoleErr = jest.spyOn(console, "error").mockImplementation();
+    mockedAxios.post.mockRejectedValueOnce(new Error("?"));
+
+    await expect(measureServiceApi.fetchMeasuresByIds(["1"])).rejects.toThrow(
+      "Unable to fetch measures by IDs"
+    );
+
+    expect(consoleErr).toHaveBeenCalled();
+    consoleErr.mockRestore();
+  });
 });
