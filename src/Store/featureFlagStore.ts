@@ -7,25 +7,15 @@ export interface FeatureFlags {
   qiCoreElementsTab: boolean;
   qdmHideJson: boolean;
   enableQdmRepeatTransfer: boolean;
-  Locking: boolean;
   qiCore7: boolean;
-  CompareLibraryVersions: boolean;
-  CompareMeasureVersions: boolean;
   QICoreCompositeMeasure: boolean;
-  DisplayOwner: boolean;
-  MakeJSONMatchUI: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
-  Locking: false,
   qiCore7: false,
-  CompareLibraryVersions: false,
-  CompareMeasureVersions: false,
   QICoreCompositeMeasure: false,
-  DisplayOwner: false,
-  MakeJSONMatchUI: false,
 };
 
 let state: FeatureFlags | null = initialState;
