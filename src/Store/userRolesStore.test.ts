@@ -1,0 +1,73 @@
+import { userRolesStore, UserRoles } from "./userRolesStore";
+
+describe("userRolesStore", () => {
+  beforeEach(() => {
+    // Reset the store state before each test
+    userRolesStore.updateUserRoles(null);
+  });
+
+  it("should have initial state with empty roles and isAdmin false", () => {
+    expect(userRolesStore.initialState).toEqual({
+      roles: [],
+      isAdmin: false,
+    });
+  });
+
+  it("should update roles and set isAdmin to false for non-admin user", () => {
+    const roles = ["MADiE-User"];
+    userRolesStore.updateUserRoles(roles);
+
+    expect(userRolesStore.getState()).toEqual({
+      roles: ["MADiE-User"],
+      isAdmin: false,
+    });
+  });
+
+  it("should update roles and set isAdmin to true for admin user", () => {
+    const roles = ["MADiE-User", "MADiE-Admin"];
+    userRolesStore.updateUserRoles(roles);
+
+    expect(userRolesStore.getState()).toEqual({
+      roles: ["MADiE-User", "MADiE-Admin"],
+      isAdmin: true,
+    });
+  });
+
+  it("should handle null roles by setting empty array", () => {
+    userRolesStore.updateUserRoles(null);
+
+    expect(userRolesStore.getState()).toEqual({
+      roles: [],
+      isAdmin: false,
+    });
+  });
+
+  it("should notify subscribers when roles are updated", (done) => {
+    const mockSetUserRoles = jest.fn();
+    const subscription = userRolesStore.subscribe(mockSetUserRoles);
+
+    userRolesStore.updateUserRoles(["MADiE-Admin"]);
+
+    // Use setTimeout to allow the subscription to receive the update
+    setTimeout(() => {
+      expect(mockSetUserRoles).toHaveBeenCalledWith({
+        roles: ["MADiE-Admin"],
+        isAdmin: true,
+      });
+      subscription.unsubscribe();
+      done();
+    }, 0);
+  });
+
+  it("should correctly identify admin when MADiE-Admin is the only role", () => {
+    userRolesStore.updateUserRoles(["MADiE-Admin"]);
+
+    expect(userRolesStore.getState()?.isAdmin).toBe(true);
+  });
+
+  it("should not identify admin when MADiE-Admin is not present", () => {
+    userRolesStore.updateUserRoles(["MADiE-User", "MADiE-Editor"]);
+
+    expect(userRolesStore.getState()?.isAdmin).toBe(false);
+  });
+});
