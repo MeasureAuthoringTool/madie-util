@@ -1,14 +1,8 @@
 import axios from "../api/axios-instance";
 import useServiceConfig from "./useServiceConfig";
 import useOktaTokens from "../hooks/useOktaTokens";
-import { UserDetails } from "@madie/madie-models";
+import { UserDetails, UserLogin } from "@madie/madie-models";
 import { userRolesStore } from "../Store/userRolesStore";
-
-export interface UserLoginResponse {
-  harpId: string;
-  status: string;
-  roles: Array<{ role: string; roleType: string }>;
-}
 
 export class UserServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
@@ -30,51 +24,34 @@ export class UserServiceApi {
     }
   }
 
-  async loginUser(
-    accessToken: string | { accessToken: string }
-  ): Promise<UserLoginResponse> {
+  async loginUser(accessTokenObj: any): Promise<UserLogin> {
+    if (!accessTokenObj || !accessTokenObj.claims) {
+      throw new Error("No access token available for user login.");
+    }
     try {
-      // Handle both string and object formats
-      let tokenString: string;
-      if (typeof accessToken === "string") {
-        tokenString = accessToken;
-      } else if (accessToken && typeof accessToken === "object") {
-        tokenString = accessToken.accessToken;
-      } else {
-        throw new Error("Invalid accessToken type");
-      }
-
-      if (!tokenString) {
-        throw new Error("Token string is empty");
-      }
-
-      // Extract username from the token claims
-      const tokenParts = tokenString.split(".");
-      if (tokenParts.length !== 3) {
-        throw new Error("Invalid token format");
-      }
-      const payload = JSON.parse(atob(tokenParts[1]));
-      const harpId = payload.sub;
-
-      const response = await axios.put<UserLoginResponse>(
-        `${this.baseUrl}/users/${harpId}`,
+      const userName = accessTokenObj.claims.sub;
+      const response = await axios.put<any>(
+        `${this.baseUrl}/users/${userName}`,
         {},
         {
           headers: {
-            Authorization: `Bearer ${tokenString}`,
+            Authorization: `Bearer ${accessTokenObj.accessToken}`,
           },
         }
       );
 
       // Update the user roles store with the roles from the login response
       if (response.data?.roles) {
-        const roleNames = response.data.roles.map((r) => r.role);
+        const roleNames = response.data.roles.map(
+          (r: { role: string }) => r.role
+        );
         userRolesStore.updateUserRoles(roleNames);
       }
 
       return response.data;
     } catch (err) {
-      throw err;
+      const message = "Unable to login user, please try later.";
+      throw new Error(message);
     }
   }
 
