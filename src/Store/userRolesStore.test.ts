@@ -70,4 +70,31 @@ describe("userRolesStore", () => {
 
     expect(userRolesStore.getState()?.isAdmin).toBe(false);
   });
+
+  it("should set isAdmin true when only MADiE-Admin role is present", () => {
+    userRolesStore.updateUserRoles(["MADiE-Admin"]);
+    const state = userRolesStore.getState();
+    expect(state.roles).toEqual(["MADiE-Admin"]);
+    expect(state.isAdmin).toBe(true);
+  });
+
+  it("should set isAdmin true when MADiE-Admin is among multiple roles", () => {
+    userRolesStore.updateUserRoles(["Role1", "MADiE-Admin", "Role2"]);
+    const state = userRolesStore.getState();
+    expect(state.roles).toEqual(["Role1", "MADiE-Admin", "Role2"]);
+    expect(state.isAdmin).toBe(true);
+  });
+
+  it("should set isAdmin false when MADiE-Admin is not present", () => {
+    userRolesStore.updateUserRoles(["Role1", "Role2"]);
+    const state = userRolesStore.getState();
+    expect(state.roles).toEqual(["Role1", "Role2"]);
+    expect(state.isAdmin).toBe(false);
+  });
+
+  it("should persist admin state to localStorage", () => {
+    userRolesStore.updateUserRoles(["MADiE-Admin"]);
+    const stored = JSON.parse(localStorage.getItem("madie-user-roles"));
+    expect(stored.isAdmin).toBe(true);
+  });
 });
