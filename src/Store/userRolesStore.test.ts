@@ -1,4 +1,4 @@
-import { userRolesStore, UserRoles } from "./userRolesStore";
+import { userRolesStore } from "./userRolesStore";
 
 describe("userRolesStore", () => {
   beforeEach(() => {
