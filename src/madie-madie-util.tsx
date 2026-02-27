@@ -22,6 +22,7 @@ import { measureStore } from "./Store/measureStore";
 import { cqlLibraryStore } from "./Store/cqlLibraryStore";
 import { routeHandlerStore } from "./Store/routeHandlerStore";
 import { featureFlagsStore } from "./Store/featureFlagStore";
+import { userRolesStore } from "./Store/userRolesStore";
 import { default as useTerminologyServiceApi } from "./api/useTerminologyServiceApi";
 import { default as useMeasureServiceApi } from "./api/useMeasureServiceApi";
 import { default as useUserServiceApi } from "./api/useUserServiceApi";
@@ -31,6 +32,8 @@ import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { default as checkUserCanEdit } from "./util/useCheckCanEdit";
 import { default as checkUserCanDelete } from "./util/useCheckCanDelete";
 import { useFeatureFlags } from "./hooks/useFeatureFlags";
+import { useUserRoles } from "./hooks/useUserRoles";
+import { useIsAdminTransferEnabled } from "./hooks/useIsAdminTransferEnabled";
 import { getOidFromString } from "./util/terminologyUtils";
 import axios from "./api/axios-instance";
 
@@ -46,6 +49,7 @@ export {
   cqlLibraryStore,
   routeHandlerStore,
   featureFlagsStore,
+  userRolesStore,
   useTerminologyServiceApi,
   useMeasureServiceApi,
   useUserServiceApi,
@@ -55,6 +59,8 @@ export {
   checkUserCanEdit,
   checkUserCanDelete,
   useFeatureFlags,
+  useUserRoles,
+  useIsAdminTransferEnabled,
   getOidFromString,
   wafIntercept,
   axios,

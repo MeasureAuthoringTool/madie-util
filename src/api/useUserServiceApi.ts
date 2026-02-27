@@ -2,6 +2,7 @@ import axios from "../api/axios-instance";
 import useServiceConfig from "./useServiceConfig";
 import useOktaTokens from "../hooks/useOktaTokens";
 import { UserDetails, UserLogin } from "@madie/madie-models";
+import { userRolesStore } from "../Store/userRolesStore";
 
 export class UserServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
@@ -38,10 +39,52 @@ export class UserServiceApi {
           },
         }
       );
+
+      // Update the user roles store with the roles from the login response
+      if (response.data?.roles) {
+        const roleNames = response.data.roles.map(
+          (r: { role: string }) => r.role
+        );
+        userRolesStore.updateUserRoles(roleNames);
+      }
+
       return response.data;
     } catch (err) {
       const message = "Unable to login user, please try later.";
       throw new Error(message);
+    }
+  }
+
+  async fetchUserRoles(): Promise<string[]> {
+    try {
+      const accessToken = this.getAccessToken();
+      if (!accessToken) {
+        return [];
+      }
+
+      // Extract harpId from the token
+      const tokenParts = accessToken.split(".");
+      if (tokenParts.length !== 3) {
+        return [];
+      }
+      const payload = JSON.parse(atob(tokenParts[1]));
+      const harpId = payload.sub;
+
+      const response = await axios.get<{ role: string; roleType: string }[]>(
+        `${this.baseUrl}/users/${harpId}/roles`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      const roleNames = response.data?.map((r) => r.role) ?? [];
+
+      userRolesStore.updateUserRoles(roleNames);
+      return roleNames;
+    } catch (err) {
+      return [];
     }
   }
 }
