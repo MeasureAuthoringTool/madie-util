@@ -9,7 +9,7 @@ export interface UserRoles {
 const STORAGE_KEY = "madie-user-roles";
 
 // Try to restore roles from localStorage
-const getStoredRoles = (): UserRoles | null => {
+export const getStoredRoles = (): UserRoles | null => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
