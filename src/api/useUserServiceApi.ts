@@ -1,7 +1,7 @@
 import axios from "../api/axios-instance";
 import useServiceConfig from "./useServiceConfig";
 import useOktaTokens from "../hooks/useOktaTokens";
-import { UserDetails } from "@madie/madie-models";
+import { UserDetails, UserLogin } from "@madie/madie-models";
 import { userRolesStore } from "../Store/userRolesStore";
 
 export class UserServiceApi {
@@ -24,7 +24,7 @@ export class UserServiceApi {
     }
   }
 
-  async loginUser(accessTokenObj: any): Promise<any> {
+  async loginUser(accessTokenObj: any): Promise<UserLogin> {
     if (!accessTokenObj || !accessTokenObj.claims) {
       throw new Error("No access token available for user login.");
     }

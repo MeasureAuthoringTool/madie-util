@@ -161,4 +161,29 @@ describe("UserServiceApi", () => {
     const result = await api.fetchUserRoles();
     expect(result).toEqual(["MADiE-User"]);
   });
+
+  it("fetchUserRoles returns empty array when axios.get throws", async () => {
+    const payload = { sub: "user123" };
+    const token = ["header", btoa(JSON.stringify(payload)), "signature"].join(
+      "."
+    );
+    const api = new (require("./useUserServiceApi").UserServiceApi)(
+      "test.url",
+      () => token
+    );
+    axios.get.mockRejectedValue(new Error("network fail"));
+    const result = await api.fetchUserRoles();
+    expect(result).toEqual([]);
+    expect(userRolesStore.updateUserRoles).not.toHaveBeenCalled();
+  });
+
+  it("fetchUserRoles returns empty array when token is invalid", async () => {
+    const api = new (require("./useUserServiceApi").UserServiceApi)(
+      "test.url",
+      () => "invalidtoken"
+    );
+    const result = await api.fetchUserRoles();
+    expect(result).toEqual([]);
+    expect(userRolesStore.updateUserRoles).not.toHaveBeenCalled();
+  });
 });

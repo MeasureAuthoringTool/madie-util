@@ -21,6 +21,36 @@ describe("userRolesStore", () => {
     expect(result).toBeNull();
   });
 
+  it("getStoredRoles returns null and logs when stored JSON is invalid", () => {
+    const badJson = "{ invalid json";
+    localStorage.setItem("madie-user-roles", badJson);
+    const consoleErr = jest.spyOn(console, "error").mockImplementation();
+    const result = getStoredRoles();
+    expect(result).toBeNull();
+    expect(consoleErr).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "[userRolesStore] Error reading from localStorage:"
+      ),
+      expect.any(Error)
+    );
+    consoleErr.mockRestore();
+  });
+
+  it("updateUserRoles logs when JSON.stringify throws", () => {
+    const circular: any = {};
+    circular.self = circular;
+    const consoleErr = jest.spyOn(console, "error").mockImplementation();
+    // @ts-ignore - intentionally pass non-string roles to trigger stringify error
+    userRolesStore.updateUserRoles([circular]);
+    const state = userRolesStore.getState();
+    expect(state.roles).toEqual([circular]);
+    expect(state.isAdmin).toBe(false);
+    expect(consoleErr).toHaveBeenCalled();
+    consoleErr.mockRestore();
+  });
+
+  // Note: clearRoles behavior (state reset) is covered below in "should clear roles and reset state".
+
   it("should have initial state with empty roles and isAdmin false", () => {
     expect(userRolesStore.initialState).toEqual({
       roles: [],

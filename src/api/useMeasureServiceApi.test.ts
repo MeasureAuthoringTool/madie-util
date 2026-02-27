@@ -191,6 +191,8 @@ describe("MeasureServiceApi admin coverage", () => {
   beforeEach(() => {
     mockedAxios.get.mockReset();
     mockedAxios.post.mockReset();
+    mockedAxios.put.mockReset();
+    mockedAxios.delete.mockReset();
   });
 
   it("fetchMeasure returns measure for admin", async () => {
@@ -224,5 +226,20 @@ describe("MeasureServiceApi admin coverage", () => {
   it("fetchMeasureDraftStatuses throws error on failure", async () => {
     mockedAxios.post.mockRejectedValue(new Error("fail"));
     await expect(api.fetchMeasureDraftStatuses(["badid"])).rejects.toThrow();
+  });
+
+  it("adminTransferMeasures logs error and throws on failure", async () => {
+    const consoleErr = jest.spyOn(console, "error").mockImplementation();
+    mockedAxios.put.mockRejectedValueOnce(new Error("admin fail"));
+
+    await expect(
+      api.adminTransferMeasures(["m1"], "harpId", true)
+    ).rejects.toThrow("admin fail");
+
+    expect(consoleErr).toHaveBeenCalledWith(
+      "Failed to admin transfer measures",
+      expect.any(Error)
+    );
+    consoleErr.mockRestore();
   });
 });
