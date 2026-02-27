@@ -147,6 +147,26 @@ export class MeasureServiceApi {
     }
   }
 
+  async fetchMeasuresByIds(measureIds: string[]): Promise<any[]> {
+    try {
+      const response = await axios.post<any[]>(
+        `${this.baseUrl}/measures/by-ids`,
+        measureIds,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (err) {
+      const message = `Unable to fetch measures by IDs`;
+      console.error(message, err);
+      throw new Error(message);
+    }
+  }
+
   async deleteMeasure(id: string): Promise<Response> {
     return await axios.delete(`${this.baseUrl}/measures/${id}/delete`, {
       headers: {
@@ -809,6 +829,36 @@ export class MeasureServiceApi {
       return response;
     } catch (err) {
       console.error("Failed to transfer measures", err);
+      throw err;
+    }
+  }
+
+  /**
+   * Admin-only endpoint to transfer measures to a new owner.
+   * Requires the user to have the MADIE-ADMIN role.
+   */
+  async adminTransferMeasures(
+    measureIds: Array<string>,
+    harpId: string,
+    retainShareAccess: boolean
+  ): Promise<any> {
+    try {
+      const response = await axios.put(
+        `${this.baseUrl}/admin/measures/ownership`,
+        measureIds,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+          params: {
+            harpId: harpId,
+            retainShareAccess,
+          },
+        }
+      );
+      return response;
+    } catch (err) {
+      console.error("Failed to admin transfer measures", err);
       throw err;
     }
   }
