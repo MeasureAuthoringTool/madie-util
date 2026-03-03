@@ -1,20 +1,27 @@
 import { UserServiceApi } from "./useUserServiceApi";
-import axios from "../api/axios-instance";
-
-jest.mock("../api/axios-instance");
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-jest.mock("../hooks/useOktaTokens", () =>
-  jest.fn(() => ({
-    getAccessToken: () => "test.jwt",
-  }))
-);
+jest.mock("../api/axios-instance", () => ({
+  get: jest.fn(),
+  put: jest.fn(),
+}));
+jest.mock("../Store/userRolesStore", () => ({
+  userRolesStore: {
+    updateUserRoles: jest.fn(),
+  },
+}));
+const axios = require("../api/axios-instance");
+const { userRolesStore } = require("../Store/userRolesStore");
 
 describe("UserServiceApi", () => {
-  let userServiceApi: UserServiceApi;
+  let userServiceApi;
   beforeEach(() => {
     const getAccessToken = jest.fn(() => "test.jwt");
-    userServiceApi = new UserServiceApi("test.url", getAccessToken);
+    userServiceApi = new (require("./useUserServiceApi").UserServiceApi)(
+      "test.url",
+      getAccessToken
+    );
+    axios.get.mockReset();
+    axios.put.mockReset();
+    userRolesStore.updateUserRoles.mockReset();
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -27,10 +34,10 @@ describe("UserServiceApi", () => {
       lastName: "Owner",
     };
     const resp = { status: 200, data: ownerDetails };
-    mockedAxios.get.mockResolvedValue(resp);
+    axios.get.mockResolvedValue(resp);
 
     const result = await userServiceApi.getOwnerDetails("abc123");
-    expect(mockedAxios.get).toBeCalledWith("test.url/users/abc123/details", {
+    expect(axios.get).toBeCalledWith("test.url/users/abc123/details", {
       headers: {
         Authorization: "Bearer test.jwt",
       },
@@ -39,7 +46,7 @@ describe("UserServiceApi", () => {
   });
 
   it("throws an error when unable to retrieve owner details", async () => {
-    mockedAxios.get.mockRejectedValue(new Error("Network error"));
+    axios.get.mockRejectedValue(new Error("Network error"));
     await expect(userServiceApi.getOwnerDetails("badid")).rejects.toThrow(
       "Unable to retrieve the owner, please try later."
     );
@@ -58,10 +65,10 @@ describe("UserServiceApi", () => {
       loginDate: "2026-02-04T10:00:00Z",
     };
     const resp = { status: 200, data: userLoginResponse };
-    mockedAxios.put.mockResolvedValue(resp);
+    axios.put.mockResolvedValue(resp);
 
     const result = await userServiceApi.loginUser(accessTokenObj);
-    expect(mockedAxios.put).toBeCalledWith(
+    expect(axios.put).toBeCalledWith(
       "test.url/users/testuser123",
       {},
       {
@@ -95,9 +102,88 @@ describe("UserServiceApi", () => {
       },
       accessToken: "valid.access.token",
     };
-    mockedAxios.put.mockRejectedValue(new Error("Network error"));
+    axios.put.mockRejectedValue(new Error("Network error"));
     await expect(userServiceApi.loginUser(accessTokenObj)).rejects.toThrow(
       "Unable to login user, please try later."
     );
+  });
+
+  it("loginUser updates userRolesStore with admin role", async () => {
+    const accessTokenObj = {
+      claims: { sub: "adminuser" },
+      accessToken: "admin.token",
+    };
+    const response = {
+      data: { roles: [{ role: "MADiE-Admin" }, { role: "OtherRole" }] },
+    };
+    axios.put.mockResolvedValue(response);
+    const api = new (require("./useUserServiceApi").UserServiceApi)(
+      "test.url",
+      () => "admin.token"
+    );
+    const result = await api.loginUser(accessTokenObj);
+    expect(userRolesStore.updateUserRoles).toHaveBeenCalledWith([
+      "MADiE-Admin",
+      "OtherRole",
+    ]);
+    expect(result).toEqual(response.data);
+  });
+
+  it("fetchUserRoles returns admin role when present", async () => {
+    // Create a valid JWT token with sub
+    const payload = { sub: "adminuser" };
+    const token = ["header", btoa(JSON.stringify(payload)), "signature"].join(
+      "."
+    );
+    const api = new (require("./useUserServiceApi").UserServiceApi)(
+      "test.url",
+      () => token
+    );
+    axios.get.mockResolvedValue({
+      data: [{ role: "MADiE-Admin", roleType: "admin" }],
+    });
+    const result = await api.fetchUserRoles();
+    expect(result).toEqual(["MADiE-Admin"]);
+  });
+
+  it("fetchUserRoles returns non-admin roles", async () => {
+    const payload = { sub: "user123" };
+    const token = ["header", btoa(JSON.stringify(payload)), "signature"].join(
+      "."
+    );
+    const api = new (require("./useUserServiceApi").UserServiceApi)(
+      "test.url",
+      () => token
+    );
+    axios.get.mockResolvedValue({
+      data: [{ role: "MADiE-User", roleType: "user" }],
+    });
+    const result = await api.fetchUserRoles();
+    expect(result).toEqual(["MADiE-User"]);
+  });
+
+  it("fetchUserRoles returns empty array when axios.get throws", async () => {
+    const payload = { sub: "user123" };
+    const token = ["header", btoa(JSON.stringify(payload)), "signature"].join(
+      "."
+    );
+    const api = new (require("./useUserServiceApi").UserServiceApi)(
+      "test.url",
+      () => token
+    );
+    axios.get.mockRejectedValue(new Error("network fail"));
+    const result = await api.fetchUserRoles();
+    expect(result).toEqual([]);
+    expect(userRolesStore.updateUserRoles).not.toHaveBeenCalled();
+  });
+
+  it("fetchUserRoles returns empty array when token is invalid", async () => {
+    const api = new (require("./useUserServiceApi").UserServiceApi)(
+      "test.url",
+      () => "invalidtoken"
+    );
+    const result = await api.fetchUserRoles();
+    expect(result).toEqual([]);
+    expect(userRolesStore.updateUserRoles).not.toHaveBeenCalled();
   });
 });

@@ -78,7 +78,7 @@ describe("MeasureServiceApi", () => {
 
   it("should return the axios response for updateMeasureTestCaseConfiguration", async () => {
     const response = { data: "updated" };
-    (axios.put as jest.Mock).mockResolvedValue(response);
+    mockedAxios.put.mockResolvedValue(response);
 
     const result = await measureServiceApi.updateMeasureTestCaseConfiguration(
       measure.testCaseConfiguration,
@@ -90,7 +90,7 @@ describe("MeasureServiceApi", () => {
 
   it("should propagate errors from axios.put for updateMeasureTestCaseConfiguration", async () => {
     const error = new Error("Network error");
-    (axios.put as jest.Mock).mockRejectedValue(error);
+    mockedAxios.put.mockRejectedValue(error);
 
     await expect(
       measureServiceApi.updateMeasureTestCaseConfiguration(
@@ -172,6 +172,74 @@ describe("MeasureServiceApi", () => {
     );
 
     expect(consoleErr).toHaveBeenCalled();
+    consoleErr.mockRestore();
+  });
+});
+
+jest.mock("./axios-instance", () => ({
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn(),
+}));
+
+describe("MeasureServiceApi admin coverage", () => {
+  const mockBaseUrl = "http://test-url";
+  const mockGetAccessToken = jest.fn(() => "mock-token");
+  const api = new MeasureServiceApi(mockBaseUrl, mockGetAccessToken);
+
+  beforeEach(() => {
+    mockedAxios.get.mockReset();
+    mockedAxios.post.mockReset();
+    mockedAxios.put.mockReset();
+    mockedAxios.delete.mockReset();
+  });
+
+  it("fetchMeasure returns measure for admin", async () => {
+    const measure = { id: "m1", name: "Admin Measure" };
+    mockedAxios.get.mockResolvedValue({ data: measure });
+    const result = await api.fetchMeasure("m1");
+    expect(result).toEqual(measure);
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      `${mockBaseUrl}/measures/m1`,
+      expect.objectContaining({ headers: expect.any(Object) })
+    );
+  });
+
+  it("fetchMeasure throws error for invalid id", async () => {
+    mockedAxios.get.mockRejectedValue(new Error("fail"));
+    await expect(api.fetchMeasure("badid")).rejects.toThrow();
+  });
+
+  it("fetchMeasureDraftStatuses returns draft statuses for admin", async () => {
+    const statuses = { m1: "draft", m2: "published" };
+    mockedAxios.post.mockResolvedValue({ data: statuses });
+    const result = await api.fetchMeasureDraftStatuses(["m1", "m2"]);
+    expect(result).toEqual(statuses);
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      `${mockBaseUrl}/measures/draftstatus`,
+      ["m1", "m2"],
+      expect.objectContaining({ headers: expect.any(Object) })
+    );
+  });
+
+  it("fetchMeasureDraftStatuses throws error on failure", async () => {
+    mockedAxios.post.mockRejectedValue(new Error("fail"));
+    await expect(api.fetchMeasureDraftStatuses(["badid"])).rejects.toThrow();
+  });
+
+  it("adminTransferMeasures logs error and throws on failure", async () => {
+    const consoleErr = jest.spyOn(console, "error").mockImplementation();
+    mockedAxios.put.mockRejectedValueOnce(new Error("admin fail"));
+
+    await expect(
+      api.adminTransferMeasures(["m1"], "harpId", true)
+    ).rejects.toThrow("admin fail");
+
+    expect(consoleErr).toHaveBeenCalledWith(
+      "Failed to admin transfer measures",
+      expect.any(Error)
+    );
     consoleErr.mockRestore();
   });
 });
