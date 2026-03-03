@@ -4,7 +4,7 @@
     "jsx": "react-jsx",
     "declarationDir": "dist",
     "module": "commonjs",
-    "target": "es2015", //sets the TypeScript compiler to output ES2015 (ES6) JavaScript. This is necessary because features like getter/setter accessors (used in test mocks) are only supported when targeting ES5 or higher. Without this, TypeScript would throw errors for such syntax.
+    "target": "es2015" //sets the TypeScript compiler to output ES2015 (ES6) JavaScript. This is necessary because features like getter/setter accessors (used in test mocks) are only supported when targeting ES5 or higher. Without this, TypeScript would throw errors for such syntax.
     // "declaration": true,
     // "declarationMap": true,
     // "sourceMap": true,
