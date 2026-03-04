@@ -140,7 +140,7 @@ describe("UserServiceApi", () => {
       () => token
     );
     axios.get.mockResolvedValue({
-      data: [{ role: "MADiE-Admin", roleType: "admin" }],
+      data: { harpId: "adminuser", roles: ["MADiE-Admin"] },
     });
     const result = await api.fetchUserRoles();
     expect(result).toEqual(["MADiE-Admin"]);
@@ -156,7 +156,7 @@ describe("UserServiceApi", () => {
       () => token
     );
     axios.get.mockResolvedValue({
-      data: [{ role: "MADiE-User", roleType: "user" }],
+      data: { harpId: "user123", roles: ["MADiE-User"] },
     });
     const result = await api.fetchUserRoles();
     expect(result).toEqual(["MADiE-User"]);
