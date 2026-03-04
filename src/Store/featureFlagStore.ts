@@ -9,7 +9,7 @@ export interface FeatureFlags {
   enableQdmRepeatTransfer: boolean;
   qiCore7: boolean;
   QICoreCompositeMeasure: boolean;
-  AdminTransferMeasures: boolean;
+  AdminTransferMeasure: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -17,7 +17,7 @@ const initialState: FeatureFlags = {
   enableQdmRepeatTransfer: false,
   qiCore7: false,
   QICoreCompositeMeasure: false,
-  AdminTransferMeasures: false,
+  AdminTransferMeasure: false,
 };
 
 let state: FeatureFlags | null = initialState;
