@@ -59,7 +59,7 @@ export interface ServiceConfig {
     EnhancedTextFormatting?: boolean;
     qiCore7?: boolean;
     QICoreCompositeMeasure?: boolean;
-    AdminTransferMeasures?: boolean;
+    AdminTransferMeasure?: boolean;
   };
 }
 
