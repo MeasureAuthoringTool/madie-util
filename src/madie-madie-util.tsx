@@ -36,7 +36,7 @@ import { useUserRoles } from "./hooks/useUserRoles";
 import { useIsAdminTransferEnabled } from "./hooks/useIsAdminTransferEnabled";
 import { getOidFromString } from "./util/terminologyUtils";
 import axios from "./api/axios-instance";
-import { useIsAdminShareLibraryEnabled } from "./hooks/useIsAdminShareLibraryEnabled";
+import { useIsRoleOrFeatureEnabled } from "./hooks/useIsRoleOrFeatureEnabled";
 
 export {
   useServiceConfig,
@@ -68,5 +68,5 @@ export {
   ApiContextConsumer,
   ApiContextProvider,
   OktaConfig,
-  useIsAdminShareLibraryEnabled,
+  useIsRoleOrFeatureEnabled,
 };
