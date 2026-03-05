@@ -55,6 +55,8 @@ export class UserServiceApi {
     }
   }
 
+  // Todo This is never called and should be removed. The user roles are now being set during login and stored in the userRolesStore.
+  //  If we need to fetch user roles separately in the future, we can implement a new API method for that.
   async fetchUserRoles(): Promise<string[]> {
     try {
       const accessToken = this.getAccessToken();

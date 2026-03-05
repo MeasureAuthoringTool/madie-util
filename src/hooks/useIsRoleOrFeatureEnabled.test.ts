@@ -15,7 +15,8 @@ describe("useIsRoleOrFeatureEnabled", () => {
       qdmHideJson: false,
       enableQdmRepeatTransfer: false,
       qiCore7: false,
-      AdminTransferMeasures: false,
+      AdminTransferMeasure: false,
+      AdminTransferLibrary: false,
       AdminShareLibrary: false,
     });
 
@@ -42,40 +43,76 @@ describe("useIsRoleOrFeatureEnabled", () => {
     expect(result.current).toBe(false);
   });
 
-  it("returns true when AdminTransferMeasures flag is enabled and user is admin", () => {
+  it("returns true when AdminTransferMeasure flag is enabled and user is admin", () => {
     jest
       .spyOn(featureFlagsModule, "useFeatureFlags")
-      .mockReturnValue({ AdminTransferMeasures: true });
+      .mockReturnValue({ AdminTransferMeasure: true });
     jest
       .spyOn(userRolesModule, "useUserRoles")
       .mockReturnValue({ isAdmin: true });
-    expect(useIsRoleOrFeatureEnabled("AdminTransferMeasures")).toBe(true);
+    expect(useIsRoleOrFeatureEnabled("AdminTransferMeasure")).toBe(true);
   });
 
-  it("returns false when AdminTransferMeasures flag is disabled", () => {
+  it("returns false when AdminTransferMeasure flag is disabled", () => {
     jest
       .spyOn(featureFlagsModule, "useFeatureFlags")
-      .mockReturnValue({ AdminTransferMeasures: false });
+      .mockReturnValue({ AdminTransferMeasure: false });
     jest
       .spyOn(userRolesModule, "useUserRoles")
       .mockReturnValue({ isAdmin: true });
-    expect(useIsRoleOrFeatureEnabled("AdminTransferMeasures")).toBe(false);
+    expect(useIsRoleOrFeatureEnabled("AdminTransferMeasure")).toBe(false);
   });
 
-  it("returns false when user is not admin for AdminTransferMeasures", () => {
+  it("returns false when user is not admin for AdminTransferMeasure", () => {
     jest
       .spyOn(featureFlagsModule, "useFeatureFlags")
-      .mockReturnValue({ AdminTransferMeasures: true });
+      .mockReturnValue({ AdminTransferMeasure: true });
     jest
       .spyOn(userRolesModule, "useUserRoles")
       .mockReturnValue({ isAdmin: false });
-    expect(useIsRoleOrFeatureEnabled("AdminTransferMeasures")).toBe(false);
+    expect(useIsRoleOrFeatureEnabled("AdminTransferMeasure")).toBe(false);
   });
 
-  it("returns false when feature flag and user role are both missing for AdminTransferMeasures", () => {
+  it("returns false when feature flag and user role are both missing for AdminTransferMeasure", () => {
     jest.spyOn(featureFlagsModule, "useFeatureFlags").mockReturnValue({});
     jest.spyOn(userRolesModule, "useUserRoles").mockReturnValue({});
-    expect(useIsRoleOrFeatureEnabled("AdminTransferMeasures")).toBe(false);
+    expect(useIsRoleOrFeatureEnabled("AdminTransferMeasure")).toBe(false);
+  });
+
+  it("returns true when AdminTransferLibrary flag is enabled and user is admin", () => {
+    jest
+      .spyOn(featureFlagsModule, "useFeatureFlags")
+      .mockReturnValue({ AdminTransferLibrary: true });
+    jest
+      .spyOn(userRolesModule, "useUserRoles")
+      .mockReturnValue({ isAdmin: true });
+    expect(useIsRoleOrFeatureEnabled("AdminTransferLibrary")).toBe(true);
+  });
+
+  it("returns false when AdminTransferLibrary flag is disabled", () => {
+    jest
+      .spyOn(featureFlagsModule, "useFeatureFlags")
+      .mockReturnValue({ AdminTransferLibrary: false });
+    jest
+      .spyOn(userRolesModule, "useUserRoles")
+      .mockReturnValue({ isAdmin: true });
+    expect(useIsRoleOrFeatureEnabled("AdminTransferLibrary")).toBe(false);
+  });
+
+  it("returns false when user is not admin for AdminTransferLibrary", () => {
+    jest
+      .spyOn(featureFlagsModule, "useFeatureFlags")
+      .mockReturnValue({ AdminTransferLibrary: true });
+    jest
+      .spyOn(userRolesModule, "useUserRoles")
+      .mockReturnValue({ isAdmin: false });
+    expect(useIsRoleOrFeatureEnabled("AdminTransferLibrary")).toBe(false);
+  });
+
+  it("returns false when feature flag and user role are both missing for AdminTransferLibrary", () => {
+    jest.spyOn(featureFlagsModule, "useFeatureFlags").mockReturnValue({});
+    jest.spyOn(userRolesModule, "useUserRoles").mockReturnValue({});
+    expect(useIsRoleOrFeatureEnabled("AdminTransferLibrary")).toBe(false);
   });
 
   it("returns true when AdminShareLibrary flag is enabled and user is admin", () => {

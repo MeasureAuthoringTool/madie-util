@@ -7,7 +7,8 @@ export enum FeatureFlagsEnum {
   ENABLE_QDM_REPEAT_TRANSFER = "enableQdmRepeatTransfer",
   QI_CORE_7 = "qiCore7",
   QI_CORE_COMPOSITE_MEASURE = "QICoreCompositeMeasure",
-  ADMIN_TRANSFER_MEASURES = "AdminTransferMeasures",
+  ADMIN_TRANSFER_MEASURE = "AdminTransferMeasure",
+  ADMIN_TRANSFER_LIBRARY = "AdminTransferLibrary",
   ADMIN_SHARE_LIBRARY = "AdminShareLibrary",
 }
 
@@ -29,8 +30,10 @@ export function useIsRoleOrFeatureEnabled(feature: string): boolean {
     return featureFlags?.qiCore7;
   } else if (feature === FeatureFlagsEnum.QI_CORE_COMPOSITE_MEASURE) {
     return featureFlags?.QICoreCompositeMeasure;
-  } else if (feature === FeatureFlagsEnum.ADMIN_TRANSFER_MEASURES) {
-    return Boolean(featureFlags?.AdminTransferMeasures && userRoles?.isAdmin);
+  } else if (feature === FeatureFlagsEnum.ADMIN_TRANSFER_MEASURE) {
+    return Boolean(featureFlags?.AdminTransferMeasure && userRoles?.isAdmin);
+  } else if (feature === FeatureFlagsEnum.ADMIN_TRANSFER_LIBRARY) {
+    return Boolean(featureFlags?.AdminTransferLibrary && userRoles?.isAdmin);
   } else if (feature === FeatureFlagsEnum.ADMIN_SHARE_LIBRARY) {
     return Boolean(featureFlags?.AdminShareLibrary && userRoles?.isAdmin);
   }

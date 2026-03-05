@@ -9,7 +9,8 @@ export interface FeatureFlags {
   enableQdmRepeatTransfer: boolean;
   qiCore7: boolean;
   QICoreCompositeMeasure: boolean;
-  AdminTransferMeasures: boolean;
+  AdminTransferMeasure: boolean;
+  AdminTransferLibrary: boolean;
   AdminShareLibrary: boolean;
 }
 const initialState: FeatureFlags = {
@@ -18,7 +19,8 @@ const initialState: FeatureFlags = {
   enableQdmRepeatTransfer: false,
   qiCore7: false,
   QICoreCompositeMeasure: false,
-  AdminTransferMeasures: false,
+  AdminTransferMeasure: false,
+  AdminTransferLibrary: false,
   AdminShareLibrary: false,
 };
 
