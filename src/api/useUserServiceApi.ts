@@ -69,10 +69,11 @@ export class UserServiceApi {
       if (tokenParts.length !== 3) {
         return [];
       }
+
       const payload = JSON.parse(atob(tokenParts[1]));
       const harpId = payload.sub;
 
-      const response = await axios.get<{ role: string; roleType: string }[]>(
+      const response = await axios.get<{ harpId: string; roles: string[] }>(
         `${this.baseUrl}/users/${harpId}/roles`,
         {
           headers: {
@@ -81,11 +82,12 @@ export class UserServiceApi {
         }
       );
 
-      const roleNames = response.data?.map((r) => r.role) ?? [];
+      const roleNames = response.data?.roles ?? [];
 
       userRolesStore.updateUserRoles(roleNames);
       return roleNames;
     } catch (err) {
+      console.error("Error fetching user roles:", err);
       return [];
     }
   }

@@ -13,6 +13,7 @@ export function useDocumentTitle(title, prevailOnUnmount = false) {
         document.title = defaultTitle.current;
       }
     },
-    []
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [] // Intentionally empty - cleanup should use prevailOnUnmount value from mount time
   );
 }

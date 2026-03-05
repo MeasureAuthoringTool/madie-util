@@ -53,6 +53,13 @@ export interface ServiceConfig {
   features?: {
     export?: boolean;
     qdmToFhirConversion?: boolean;
+    qiCoreElementsTab?: boolean;
+    qdmHideJson?: boolean;
+    enableQdmRepeatTransfer?: boolean;
+    EnhancedTextFormatting?: boolean;
+    qiCore7?: boolean;
+    QICoreCompositeMeasure?: boolean;
+    AdminTransferMeasure?: boolean;
   };
 }
 
