@@ -6,10 +6,10 @@ describe("useIsAdminTransferEnabled", () => {
     jest.clearAllMocks();
   });
 
-  it("returns true when AdminTransferMeasures flag is enabled and user is admin", () => {
+  it("returns true when AdminTransferMeasure flag is enabled and user is admin", () => {
     jest
       .spyOn(featureFlagsModule, "useFeatureFlags")
-      .mockReturnValue({ AdminTransferMeasures: true });
+      .mockReturnValue({ AdminTransferMeasure: true });
     jest
       .spyOn(userRolesModule, "useUserRoles")
       .mockReturnValue({ isAdmin: true });
@@ -18,10 +18,10 @@ describe("useIsAdminTransferEnabled", () => {
     ).toBe(true);
   });
 
-  it("returns false when AdminTransferMeasures flag is disabled", () => {
+  it("returns false when AdminTransferMeasure flag is disabled", () => {
     jest
       .spyOn(featureFlagsModule, "useFeatureFlags")
-      .mockReturnValue({ AdminTransferMeasures: false });
+      .mockReturnValue({ AdminTransferMeasure: false });
     jest
       .spyOn(userRolesModule, "useUserRoles")
       .mockReturnValue({ isAdmin: true });
@@ -33,7 +33,7 @@ describe("useIsAdminTransferEnabled", () => {
   it("returns false when user is not admin", () => {
     jest
       .spyOn(featureFlagsModule, "useFeatureFlags")
-      .mockReturnValue({ AdminTransferMeasures: true });
+      .mockReturnValue({ AdminTransferMeasure: true });
     jest
       .spyOn(userRolesModule, "useUserRoles")
       .mockReturnValue({ isAdmin: false });
