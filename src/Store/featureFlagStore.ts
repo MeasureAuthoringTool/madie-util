@@ -10,7 +10,7 @@ export interface FeatureFlags {
   qiCore7: boolean;
   QICoreCompositeMeasure: boolean;
   AdminTransferMeasures: boolean;
-  AdminShareMeasure: boolean;
+  AdminShareMeasures: boolean;
   AdminTransferMeasure: boolean;
   AdminTransferLibrary: boolean;
 }
@@ -21,7 +21,7 @@ const initialState: FeatureFlags = {
   qiCore7: false,
   QICoreCompositeMeasure: false,
   AdminTransferMeasures: false,
-  AdminShareMeasure: false,
+  AdminShareMeasures: false,
   AdminTransferMeasure: false,
   AdminTransferLibrary: false,
 };
