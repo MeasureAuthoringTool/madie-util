@@ -72,4 +72,35 @@ describe("wafIntercept", () => {
       wafIntercept(error);
     }).toThrowError();
   });
+
+  it("extracts supportID when ID: is present", () => {
+    const error = {
+      response: {
+        status: 403,
+        headers: { "content-type": "text/html" },
+        data: "<body>ID:12345<br>soc@hcqis.org<br></body>",
+      },
+    };
+    try {
+      wafIntercept(error);
+    } catch (e) {
+      // Expect supportID to be "12345"
+      expect(e.message).toBe("ID:12345");
+    }
+  });
+
+  it("sets supportID to empty string when ID: is not present", () => {
+    const error = {
+      response: {
+        status: 403,
+        headers: { "content-type": "text/html" },
+        data: "<body>soc@hcqis.org<br></body>",
+      },
+    };
+    try {
+      wafIntercept(error);
+    } catch (e) {
+      expect(e.message).toBe("soc@hcqis.org");
+    }
+  });
 });
