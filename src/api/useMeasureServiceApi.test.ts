@@ -906,7 +906,7 @@ describe("MeasureServiceApi admin coverage", () => {
   });
 
   it("returns false and logs an error when the API call fails", async () => {
-    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+    jest.spyOn(console, "error").mockImplementation();
     mockedAxios.get.mockRejectedValueOnce(new Error("failure"));
     const consoleWarnMock = jest.spyOn(console, "warn").mockImplementation();
     await expect(api.checkTestCasesLocked("1")).rejects.toThrow("failure");
