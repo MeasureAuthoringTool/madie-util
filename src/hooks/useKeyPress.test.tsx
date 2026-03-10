@@ -7,7 +7,11 @@ describe("useKeyPress", () => {
     cleanup();
   });
 
-  function TestComponent({ targetKey }) {
+  type TestComponentProps = {
+    targetKey: string;
+  };
+
+  function TestComponent({ targetKey }: TestComponentProps) {
     const isPressed = useKeyPress(targetKey);
     return (
       <div data-testid="status">{isPressed ? "pressed" : "not pressed"}</div>

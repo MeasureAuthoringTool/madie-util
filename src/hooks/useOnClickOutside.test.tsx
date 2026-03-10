@@ -3,7 +3,11 @@ import { render, fireEvent } from "@testing-library/react";
 import useOnClickOutside from "./useOnClickOutside";
 
 describe("useOnClickOutside", () => {
-  function TestComponent({ handler }) {
+  type TestComponentProps = {
+    handler: () => void;
+  };
+
+  function TestComponent({ handler }: TestComponentProps) {
     const ref = useRef(null);
     useOnClickOutside(ref, handler);
     return (

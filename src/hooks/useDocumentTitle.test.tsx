@@ -2,7 +2,12 @@ import React from "react";
 import { render, cleanup } from "@testing-library/react";
 import { useDocumentTitle } from "./useDocumentTitle";
 
-function TestComponent({ title, prevailOnUnmount }) {
+type TestComponentProps = {
+  title: string;
+  prevailOnUnmount?: boolean;
+};
+
+function TestComponent({ title, prevailOnUnmount }: TestComponentProps) {
   useDocumentTitle(title, prevailOnUnmount);
   return <div>Test</div>;
 }
