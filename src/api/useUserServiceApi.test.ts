@@ -203,8 +203,9 @@ describe("UserServiceApi", () => {
 });
 
 describe("function useUserServiceApi()", () => {
+  const baseUrl = "mockBaseUrl";
   const mockConfig = {
-    userService: { baseUrl: "mockBaseUrl" },
+    userService: { baseUrl },
     getAccessToken: () => "test.jwt",
     measureService: { baseUrl: "mockMeasureBaseUrl" }, // Provide required baseUrl
   };
