@@ -13,6 +13,7 @@ export interface FeatureFlags {
   AdminShareMeasures: boolean;
   AdminTransferMeasure: boolean;
   AdminTransferLibrary: boolean;
+  AdminShareLibrary: boolean;
 }
 const initialState: FeatureFlags = {
   qiCoreElementsTab: false,
@@ -24,6 +25,7 @@ const initialState: FeatureFlags = {
   AdminShareMeasures: false,
   AdminTransferMeasure: false,
   AdminTransferLibrary: false,
+  AdminShareLibrary: false,
 };
 
 let state: FeatureFlags | null = initialState;
