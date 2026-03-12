@@ -1,6 +1,12 @@
 import axios from "./axios-instance";
-import { CqlLibraryServiceApi } from "./useCqlLibraryServiceApi";
+import useCqlLibraryServiceApi, {
+  CqlLibraryServiceApi,
+} from "./useCqlLibraryServiceApi";
 import { OwnershipType } from "@madie/madie-models";
+import { renderHook } from "@testing-library/react-hooks";
+import { ServiceContext } from "./ServiceContext";
+import React from "react";
+
 jest.mock("./axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -273,6 +279,14 @@ describe("useCqlLibraryServiceApi", () => {
     ).rejects.toThrow();
   });
 
+  it("getRecentLibrariesByLibrarySetId when there is no response.data", async () => {
+    mockedAxios.get.mockResolvedValueOnce({});
+    const result = await cqlLibraryServiceApi.getRecentLibrariesByLibrarySetId([
+      "id1",
+    ]);
+    expect(result).toEqual(undefined);
+  });
+
   it("should unshare libraries", async () => {
     mockedAxios.put.mockResolvedValueOnce({ data: "unshared" });
     const map = new Map([["id1", ["user1"]]]);
@@ -320,6 +334,18 @@ describe("useCqlLibraryServiceApi", () => {
     ).rejects.toThrow();
   });
 
+  it("getLibrariesByLibrarySetId when there is no response.data", async () => {
+    mockedAxios.put.mockResolvedValueOnce({});
+    const result = await cqlLibraryServiceApi.getLibrariesByLibrarySetId(
+      "id1",
+      true,
+      {
+        criteria: "test",
+      }
+    );
+    expect(result).toEqual(undefined);
+  });
+
   it("should lock a library", async () => {
     mockedAxios.post.mockResolvedValueOnce({ data: "locked" });
     const result = await cqlLibraryServiceApi.lockLibrary("lib1");
@@ -353,5 +379,63 @@ describe("useCqlLibraryServiceApi", () => {
   it("should handle error in unlockLibrary", async () => {
     mockedAxios.delete.mockRejectedValueOnce("fail");
     await expect(cqlLibraryServiceApi.unlockLibrary("lib1")).rejects.toThrow();
+  });
+
+  it("test fetchCqlLibraries Unable to fetch Cql Libraries", async () => {
+    mockedAxios.get.mockRejectedValueOnce(new Error("fail"));
+    await expect(
+      cqlLibraryServiceApi.fetchCqlLibraries(
+        OwnershipType.OWNED,
+        25,
+        0,
+        {},
+        undefined,
+        undefined
+      )
+    ).rejects.toThrow();
+  });
+
+  it("fetchCqlLibraries skip limit, page", async () => {
+    const mockedResponse = { data: [{ id: "1" }] };
+    mockedAxios.put.mockResolvedValueOnce(mockedResponse);
+    const result = await cqlLibraryServiceApi.fetchCqlLibraries(
+      OwnershipType.OWNED,
+      undefined,
+      undefined,
+      {},
+      undefined,
+      undefined
+    );
+    expect(result).toEqual(mockedResponse.data);
+  });
+
+  it("fetchCqlLibraries limit is All", async () => {
+    const mockedResponse = { data: [{ id: "1" }] };
+    mockedAxios.put.mockResolvedValueOnce(mockedResponse);
+    const result = await cqlLibraryServiceApi.fetchCqlLibraries(
+      OwnershipType.OWNED,
+      "All",
+      undefined,
+      {},
+      undefined,
+      undefined
+    );
+    expect(result).toEqual(mockedResponse.data);
+  });
+
+  it("test function useCqlLibraryServiceApi", () => {
+    const mockConfig = {
+      cqlLibraryService: {
+        baseUrl: mockBaseUrl,
+      },
+    };
+    const wrapper = ({ children }) =>
+      React.createElement(
+        ServiceContext.Provider,
+        { value: mockConfig },
+        children
+      );
+    const { result } = renderHook(() => useCqlLibraryServiceApi(), { wrapper });
+    expect(result.current).toBeInstanceOf(CqlLibraryServiceApi);
   });
 });
