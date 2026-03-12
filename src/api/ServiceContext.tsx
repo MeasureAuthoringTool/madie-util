@@ -31,9 +31,6 @@ export interface ServiceConfig {
   loggingService?: {
     baseUrl: string;
   };
-  testCaseService?: {
-    baseUrl: string;
-  };
   excelExportService?: {
     baseUrl: string;
   };
