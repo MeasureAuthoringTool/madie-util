@@ -1,8 +1,10 @@
 import useTerminologyServiceApi, {
   TerminologyServiceApi,
 } from "./useTerminologyServiceApi";
-import { ServiceConfig } from "./ServiceContext";
+import { ServiceConfig, ServiceContext } from "./ServiceContext";
 import axios from "../api/axios-instance";
+import React from "react";
+import { renderHook } from "@testing-library/react-hooks";
 
 jest.mock("../api/axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -130,5 +132,24 @@ describe("useTerminologyServiceApi", () => {
         expect(result).toBe(false);
       });
     });
+  });
+});
+
+describe("function useTerminologyServiceApi()", () => {
+  const wrapper = ({ children }) =>
+    React.createElement(
+      ServiceContext.Provider,
+      { value: mockConfig },
+      children
+    );
+
+  it("returns an instance of TerminologyServiceApi", () => {
+    const { result } = renderHook(() => useTerminologyServiceApi(), {
+      wrapper,
+    });
+    expect(result.current).toBeDefined();
+    expect(result.current.baseUrl).toBe("url");
+    expect(typeof result.current.getAccessToken).toBe("function");
+    expect(result.current.getAccessToken()).toBe("test.jwt");
   });
 });

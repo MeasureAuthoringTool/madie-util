@@ -1,4 +1,8 @@
-import { UserServiceApi } from "./useUserServiceApi";
+import useUserServiceApi from "./useUserServiceApi";
+import React from "react";
+import { renderHook } from "@testing-library/react-hooks";
+import { ServiceContext } from "./ServiceContext";
+
 jest.mock("../api/axios-instance", () => ({
   get: jest.fn(),
   put: jest.fn(),
@@ -185,5 +189,53 @@ describe("UserServiceApi", () => {
     const result = await api.fetchUserRoles();
     expect(result).toEqual([]);
     expect(userRolesStore.updateUserRoles).not.toHaveBeenCalled();
+  });
+
+  it("fetchUserRoles no access token", async () => {
+    const api = new (require("./useUserServiceApi").UserServiceApi)(
+      "test.url",
+      () => ""
+    );
+    const result = await api.fetchUserRoles();
+    expect(result).toEqual([]);
+    expect(userRolesStore.updateUserRoles).not.toHaveBeenCalled();
+  });
+});
+
+describe("function useUserServiceApi()", () => {
+  const baseUrl = "mockBaseUrl";
+  const mockConfig = {
+    userService: { baseUrl },
+    getAccessToken: () => "test.jwt",
+    measureService: { baseUrl: "mockMeasureBaseUrl" }, // Provide required baseUrl
+  };
+  const wrapper = ({ children }) =>
+    React.createElement(
+      ServiceContext.Provider,
+      { value: mockConfig },
+      children
+    );
+
+  it("returns an instance of UserServiceApi", () => {
+    const { result } = renderHook(() => useUserServiceApi(), { wrapper });
+    expect(result.current).toBeDefined();
+    // Instead of accessing private properties, test public method
+    expect(typeof result.current.fetchUserRoles).toBe("function");
+  });
+
+  it("fetchUserRoles with no response.data?.roles", async () => {
+    const payload = { sub: "user123" };
+    const token = ["header", btoa(JSON.stringify(payload)), "signature"].join(
+      "."
+    );
+    const api = new (require("./useUserServiceApi").UserServiceApi)(
+      "test.url",
+      () => token
+    );
+    axios.get.mockResolvedValue({
+      data: { harpId: "user123" },
+    });
+    const result = await api.fetchUserRoles();
+    expect(result).toEqual([]);
   });
 });

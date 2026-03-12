@@ -1,6 +1,11 @@
 import axios from "../api/axios-instance";
-import { FhirElmTranslationServiceApi } from "./useFhirElmTranslationServiceApi";
+import useFhirElmTranslationServiceApi, {
+  FhirElmTranslationServiceApi,
+} from "./useFhirElmTranslationServiceApi";
 import { Measure } from "@madie/madie-models";
+import { renderHook } from "@testing-library/react-hooks";
+import { ServiceContext } from "./ServiceContext";
+import React from "react";
 
 jest.mock("../api/axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -79,6 +84,28 @@ describe("FhirElmTranslationServiceApi", () => {
       const result = await api.fetchRelevantDataElements(mockMeasure);
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("test function useFhirElmTranslationServiceApi", () => {
+    const mockBaseUrl = "http://localhost/api";
+    it("test function useFhirElmTranslationServiceApi", async () => {
+      const mockConfig = {
+        fhirElmTranslationService: {
+          baseUrl: mockBaseUrl,
+        },
+        // Add other config properties if needed
+      };
+      const wrapper = ({ children }) =>
+        React.createElement(
+          ServiceContext.Provider,
+          { value: mockConfig },
+          children
+        );
+      const { result } = renderHook(() => useFhirElmTranslationServiceApi(), {
+        wrapper,
+      });
+      expect(result.current).toBeInstanceOf(FhirElmTranslationServiceApi);
     });
   });
 });
