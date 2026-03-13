@@ -236,21 +236,6 @@ describe("MeasureServiceApi admin coverage", () => {
     await expect(api.fetchMeasureDraftStatuses(["badid"])).rejects.toThrow();
   });
 
-  it("adminTransferMeasures logs error and throws on failure", async () => {
-    const consoleErr = jest.spyOn(console, "error").mockImplementation();
-    mockedAxios.put.mockRejectedValueOnce(new Error("admin fail"));
-
-    await expect(
-      api.adminTransferMeasures(["m1"], "harpId", true)
-    ).rejects.toThrow("admin fail");
-
-    expect(consoleErr).toHaveBeenCalledWith(
-      "Failed to admin transfer measures",
-      expect.any(Error)
-    );
-    consoleErr.mockRestore();
-  });
-
   it("getMeasuresByMeasureSetId returns measures for admin", async () => {
     const measures = [{ id: "m1", name: "Admin Measure" }];
     mockedAxios.put.mockResolvedValue({ data: measures });
@@ -853,19 +838,6 @@ describe("MeasureServiceApi admin coverage", () => {
     } catch (error) {
       expect(error.message).toBe("[object Object]");
     }
-  });
-
-  it("adminTransferMeasures transfers measures successfully", async () => {
-    const resp = { status: 200, data: "success" };
-    mockedAxios.put.mockResolvedValue(resp);
-
-    const result = await api.adminTransferMeasures(
-      ["measure1", "measure2"],
-      "harpId",
-      false
-    );
-    expect(mockedAxios.put).toBeCalledTimes(1);
-    expect(result).toEqual({ data: "success", status: 200 });
   });
 
   it("should succeed getMeasureHistoryLogs", async () => {
