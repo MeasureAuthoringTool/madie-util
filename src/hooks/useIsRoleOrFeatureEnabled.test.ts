@@ -10,6 +10,7 @@ describe("useIsRoleOrFeatureEnabled", () => {
 
   it("returns true when feature flag is enabled", () => {
     jest.spyOn(featureFlagsModule, "useFeatureFlags").mockReturnValue({
+      AdminShareMeasures: false,
       QICoreCompositeMeasure: true,
       qiCoreElementsTab: false,
       qdmHideJson: false,

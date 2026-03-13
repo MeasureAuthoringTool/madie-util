@@ -833,35 +833,6 @@ export class MeasureServiceApi {
     }
   }
 
-  /**
-   * Admin-only endpoint to transfer measures to a new owner.
-   * Requires the user to have the MADIE-ADMIN role.
-   */
-  async adminTransferMeasures(
-    measureIds: Array<string>,
-    harpId: string,
-    retainShareAccess: boolean
-  ): Promise<any> {
-    try {
-      const response = await axios.put(
-        `${this.baseUrl}/admin/measures/ownership`,
-        measureIds,
-        {
-          headers: {
-            Authorization: `Bearer ${this.getAccessToken()}`,
-          },
-          params: {
-            harpId: harpId,
-            retainShareAccess,
-          },
-        }
-      );
-      return response;
-    } catch (err) {
-      console.error("Failed to admin transfer measures", err);
-      throw err;
-    }
-  }
   async getMeasureHistoryLogs(
     measureId: String
   ): Promise<MeasureHistoryActions[]> {
