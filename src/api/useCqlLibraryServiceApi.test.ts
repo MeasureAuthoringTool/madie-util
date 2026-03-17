@@ -2,7 +2,7 @@ import axios from "./axios-instance";
 import useCqlLibraryServiceApi, {
   CqlLibraryServiceApi,
 } from "./useCqlLibraryServiceApi";
-import { OwnershipType } from "@madie/madie-models";
+import { CqlLibrary, OwnershipType } from "@madie/madie-models";
 import { renderHook } from "@testing-library/react-hooks";
 import { ServiceContext } from "./ServiceContext";
 import React from "react";
@@ -17,22 +17,18 @@ jest.mock("../hooks/useOktaTokens", () => () => ({
 describe("useCqlLibraryServiceApi", () => {
   const mockBaseUrl = "http://localhost/api";
   const mockToken = "mocked-token";
-  const mockGetAccessToken = jest.fn().mockReturnValue(mockToken);
 
-  const cqlLibraryServiceApi = new CqlLibraryServiceApi(
-    mockBaseUrl,
-    mockGetAccessToken
-  );
+  let cqlLibraryServiceApi: CqlLibraryServiceApi;
+  let mockGetAccessToken: jest.Mock;
 
-  beforeAll(() => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
-  });
-  afterAll(() => {
-    (console.error as jest.Mock).mockRestore();
-  });
-
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
+    mockGetAccessToken = jest.fn().mockReturnValue(mockToken);
+    cqlLibraryServiceApi = new CqlLibraryServiceApi(
+      mockBaseUrl,
+      mockGetAccessToken
+    );
   });
 
   it("should create and return CqlLibraryServiceApi instance with correct config", () => {
@@ -347,10 +343,10 @@ describe("useCqlLibraryServiceApi", () => {
   });
 
   it("should lock a library", async () => {
-    mockedAxios.post.mockResolvedValueOnce({ data: "locked" });
+    mockedAxios.put.mockResolvedValueOnce({ data: "locked" });
     const result = await cqlLibraryServiceApi.lockLibrary("lib1");
-    expect(mockedAxios.post).toHaveBeenCalledWith(
-      `${mockBaseUrl}/libraries/lib1/lock`,
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/lib1/lock`,
       null,
       expect.objectContaining({
         headers: { Authorization: `Bearer ${mockToken}` },
@@ -368,7 +364,7 @@ describe("useCqlLibraryServiceApi", () => {
     mockedAxios.delete.mockResolvedValueOnce({ data: "unlocked" });
     const result = await cqlLibraryServiceApi.unlockLibrary("lib1");
     expect(mockedAxios.delete).toHaveBeenCalledWith(
-      `${mockBaseUrl}/cql-libraries/lib1/unlock`,
+      `${mockBaseUrl}/cql-libraries/lib1/lock`,
       expect.objectContaining({
         headers: { Authorization: `Bearer ${mockToken}` },
       })
@@ -437,5 +433,112 @@ describe("useCqlLibraryServiceApi", () => {
       );
     const { result } = renderHook(() => useCqlLibraryServiceApi(), { wrapper });
     expect(result.current).toBeInstanceOf(CqlLibraryServiceApi);
+  });
+
+  it("test getCqlDiff", async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: "diff" });
+    const result = await cqlLibraryServiceApi.getCqlDiff("lib1", "lib2");
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/lib1/compare/lib2`,
+      expect.objectContaining({
+        headers: { Authorization: `Bearer ${mockToken}` },
+      })
+    );
+    expect(result).toBe("diff");
+  });
+
+  it("test getCqlDiff when error occurs", async () => {
+    mockedAxios.get.mockRejectedValueOnce(new Error("fail"));
+    await expect(
+      cqlLibraryServiceApi.getCqlDiff("lib1", "lib2")
+    ).rejects.toThrow();
+  });
+
+  it("test getLibraryHistory", async () => {
+    const cqlLibrary: CqlLibrary = {
+      id: "lib1",
+      cqlLibraryName: "Library 1",
+    } as unknown as CqlLibrary;
+    mockedAxios.get.mockResolvedValueOnce({ data: "history" });
+    const result = await cqlLibraryServiceApi.getLibraryHistory(cqlLibrary);
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/lib1/history`,
+      expect.objectContaining({
+        headers: { Authorization: `Bearer ${mockToken}` },
+      })
+    );
+    expect(result).toBe("history");
+  });
+
+  it("test getLibraryHistory when error occurs", async () => {
+    const cqlLibrary: CqlLibrary = {
+      id: "lib1",
+      cqlLibraryName: "Library 1",
+    } as unknown as CqlLibrary;
+    mockedAxios.get.mockRejectedValueOnce(new Error("fail"));
+    await expect(
+      cqlLibraryServiceApi.getLibraryHistory(cqlLibrary)
+    ).rejects.toThrow();
+  });
+
+  it("test transferLibraries", async () => {
+    const libraryIds = ["lib1", "lib2"];
+    mockedAxios.put.mockResolvedValueOnce({ data: "success" });
+    const result = await cqlLibraryServiceApi.transferLibraries(
+      libraryIds,
+      "harpId",
+      true
+    );
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/transfer`,
+      libraryIds,
+      expect.objectContaining({
+        headers: {
+          Authorization: `Bearer ${mockToken}`,
+          harpId: "harpId",
+        },
+        params: {
+          retainShareAccess: true,
+        },
+      })
+    );
+    expect(result).toStrictEqual({ data: "success" });
+  });
+
+  it("test transferLibraries when error occurs", async () => {
+    const libraryIds = ["lib1", "lib2"];
+    mockedAxios.put.mockRejectedValueOnce(new Error("fail"));
+    await expect(
+      cqlLibraryServiceApi.transferLibraries(libraryIds, "harpId", true)
+    ).rejects.toThrow();
+  });
+
+  it("test getLibraryHistory throws error with error.message if present", async () => {
+    const error = { message: "custom error" };
+    mockedAxios.get.mockRejectedValueOnce(error);
+    await expect(
+      cqlLibraryServiceApi.getLibraryHistory({ id: "id" } as any)
+    ).rejects.toThrow("custom error");
+  });
+
+  it("test getLibraryHistory throws fallback error message if error is null", async () => {
+    mockedAxios.get.mockRejectedValueOnce(null);
+    await expect(
+      cqlLibraryServiceApi.getLibraryHistory({ id: "id" } as any)
+    ).rejects.toThrow("Cannot read properties of null (reading 'message')");
+  });
+
+  it("test getLibraryHistory throws fallback error message if error is a string", async () => {
+    mockedAxios.get.mockRejectedValueOnce("some string error");
+    await expect(
+      cqlLibraryServiceApi.getLibraryHistory({ id: "id" } as any)
+    ).rejects.toThrow("Failed to fetch library history");
+  });
+
+  it("test getLibraryHistory throws fallback error message if error is null", async () => {
+    mockedAxios.get.mockRejectedValueOnce(null);
+    await expect(
+      cqlLibraryServiceApi.getLibraryHistory({ id: "id" } as any)
+    ).rejects.toThrow("Cannot read properties of null (reading 'message')");
   });
 });
