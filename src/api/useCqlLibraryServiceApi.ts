@@ -5,6 +5,13 @@ import { AxiosResponse } from "axios";
 
 import { CqlLibrary, OwnershipType } from "@madie/madie-models";
 
+export type AuditRow = {
+  actionType: string;
+  additionalActionMessage: string;
+  performedAt: string;
+  performedBy: string;
+};
+
 export class CqlLibraryServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
 
@@ -145,6 +152,23 @@ export class CqlLibraryServiceApi {
     }
   }
 
+  async getCqlDiff(oldLibraryId: string, newLibraryId: string): Promise<any> {
+    try {
+      const response = await axios.get(
+        `${this.baseUrl}/cql-libraries/${oldLibraryId}/compare/${newLibraryId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (err) {
+      console.error("Failed to get CQL diff", err);
+      throw err;
+    }
+  }
+
   async shareLibraries(libraries: Map<string, string[]>): Promise<any> {
     try {
       const response = await axios.put(
@@ -262,10 +286,27 @@ export class CqlLibraryServiceApi {
     }
   }
 
+  async getLibraryHistory(selectedLibrary: CqlLibrary): Promise<AuditRow[]> {
+    const { id } = selectedLibrary;
+    try {
+      const response = await axios.get<AuditRow[]>(
+        `${this.baseUrl}/cql-libraries/${id}/history`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to fetch library history");
+    }
+  }
+
   async lockLibrary(libraryId: string): Promise<any> {
     try {
-      const response = await axios.post<String>(
-        `${this.baseUrl}/libraries/${libraryId}/lock`,
+      const response = await axios.put<String>(
+        `${this.baseUrl}/cql-libraries/${libraryId}/lock`,
         null,
         {
           headers: {
@@ -282,7 +323,7 @@ export class CqlLibraryServiceApi {
   async unlockLibrary(libraryId: string): Promise<any> {
     try {
       const response = await axios.delete<String>(
-        `${this.baseUrl}/cql-libraries/${libraryId}/unlock`,
+        `${this.baseUrl}/cql-libraries/${libraryId}/lock`,
         {
           headers: {
             Authorization: `Bearer ${this.getAccessToken()}`,
@@ -291,6 +332,32 @@ export class CqlLibraryServiceApi {
       );
       return response.data;
     } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async transferLibraries(
+    libraryIds: Array<string>,
+    harpId: string,
+    retainShareAccess: boolean
+  ): Promise<any> {
+    try {
+      const response = await axios.put(
+        `${this.baseUrl}/cql-libraries/transfer`,
+        libraryIds,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+            harpId: `${harpId}`,
+          },
+          params: {
+            retainShareAccess,
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error("Failed to transfer libraries", error);
       throw new Error(error);
     }
   }
