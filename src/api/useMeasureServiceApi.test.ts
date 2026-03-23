@@ -1032,6 +1032,45 @@ describe("MeasureServiceApi admin coverage", () => {
     expect(serialized).toContain("ownershipTypes=OWNED");
     expect(serialized).toContain("ownershipTypes=SHARED");
   });
+
+  // getSharedAccessReportForMeasures tests
+  it("should call PUT with correct URL, ids body, blob responseType, and auth header on success", async () => {
+    const mockBlob = new Blob(["report content"], {
+      type: "application/vnd.ms-excel",
+    });
+    mockedAxios.put.mockResolvedValueOnce({ data: mockBlob });
+
+    const ids = ["measure-id-1", "measure-id-2"];
+    const result = await api.getSharedAccessReportForMeasures(ids);
+
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/admin/measures/shared-access-report`,
+      ids,
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: `Bearer mock-token`,
+        }),
+        responseType: "blob",
+      })
+    );
+    expect(result).toBe(mockBlob);
+  });
+
+  it("should throw error when the API call fails", async () => {
+    const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
+    const error = new Error("Network error");
+    mockedAxios.put.mockRejectedValueOnce(error);
+
+    await expect(
+      api.getSharedAccessReportForMeasures(["id-1"])
+    ).rejects.toThrow("Network error");
+
+    expect(consoleErrorMock).toHaveBeenCalledWith(
+      "Failed to export measure access report",
+      error
+    );
+    consoleErrorMock.mockRestore();
+  });
 });
 
 describe("useMeasureServiceApi hook", () => {

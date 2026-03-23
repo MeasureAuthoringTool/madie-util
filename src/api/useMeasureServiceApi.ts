@@ -567,6 +567,25 @@ export class MeasureServiceApi {
     }
   }
 
+  async getSharedAccessReportForMeasures(ids: Array<string>): Promise<Blob> {
+    try {
+      const response = await axios.put(
+        `${this.baseUrl}/admin/measures/shared-access-report`,
+        ids,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+          responseType: "blob",
+        }
+      );
+      return response.data;
+    } catch (err) {
+      console.error("Failed to export measure access report", err);
+      throw err;
+    }
+  }
+
   // this expects endpoint should return a success or error message, no content
   async checkValidVersion(id: string, versionType: string): Promise<any> {
     return await axios.get<any>(
