@@ -852,6 +852,24 @@ export class MeasureServiceApi {
     }
   }
 
+  async validateHarpId(harpId: string): Promise<any> {
+    try {
+      const response = await axios.get(
+        `${this.baseUrl}/measures/harp-id/validate`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+          params: { harpId },
+        }
+      );
+      return response;
+    } catch (err) {
+      console.error("Failed to validate HARP ID", err);
+      throw err;
+    }
+  }
+
   async getMeasureHistoryLogs(
     measureId: String
   ): Promise<MeasureHistoryActions[]> {

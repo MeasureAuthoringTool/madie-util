@@ -1071,6 +1071,39 @@ describe("MeasureServiceApi admin coverage", () => {
     );
     consoleErrorMock.mockRestore();
   });
+
+  it("should succeed validateHarpId", async () => {
+    const mockResponse = { status: 200, data: true };
+    mockedAxios.get.mockResolvedValueOnce(mockResponse);
+    const result = await api.validateHarpId("testUser");
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      `${mockBaseUrl}/measures/harp-id/validate`,
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: expect.any(String),
+        }),
+        params: { harpId: "testUser" },
+      })
+    );
+    expect(result).toEqual(mockResponse);
+  });
+
+  it("should fail validateHarpId and log error", async () => {
+    mockedAxios.get.mockRejectedValueOnce(
+      new Error(
+        "The provided HARP ID is not associated with an active MADiE user."
+      )
+    );
+    const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
+    await expect(api.validateHarpId("testUser")).rejects.toThrow(
+      "The provided HARP ID is not associated with an active MADiE user."
+    );
+    expect(consoleErrorMock).toHaveBeenCalledWith(
+      "Failed to validate HARP ID",
+      expect.any(Error)
+    );
+    consoleErrorMock.mockRestore();
+  });
 });
 
 describe("useMeasureServiceApi hook", () => {
