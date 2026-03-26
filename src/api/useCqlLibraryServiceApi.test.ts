@@ -541,4 +541,45 @@ describe("useCqlLibraryServiceApi", () => {
       cqlLibraryServiceApi.getLibraryHistory({ id: "id" } as any)
     ).rejects.toThrow("Cannot read properties of null (reading 'message')");
   });
+
+  // getSharedAccessReportForLibraries tests
+  it("should call PUT with correct URL, ids body, blob responseType, and auth header on success", async () => {
+    const mockBlob = new Blob(["report content"], {
+      type: "application/vnd.ms-excel",
+    });
+    mockedAxios.put.mockResolvedValueOnce({ data: mockBlob });
+
+    const ids = ["library-id-1", "library-id-2"];
+    const result = await cqlLibraryServiceApi.getSharedAccessReportForLibraries(
+      ids
+    );
+
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/admin/shared-access-report`,
+      ids,
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: `Bearer ${mockToken}`,
+        }),
+        responseType: "blob",
+      })
+    );
+    expect(result).toBe(mockBlob);
+  });
+
+  it("should throw error when the API call fails", async () => {
+    const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
+    const error = new Error("Network error");
+    mockedAxios.put.mockRejectedValueOnce(error);
+
+    await expect(
+      cqlLibraryServiceApi.getSharedAccessReportForLibraries(["id-1"])
+    ).rejects.toThrow("Network error");
+
+    expect(consoleErrorMock).toHaveBeenCalledWith(
+      "Failed to export library access report",
+      error
+    );
+    consoleErrorMock.mockRestore();
+  });
 });

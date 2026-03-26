@@ -377,6 +377,25 @@ export class CqlLibraryServiceApi {
       throw new Error(error);
     }
   }
+
+  async getSharedAccessReportForLibraries(ids: Array<string>): Promise<Blob> {
+    try {
+      const response = await axios.put(
+        `${this.baseUrl}/cql-libraries/admin/shared-access-report`,
+        ids,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+          responseType: "blob",
+        }
+      );
+      return response.data;
+    } catch (err) {
+      console.error("Failed to export library access report", err);
+      throw err;
+    }
+  }
 }
 
 export default function useCqlLibraryServiceApi() {
