@@ -52,7 +52,7 @@ describe("UserServiceApi", () => {
   it("throws an error when unable to retrieve owner details", async () => {
     axios.get.mockRejectedValue(new Error("Network error"));
     await expect(userServiceApi.getOwnerDetails("badid")).rejects.toThrow(
-      "Unable to retrieve the owner, please try later."
+      "Network error"
     );
   });
 

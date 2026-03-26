@@ -358,7 +358,7 @@ export class CqlLibraryServiceApi {
       return response;
     } catch (error) {
       console.error("Failed to transfer libraries", error);
-      throw new Error(error);
+      throw error;
     }
   }
 

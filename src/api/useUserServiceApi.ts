@@ -19,8 +19,8 @@ export class UserServiceApi {
       );
       return response.data;
     } catch (err) {
-      const message = "Unable to retrieve the owner, please try later.";
-      throw new Error(message);
+      console.error("Unable to retrieve the owner", err);
+      throw err;
     }
   }
 
