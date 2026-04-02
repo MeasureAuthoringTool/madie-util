@@ -28,7 +28,7 @@ export class UserServiceApi {
     harpIds: string[]
   ): Promise<Record<string, UserDetails>> {
     try {
-      const response = await axios.post<any>(
+      const response = await axios.post<Record<string, UserDetails>>(
         `${this.baseUrl}/users/details`,
         { harpIds },
         {
