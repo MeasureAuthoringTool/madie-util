@@ -24,6 +24,27 @@ export class UserServiceApi {
     }
   }
 
+  async getBulkUserDetails(
+    harpIds: string[]
+  ): Promise<Record<string, UserDetails>> {
+    console.log(harpIds);
+    try {
+      const response = await axios.post<any>(
+        `${this.baseUrl}/users/details`,
+        { harpIds },
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (err) {
+      const message = "Unable to retrieve users details, please try later.";
+      throw new Error(message);
+    }
+  }
+
   async loginUser(accessTokenObj: any): Promise<UserLogin> {
     if (!accessTokenObj || !accessTokenObj.claims) {
       throw new Error("No access token available for user login.");
