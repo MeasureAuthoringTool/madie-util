@@ -6,6 +6,7 @@ import { ServiceContext } from "./ServiceContext";
 jest.mock("../api/axios-instance", () => ({
   get: jest.fn(),
   put: jest.fn(),
+  post: jest.fn(),
 }));
 jest.mock("../Store/userRolesStore", () => ({
   userRolesStore: {
@@ -25,6 +26,7 @@ describe("UserServiceApi", () => {
     );
     axios.get.mockReset();
     axios.put.mockReset();
+    axios.post.mockReset();
     userRolesStore.updateUserRoles.mockReset();
   });
   afterEach(() => {
@@ -199,6 +201,34 @@ describe("UserServiceApi", () => {
     const result = await api.fetchUserRoles();
     expect(result).toEqual([]);
     expect(userRolesStore.updateUserRoles).not.toHaveBeenCalled();
+  });
+
+  it("returns bulk user details for valid harpIds", async () => {
+    const bulkUserDetails = {
+      user1: { harpId: "user1", userStatus: "ACTIVE" },
+      user2: { harpId: "user2", userStatus: "ACTIVE" },
+    };
+    const resp = { status: 200, data: bulkUserDetails };
+    axios.post.mockResolvedValue(resp);
+
+    const result = await userServiceApi.getBulkUserDetails(["user1", "user2"]);
+    expect(axios.post).toBeCalledWith(
+      "test.url/users/details",
+      { harpIds: ["user1", "user2"] },
+      {
+        headers: {
+          Authorization: "Bearer test.jwt",
+        },
+      }
+    );
+    expect(result).toEqual(bulkUserDetails);
+  });
+
+  it("throws an error when unable to retrieve bulk user details", async () => {
+    axios.post.mockRejectedValue(new Error("Network error"));
+    await expect(userServiceApi.getBulkUserDetails(["user1"])).rejects.toThrow(
+      "Unable to retrieve users details, please try later."
+    );
   });
 });
 
