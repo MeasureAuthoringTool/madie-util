@@ -27,7 +27,6 @@ export class UserServiceApi {
   async getBulkUserDetails(
     harpIds: string[]
   ): Promise<Record<string, UserDetails>> {
-    console.log(harpIds);
     try {
       const response = await axios.post<any>(
         `${this.baseUrl}/users/details`,
