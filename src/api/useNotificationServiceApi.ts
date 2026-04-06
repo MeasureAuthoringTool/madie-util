@@ -7,69 +7,80 @@ export class UseNotificationServiceApi {
 
   async getAllNotifications(): Promise<any> {
     try {
-        console.log(`${this.baseUrl}/notifications`)
-      const response = await axios.get<any>(
-        `${this.baseUrl}/notifications`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.getAccessToken()}`,
-          },
-        }
-      );
+      console.log(`${this.baseUrl}/notifications`);
+      const response = await axios.get<any>(`${this.baseUrl}/notifications`, {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+      });
       return response.data;
     } catch (err) {
       throw new Error("Unable to retrieve notifications, please try later.");
     }
   }
-  async readOneNotification(notificationID: string): Promise<any> {
+
+  // create a list of notifications (admin use case)
+  async createNotifications(notifications: any[]): Promise<any> {
     try {
-      const response = await axios.put<any>(
-        `${this.baseUrl}/notifications/${notificationID}/read`,
-        {},
+      const response = await axios.post(
+        `${this.baseUrl}/notifications`,
+        notifications,
         {
           headers: {
             Authorization: `Bearer ${this.getAccessToken()}`,
+            "Content-Type": "application/json",
           },
         }
       );
       return response.data;
     } catch (err) {
-      throw new Error("Unable to mark notification as read, please try later.");
+      throw new Error("Unable to create notifications, please try later.");
     }
-}
-async deleteNotification(notificationID: string): Promise<any> {
+  }
+
+  // send a list of notifications to be marked as seen when the dropdown is opened.
+  async markNotificationsSeen(ids: string[]): Promise<void> {
     try {
-      const response = await axios.delete<any>(
-        `${this.baseUrl}/notifications/${notificationID}`,
+      await axios.patch(`${this.baseUrl}/notifications/mark-seen`, ids, {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (err) {
+      throw new Error(
+        "Unable to mark notifications as seen, please try later."
+      );
+    }
+  }
+
+  async readOneNotification(notificationID: string): Promise<any> {
+    try {
+      await axios.patch(
+        `${this.baseUrl}/notifications/mark-read/${notificationID}`,
+        null,
         {
           headers: {
             Authorization: `Bearer ${this.getAccessToken()}`,
           },
         }
       );
-      return response.data;
+    } catch (err) {
+      throw new Error("Unable to mark notification as read, please try later.");
+    }
+  }
+
+  async deleteNotification(id: string): Promise<void> {
+    try {
+      await axios.delete(`${this.baseUrl}/notifications/${id}`, {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+      });
     } catch (err) {
       throw new Error("Unable to delete notification, please try later.");
     }
   }
-
-  async readAllNotifications(notificationIDs: string[]): Promise<any> {
-    try {
-      const response = await axios.put<any>(
-        `${this.baseUrl}/notifications/read`,
-        { notificationIDs },
-        {
-          headers: {
-            Authorization: `Bearer ${this.getAccessToken()}`,
-          },
-        }
-      );
-      return response.data;
-    } catch (err) {
-      throw new Error("Unable to mark notifications as read, please try later.");
-    }
-  }
-
 }
 
 export default function useUserServiceApi(): UseNotificationServiceApi {
