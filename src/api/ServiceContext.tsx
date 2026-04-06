@@ -40,6 +40,9 @@ export interface ServiceConfig {
   userService?: {
     baseUrl: string;
   };
+  notificationService?: {
+    baseUrl: string;
+  };
   okta?: {
     baseUrl: string;
     issuer: string;
