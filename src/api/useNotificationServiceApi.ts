@@ -7,7 +7,6 @@ export class UseNotificationServiceApi {
 
   async getAllNotifications(): Promise<any> {
     try {
-      console.log(`${this.baseUrl}/notifications`);
       const response = await axios.get<any>(`${this.baseUrl}/notifications`, {
         headers: {
           Authorization: `Bearer ${this.getAccessToken()}`,
@@ -79,6 +78,20 @@ export class UseNotificationServiceApi {
       });
     } catch (err) {
       throw new Error("Unable to delete notification, please try later.");
+    }
+  }
+
+  async deleteAllNotifications(ids: string[]): Promise<void> {
+    try {
+      await axios.delete(`${this.baseUrl}/notifications`, {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+          "Content-Type": "application/json",
+        },
+        data: ids,
+      });
+    } catch (err) {
+      throw new Error("Unable to clear all notifications, please try later.");
     }
   }
 }
