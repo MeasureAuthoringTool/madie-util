@@ -10,6 +10,7 @@ export enum FeatureFlagsEnum {
   ADMIN_TRANSFER_MEASURE = "AdminTransferMeasure",
   ADMIN_TRANSFER_LIBRARY = "AdminTransferLibrary",
   ADMIN_SHARE_LIBRARY = "AdminShareLibrary",
+  ADMIN_USER_LIST = "AdminUserList",
 }
 
 /**
@@ -36,6 +37,8 @@ export function useIsRoleOrFeatureEnabled(feature: string): boolean {
     return Boolean(featureFlags?.AdminTransferLibrary && userRoles?.isAdmin);
   } else if (feature === FeatureFlagsEnum.ADMIN_SHARE_LIBRARY) {
     return Boolean(featureFlags?.AdminShareLibrary && userRoles?.isAdmin);
+  } else if (feature === FeatureFlagsEnum.ADMIN_USER_LIST) {
+    return Boolean(featureFlags?.AdminUserList && userRoles?.isAdmin);
   }
   return false;
 }
