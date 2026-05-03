@@ -307,7 +307,7 @@ export class CqlLibraryServiceApi {
     try {
       const response = await axios.put<String>(
         `${this.baseUrl}/cql-libraries/${libraryId}/lock`,
-        null,
+        {},
         {
           headers: {
             Authorization: `Bearer ${this.getAccessToken()}`,

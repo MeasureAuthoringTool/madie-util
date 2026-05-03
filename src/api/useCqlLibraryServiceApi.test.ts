@@ -347,7 +347,7 @@ describe("useCqlLibraryServiceApi", () => {
     const result = await cqlLibraryServiceApi.lockLibrary("lib1");
     expect(mockedAxios.put).toHaveBeenCalledWith(
       `${mockBaseUrl}/cql-libraries/lib1/lock`,
-      null,
+      {},
       expect.objectContaining({
         headers: { Authorization: `Bearer ${mockToken}` },
       })

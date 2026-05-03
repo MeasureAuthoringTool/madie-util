@@ -783,7 +783,7 @@ export class MeasureServiceApi {
     try {
       const response = await axios.put<String>(
         `${this.baseUrl}/measures/${measureId}/measure-lock`,
-        null,
+        {},
         {
           headers: {
             Authorization: `Bearer ${this.getAccessToken()}`,

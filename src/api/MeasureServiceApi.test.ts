@@ -802,7 +802,7 @@ describe("MeasureServiceApi Tests", () => {
     expect(mockedAxios.put).toBeCalledTimes(1);
     expect(mockedAxios.put).toBeCalledWith(
       "madie.com/measures/testMeasureId/measure-lock",
-      null,
+      {},
       expect.any(Object) // headers
     );
     expect(result).toEqual(lockResponse);
