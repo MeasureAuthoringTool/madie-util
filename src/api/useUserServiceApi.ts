@@ -111,6 +111,21 @@ export class UserServiceApi {
       return [];
     }
   }
+
+  async fetchUsers(signal?: AbortSignal): Promise<UserDetails[]> {
+    try {
+      const response = await axios.get<UserDetails[]>(`${this.baseUrl}/users`, {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+        signal,
+      });
+      return response.data ?? [];
+    } catch (err) {
+      console.error("Unable to retrieve users:", err);
+      throw err;
+    }
+  }
 }
 
 export default function useUserServiceApi(): UserServiceApi {

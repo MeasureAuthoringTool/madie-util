@@ -1,5 +1,5 @@
 import useUserServiceApi from "./useUserServiceApi";
-import React from "react";
+import * as React from "react";
 import { renderHook } from "@testing-library/react-hooks";
 import { ServiceContext } from "./ServiceContext";
 
@@ -229,6 +229,51 @@ describe("UserServiceApi", () => {
     await expect(userServiceApi.getBulkUserDetails(["user1"])).rejects.toThrow(
       "Unable to retrieve users details, please try later."
     );
+  });
+
+  it("fetchUsers returns list of users", async () => {
+    const users = [
+      { harpId: "user1", firstName: "John", lastName: "Doe" },
+      { harpId: "user2", firstName: "Jane", lastName: "Smith" },
+    ];
+    axios.get.mockResolvedValue({ status: 200, data: users });
+
+    const result = await userServiceApi.fetchUsers();
+    expect(axios.get).toBeCalledWith("test.url/users", {
+      headers: {
+        Authorization: "Bearer test.jwt",
+      },
+      signal: undefined,
+    });
+    expect(result).toEqual(users);
+  });
+
+  it("fetchUsers returns empty array when response data is null", async () => {
+    axios.get.mockResolvedValue({ status: 200, data: null });
+
+    const result = await userServiceApi.fetchUsers();
+    expect(result).toEqual([]);
+  });
+
+  it("fetchUsers passes abort signal when provided", async () => {
+    const controller = new AbortController();
+    const users = [{ harpId: "user1", firstName: "John", lastName: "Doe" }];
+    axios.get.mockResolvedValue({ status: 200, data: users });
+
+    const result = await userServiceApi.fetchUsers(controller.signal);
+    expect(axios.get).toBeCalledWith("test.url/users", {
+      headers: {
+        Authorization: "Bearer test.jwt",
+      },
+      signal: controller.signal,
+    });
+    expect(result).toEqual(users);
+  });
+
+  it("fetchUsers throws error when request fails", async () => {
+    axios.get.mockRejectedValue(new Error("Network error"));
+
+    await expect(userServiceApi.fetchUsers()).rejects.toThrow("Network error");
   });
 });
 
