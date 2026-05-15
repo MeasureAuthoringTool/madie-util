@@ -5,28 +5,20 @@ import { featureFlagsStore, FeatureFlags } from "../Store/featureFlagStore";
 describe("useFeatureFlags", () => {
   beforeEach(() => {
     featureFlagsStore.updateFeatureFlags({
-      qiCoreElementsTab: false,
       qdmHideJson: true,
       enableQdmRepeatTransfer: false,
       qiCore7: false,
       QICoreCompositeMeasure: false,
-      AdminTransferMeasure: false,
-      AdminTransferLibrary: false,
-      AdminShareLibrary: false,
     });
   });
 
   it("returns initial feature flags from store", () => {
     const { result } = renderHook(() => useFeatureFlags());
     expect(result.current).toEqual({
-      qiCoreElementsTab: false,
       qdmHideJson: true,
       enableQdmRepeatTransfer: false,
       qiCore7: false,
       QICoreCompositeMeasure: false,
-      AdminTransferMeasure: false,
-      AdminTransferLibrary: false,
-      AdminShareLibrary: false,
     });
   });
 
@@ -34,25 +26,17 @@ describe("useFeatureFlags", () => {
     const { result } = renderHook(() => useFeatureFlags());
     act(() => {
       featureFlagsStore.updateFeatureFlags({
-        qiCoreElementsTab: true,
         qdmHideJson: false,
         enableQdmRepeatTransfer: true,
         qiCore7: true,
         QICoreCompositeMeasure: true,
-        AdminTransferMeasure: true,
-        AdminTransferLibrary: true,
-        AdminShareLibrary: true,
       });
     });
     expect(result.current).toEqual({
-      qiCoreElementsTab: true,
       qdmHideJson: false,
       enableQdmRepeatTransfer: true,
       qiCore7: true,
       QICoreCompositeMeasure: true,
-      AdminTransferMeasure: true,
-      AdminTransferLibrary: true,
-      AdminShareLibrary: true,
     });
   });
 

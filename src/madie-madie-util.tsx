@@ -33,7 +33,6 @@ import { default as checkUserCanEdit } from "./util/useCheckCanEdit";
 import { default as checkUserCanDelete } from "./util/useCheckCanDelete";
 import { useFeatureFlags } from "./hooks/useFeatureFlags";
 import { useUserRoles } from "./hooks/useUserRoles";
-import { useIsAdminTransferEnabled } from "./hooks/useIsAdminTransferEnabled";
 import { getOidFromString } from "./util/terminologyUtils";
 import axios from "./api/axios-instance";
 import { useIsRoleOrFeatureEnabled } from "./hooks/useIsRoleOrFeatureEnabled";
@@ -61,7 +60,6 @@ export {
   checkUserCanDelete,
   useFeatureFlags,
   useUserRoles,
-  useIsAdminTransferEnabled,
   getOidFromString,
   wafIntercept,
   axios,

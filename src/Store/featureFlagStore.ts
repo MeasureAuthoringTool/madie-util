@@ -4,27 +4,17 @@ import { BehaviorSubject } from "rxjs";
 // immutable object that retains state, tracks updates
 const subject = new BehaviorSubject<FeatureFlags | null>(null);
 export interface FeatureFlags {
-  qiCoreElementsTab: boolean;
   qdmHideJson: boolean;
   enableQdmRepeatTransfer: boolean;
   qiCore7: boolean;
   QICoreCompositeMeasure: boolean;
-  AdminShareMeasures: boolean;
-  AdminTransferMeasure: boolean;
-  AdminTransferLibrary: boolean;
-  AdminShareLibrary: boolean;
   AdminUserList: boolean;
 }
 const initialState: FeatureFlags = {
-  qiCoreElementsTab: false,
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   qiCore7: false,
   QICoreCompositeMeasure: false,
-  AdminShareMeasures: false,
-  AdminTransferMeasure: false,
-  AdminTransferLibrary: false,
-  AdminShareLibrary: false,
   AdminUserList: false,
 };
 
