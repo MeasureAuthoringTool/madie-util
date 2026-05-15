@@ -9,6 +9,7 @@ export interface FeatureFlags {
   qiCore7: boolean;
   QICoreCompositeMeasure: boolean;
   AdminUserList: boolean;
+  usQualityCore?: boolean;
 }
 const initialState: FeatureFlags = {
   qdmHideJson: true,
@@ -16,6 +17,7 @@ const initialState: FeatureFlags = {
   qiCore7: false,
   QICoreCompositeMeasure: false,
   AdminUserList: false,
+  usQualityCore: false,
 };
 
 let state: FeatureFlags | null = initialState;
