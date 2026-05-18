@@ -1,6 +1,8 @@
 import useOktaTokens from "./useOktaTokens";
 
 const TEST_USER = "te$tuser@te$t.com";
+const TEST_ACCESS_TOKEN =
+  "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ0ZSR0dXNlckB0ZSR0LmNvbSJ9.sig";
 const idTokenObj = {
   authorizeUrl: "authorize.url",
   claims: {
@@ -12,10 +14,7 @@ const idTokenObj = {
 
 const accessTokenObj = {
   authorizeUrl: "authorize.url",
-  claims: {
-    sub: TEST_USER,
-  },
-  accessToken: "test.access.jwt",
+  accessToken: TEST_ACCESS_TOKEN,
 };
 
 const okta_token_storage = {
@@ -66,7 +65,7 @@ describe("useOktaTokens", () => {
 
   it("should return an accessToken", () => {
     const { getAccessToken } = useOktaTokens();
-    expect(getAccessToken()).toEqual("test.access.jwt");
+    expect(getAccessToken()).toEqual(TEST_ACCESS_TOKEN);
     expect(global.Storage.prototype.getItem).toHaveBeenCalledWith(
       "okta-token-storage"
     );
