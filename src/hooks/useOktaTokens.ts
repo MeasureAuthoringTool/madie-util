@@ -1,3 +1,5 @@
+import { jwtDecode } from "jwt-decode";
+
 const getField = (storageKey, field) => {
   const storageStr = window.localStorage.getItem(storageKey);
   if (storageStr) {
@@ -28,7 +30,8 @@ const useOktaTokens = (storageKey = "okta-token-storage") => {
   return {
     getAccessToken: () => getAccessTokenObj(storageKey)?.accessToken,
     getAccessTokenObj: () => getAccessTokenObj(storageKey),
-    getUserName: () => getAccessTokenObj(storageKey)?.claims?.sub,
+    getUserName: () =>
+      jwtDecode(getAccessTokenObj(storageKey)?.accessToken)?.sub,
     getIdToken: () => getIdTokenObj(storageKey)?.idToken,
     getIdTokenObj: () => getIdTokenObj(storageKey),
   };
