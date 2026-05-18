@@ -141,8 +141,7 @@ describe("useOktaTokens", () => {
 
     it("should return undefined when JWT has no sub claim", () => {
       // payload: {"role":"admin"} — no sub field
-      const noSubToken =
-        "eyJhbGciOiJub25lIn0.eyJyb2xlIjoiYWRtaW4ifQ.sig";
+      const noSubToken = "eyJhbGciOiJub25lIn0.eyJyb2xlIjoiYWRtaW4ifQ.sig";
       global.Storage.prototype.getItem = jest.fn(() =>
         JSON.stringify({
           accessToken: { ...accessTokenObj, accessToken: noSubToken },
