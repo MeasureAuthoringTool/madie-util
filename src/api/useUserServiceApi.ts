@@ -112,6 +112,24 @@ export class UserServiceApi {
     }
   }
 
+  async getUser(harpId: string, signal?: AbortSignal): Promise<UserDetails> {
+    try {
+      const response = await axios.get<UserDetails>(
+        `${this.baseUrl}/users/${harpId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+          signal,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      console.error("Unable to retrieve user:", err);
+      throw err;
+    }
+  }
+
   async fetchUsers(signal?: AbortSignal): Promise<UserDetails[]> {
     try {
       const response = await axios.get<UserDetails[]>(`${this.baseUrl}/users`, {

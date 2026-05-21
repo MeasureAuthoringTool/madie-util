@@ -23,7 +23,6 @@ import { cqlLibraryStore } from "./Store/cqlLibraryStore";
 import { routeHandlerStore } from "./Store/routeHandlerStore";
 import { featureFlagsStore } from "./Store/featureFlagStore";
 import { userRolesStore } from "./Store/userRolesStore";
-import { adminUserStore } from "./Store/adminUserStore";
 import { default as useTerminologyServiceApi } from "./api/useTerminologyServiceApi";
 import { default as useMeasureServiceApi } from "./api/useMeasureServiceApi";
 import { default as useUserServiceApi } from "./api/useUserServiceApi";
@@ -51,7 +50,6 @@ export {
   routeHandlerStore,
   featureFlagsStore,
   userRolesStore,
-  adminUserStore,
   useTerminologyServiceApi,
   useMeasureServiceApi,
   useUserServiceApi,
