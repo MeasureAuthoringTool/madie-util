@@ -25,10 +25,10 @@ describe("adminUserStore", () => {
 
     const user: UserDetails = {
       id: "u1",
-      harpId: "lila_kensington",
-      firstName: "Lila",
-      lastName: "Kensington",
-      email: "l.kensington@cms.hhs.gov",
+      harpId: "jane_doe",
+      firstName: "jane",
+      lastName: "doe",
+      email: "jane.doe@example.com",
       status: UserStatus.ACTIVE,
       lastLoginAt: "2024-09-09T00:00:00.000Z",
     };
