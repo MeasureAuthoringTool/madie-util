@@ -9,6 +9,7 @@ export interface FeatureFlags {
   qiCore7: boolean;
   QICoreCompositeMeasure: boolean;
   AdminUserList: boolean;
+  AdminUserProfile: boolean;
   usQualityCore?: boolean;
 }
 const initialState: FeatureFlags = {
@@ -17,6 +18,7 @@ const initialState: FeatureFlags = {
   qiCore7: false,
   QICoreCompositeMeasure: false,
   AdminUserList: false,
+  AdminUserProfile: false,
   usQualityCore: false,
 };
 

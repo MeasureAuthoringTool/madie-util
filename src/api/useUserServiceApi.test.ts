@@ -275,6 +275,60 @@ describe("UserServiceApi", () => {
 
     await expect(userServiceApi.fetchUsers()).rejects.toThrow("Network error");
   });
+
+  it("getUser returns user details for a valid harpId", async () => {
+    const user = {
+      id: "u1",
+      harpId: "jane_doe",
+      firstName: "Jane",
+      lastName: "Doe",
+      email: "jane.doe@example.com",
+      status: "ACTIVE",
+      lastLoginAt: "2024-09-09T00:00:00.000Z",
+    };
+    axios.get.mockResolvedValue({ status: 200, data: user });
+
+    const result = await userServiceApi.getUser("jane_doe");
+    expect(axios.get).toBeCalledWith("test.url/users/jane_doe", {
+      headers: {
+        Authorization: "Bearer test.jwt",
+      },
+      signal: undefined,
+    });
+    expect(result).toEqual(user);
+  });
+
+  it("getUser passes abort signal when provided", async () => {
+    const controller = new AbortController();
+    const user = { harpId: "jane_doe", firstName: "Jane", lastName: "Doe" };
+    axios.get.mockResolvedValue({ status: 200, data: user });
+
+    const result = await userServiceApi.getUser("jane_doe", controller.signal);
+    expect(axios.get).toBeCalledWith("test.url/users/jane_doe", {
+      headers: {
+        Authorization: "Bearer test.jwt",
+      },
+      signal: controller.signal,
+    });
+    expect(result).toEqual(user);
+  });
+
+  it("getUser throws error when request fails", async () => {
+    axios.get.mockRejectedValue(new Error("Network error"));
+
+    await expect(userServiceApi.getUser("jane_doe")).rejects.toThrow(
+      "Network error"
+    );
+  });
+
+  it("getUser propagates the request error untouched", async () => {
+    const apiError = {
+      response: { status: 404, data: { message: "Not found" } },
+    };
+    axios.get.mockRejectedValue(apiError);
+
+    await expect(userServiceApi.getUser("unknown")).rejects.toEqual(apiError);
+  });
 });
 
 describe("function useUserServiceApi()", () => {
