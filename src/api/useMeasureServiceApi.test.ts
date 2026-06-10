@@ -1071,6 +1071,101 @@ describe("MeasureServiceApi admin coverage", () => {
     );
     consoleErrorMock.mockRestore();
   });
+
+  it("adminSearchMeasuresForUser succeeds with explicit args, encodes harpId, converts 'All' limit, and serializes params", async () => {
+    const measures: Measure[] = [
+      { id: "ID1", measureName: "measure - A" } as Measure,
+      { id: "ID2", measureName: "measure - B" } as Measure,
+    ];
+    mockedAxios.put.mockResolvedValue({ status: 200, data: measures });
+
+    const searchCriteria = {
+      searchField: "test",
+      optionalSearchProperties: [],
+    };
+    const abortController = new AbortController();
+
+    const result = await api.adminSearchMeasuresForUser(
+      "harp id/with special?chars",
+      [OwnershipType.OWNED, OwnershipType.SHARED],
+      "All",
+      2,
+      "measureName",
+      "ASC",
+      searchCriteria,
+      abortController
+    );
+
+    expect(result).toEqual(measures);
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/admin/users/harp%20id%2Fwith%20special%3Fchars/measures/searches`,
+      searchCriteria,
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: `Bearer mock-token`,
+          "Content-Type": "application/json",
+        }),
+        params: {
+          ownershipTypes: [OwnershipType.OWNED, OwnershipType.SHARED],
+          limit: 1000,
+          page: 2,
+          sort: "measureName",
+          direction: "ASC",
+        },
+      })
+    );
+
+    const callConfig = mockedAxios.put.mock.calls[0][2];
+    expect(callConfig.signal).toBe(abortController.signal);
+    const serialized = callConfig.paramsSerializer({
+      ownershipTypes: ["OWNED", "SHARED"],
+    });
+    expect(serialized).toContain("ownershipTypes=OWNED");
+    expect(serialized).toContain("ownershipTypes=SHARED");
+  });
+
+  it("adminSearchMeasuresForUser uses defaults and sends empty body when optional args are omitted", async () => {
+    mockedAxios.put.mockResolvedValue({ status: 200, data: [] });
+
+    await api.adminSearchMeasuresForUser("harp-123", [OwnershipType.OWNED]);
+
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/admin/users/harp-123/measures/searches`,
+      {},
+      expect.objectContaining({
+        params: {
+          ownershipTypes: [OwnershipType.OWNED],
+          limit: 10,
+          page: 0,
+          sort: "lastModifiedAt",
+          direction: "DESC",
+        },
+      })
+    );
+    const callConfig = mockedAxios.put.mock.calls[0][2];
+    expect(callConfig.signal).toBeUndefined();
+  });
+
+  it("adminSearchMeasuresForUser wraps generic errors and rethrows canceled errors", async () => {
+    const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
+    const error = { message: "boom" };
+    mockedAxios.put.mockRejectedValueOnce(error);
+
+    await expect(
+      api.adminSearchMeasuresForUser("harp-123", [OwnershipType.OWNED])
+    ).rejects.toThrow("Unable to search measures for user harp-123");
+    expect(consoleErrorMock).toHaveBeenCalledWith(
+      "Unable to search measures for user harp-123",
+      error
+    );
+
+    mockedAxios.put.mockRejectedValueOnce({ message: "canceled" });
+    await expect(
+      api.adminSearchMeasuresForUser("harp-123", [OwnershipType.OWNED])
+    ).rejects.toThrow("canceled");
+
+    consoleErrorMock.mockRestore();
+  });
 });
 
 describe("useMeasureServiceApi hook", () => {

@@ -716,6 +716,45 @@ export class MeasureServiceApi {
     }
   }
 
+  async adminSearchMeasuresForUser(
+    harpId: string,
+    ownershipTypes: OwnershipType[],
+    limit: string | number = 10,
+    page: number = 0,
+    sort: string = "lastModifiedAt",
+    direction: string = "DESC",
+    searchCriteria?: MeasureSearchCriteria,
+    abortController?: AbortController
+  ): Promise<any> {
+    try {
+      limit = limit === "All" ? 1000 : limit;
+      const response = await axios.put<any>(
+        `${this.baseUrl}/admin/users/${encodeURIComponent(
+          harpId
+        )}/measures/searches`,
+        searchCriteria ?? {},
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+            "Content-Type": "application/json",
+          },
+          params: { ownershipTypes, limit, page, sort, direction },
+          paramsSerializer: (params) =>
+            qs.stringify(params, { arrayFormat: "repeat" }),
+          signal: abortController?.signal,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      if (err.message === "canceled") {
+        throw new Error(err.message);
+      }
+      const message = `Unable to search measures for user ${harpId}`;
+      console.error(message, err);
+      throw new Error(message);
+    }
+  }
+
   async fetchMeasureBundle(measure: Measure): Promise<Bundle> {
     try {
       const response = await axios.get(
