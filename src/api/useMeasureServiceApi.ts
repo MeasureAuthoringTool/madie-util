@@ -17,6 +17,18 @@ import _ from "lodash";
 import qs from "qs";
 import { Bundle } from "fhir/r4";
 
+export interface MeasureSearchResult {
+  content: Measure[];
+  totalElements: number;
+  totalPages: number;
+  numberOfElements: number;
+  pageable: {
+    offset: number;
+    pageNumber: number;
+    pageSize: number;
+  };
+}
+
 export class MeasureServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
 
@@ -725,10 +737,10 @@ export class MeasureServiceApi {
     direction: string = "DESC",
     searchCriteria?: MeasureSearchCriteria,
     abortController?: AbortController
-  ): Promise<any> {
+  ): Promise<MeasureSearchResult> {
     try {
       limit = limit === "All" ? 1000 : limit;
-      const response = await axios.put<any>(
+      const response = await axios.put<MeasureSearchResult>(
         `${this.baseUrl}/admin/users/${encodeURIComponent(
           harpId
         )}/measures/searches`,
