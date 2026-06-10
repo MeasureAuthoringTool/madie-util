@@ -17,6 +17,18 @@ import _ from "lodash";
 import qs from "qs";
 import { Bundle } from "fhir/r4";
 
+export interface MeasureSearchResult {
+  content: Measure[];
+  totalElements: number;
+  totalPages: number;
+  numberOfElements: number;
+  pageable: {
+    offset: number;
+    pageNumber: number;
+    pageSize: number;
+  };
+}
+
 export class MeasureServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
 
@@ -713,6 +725,45 @@ export class MeasureServiceApi {
       const message = `Unable to get measure counts`;
       console.error(message, error);
       throw error;
+    }
+  }
+
+  async adminSearchMeasuresForUser(
+    harpId: string,
+    ownershipTypes: OwnershipType[],
+    limit: string | number = 10,
+    page: number = 0,
+    sort: string = "lastModifiedAt",
+    direction: string = "DESC",
+    searchCriteria?: MeasureSearchCriteria,
+    abortController?: AbortController
+  ): Promise<MeasureSearchResult> {
+    try {
+      limit = limit === "All" ? 1000 : limit;
+      const response = await axios.put<MeasureSearchResult>(
+        `${this.baseUrl}/admin/users/${encodeURIComponent(
+          harpId
+        )}/measures/searches`,
+        searchCriteria ?? {},
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+            "Content-Type": "application/json",
+          },
+          params: { ownershipTypes, limit, page, sort, direction },
+          paramsSerializer: (params) =>
+            qs.stringify(params, { arrayFormat: "repeat" }),
+          signal: abortController?.signal,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      if (err.message === "canceled") {
+        throw new Error(err.message);
+      }
+      const message = `Unable to search measures for user ${harpId}`;
+      console.error(message, err);
+      throw new Error(message);
     }
   }
 
