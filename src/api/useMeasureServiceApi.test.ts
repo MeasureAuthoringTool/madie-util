@@ -1098,7 +1098,7 @@ describe("MeasureServiceApi admin coverage", () => {
 
     expect(result).toEqual(measures);
     expect(mockedAxios.put).toHaveBeenCalledWith(
-      `${mockBaseUrl}/admin/users/harp%20id%2Fwith%20special%3Fchars/measures/searches`,
+      `${mockBaseUrl}/admin/userProfile/harp%20id%2Fwith%20special%3Fchars/measures/searches`,
       searchCriteria,
       expect.objectContaining({
         headers: expect.objectContaining({
@@ -1130,7 +1130,7 @@ describe("MeasureServiceApi admin coverage", () => {
     await api.adminSearchMeasuresForUser("harp-123", [OwnershipType.OWNED]);
 
     expect(mockedAxios.put).toHaveBeenCalledWith(
-      `${mockBaseUrl}/admin/users/harp-123/measures/searches`,
+      `${mockBaseUrl}/admin/userProfile/harp-123/measures/searches`,
       {},
       expect.objectContaining({
         params: {

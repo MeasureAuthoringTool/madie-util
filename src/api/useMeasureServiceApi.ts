@@ -741,7 +741,7 @@ export class MeasureServiceApi {
     try {
       limit = limit === "All" ? 1000 : limit;
       const response = await axios.put<MeasureSearchResult>(
-        `${this.baseUrl}/admin/users/${encodeURIComponent(
+        `${this.baseUrl}/admin/userProfile/${encodeURIComponent(
           harpId
         )}/measures/searches`,
         searchCriteria ?? {},
