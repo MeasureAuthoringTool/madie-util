@@ -12,6 +12,7 @@ export interface FeatureFlags {
   AdminUserProfile: boolean;
   usQualityCore?: boolean;
   MeasureReviewStatus?: boolean;
+  LibraryReviewStatus?: boolean;
 }
 const initialState: FeatureFlags = {
   qdmHideJson: true,
@@ -22,6 +23,7 @@ const initialState: FeatureFlags = {
   AdminUserProfile: false,
   usQualityCore: false,
   MeasureReviewStatus: false,
+  LibraryReviewStatus: false,
 };
 
 let state: FeatureFlags | null = initialState;
