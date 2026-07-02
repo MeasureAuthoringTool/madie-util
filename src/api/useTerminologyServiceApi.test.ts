@@ -72,6 +72,230 @@ describe("useTerminologyServiceApi", () => {
         const result = await api.checkLogin();
         expect(result).toBe(false);
       });
+      describe("getValueSet", () => {
+        it("returns unauthorized ValueSet when not logged into UMLS", async () => {
+          const result = await api.getValueSet(
+            "1.2.3.4",
+            "http://test.com",
+            false
+          );
+
+          expect(result).toEqual({
+            resourceType: "ValueSet",
+            id: "1.2.3.4",
+            url: "http://test.com",
+            status: "unauthorized",
+            errorMsg: "Please log in to UMLS",
+          });
+
+          expect(mockedAxios.get).not.toHaveBeenCalled();
+        });
+
+        it("returns valueset data when request succeeds", async () => {
+          const valueSet = {
+            resourceType: "ValueSet",
+            id: "1.2.3.4",
+            url: "http://test.com",
+            status: "active",
+            errorMsg: "",
+          };
+
+          mockedAxios.get.mockResolvedValueOnce({
+            data: valueSet,
+          });
+
+          const result = await api.getValueSet(
+            "1.2.3.4",
+            "http://test.com",
+            true
+          );
+
+          expect(mockedAxios.get).toHaveBeenCalledWith(
+            `${baseUrl}/vsac/valueset`,
+            expect.objectContaining({
+              headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+                "Content-Type": "text/plain",
+              },
+              params: {
+                oid: "1.2.3.4",
+              },
+              timeout: 15000,
+            })
+          );
+
+          expect(result).toEqual(valueSet);
+        });
+
+        it("returns error ValueSet when request fails", async () => {
+          mockedAxios.get.mockRejectedValueOnce({
+            message: "Request failed",
+            status: 500,
+          });
+
+          const result = await api.getValueSet(
+            "1.2.3.4",
+            "http://test.com",
+            true
+          );
+
+          expect(result).toEqual({
+            resourceType: "ValueSet",
+            id: "1.2.3.4",
+            url: "http://test.com",
+            status: 500,
+            errorMsg:
+              "Request failed for oid = 1.2.3.4 location = http://test.com",
+          });
+        });
+      });
+      describe("validateCodes", () => {
+        const codes = [
+          {
+            code: "123",
+            codeSystem: {
+              oid: "2.16.840",
+            },
+          },
+        ];
+
+        it("returns processed errors when not logged into UMLS", async () => {
+          const result = await api.validateCodes(codes, false, "QI-Core");
+
+          expect(result).toEqual([
+            {
+              code: "123",
+              errorMessage: "Please Login to UMLS",
+              valid: false,
+              codeSystem: {
+                oid: "2.16.840",
+                errorMessage: "Please Login to UMLS",
+                valid: false,
+              },
+            },
+          ]);
+
+          expect(mockedAxios.put).not.toHaveBeenCalled();
+        });
+
+        it("returns response data when validation succeeds", async () => {
+          const responseData = [{ code: "123", valid: true }];
+
+          mockedAxios.put.mockResolvedValueOnce({
+            status: 200,
+            data: responseData,
+          });
+
+          const result = await api.validateCodes(codes, true, "QI-Core");
+
+          expect(mockedAxios.put).toHaveBeenCalledWith(
+            `${baseUrl}/vsac/validations/codes?model=QI-Core`,
+            codes,
+            {
+              headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+              },
+            }
+          );
+
+          expect(result).toEqual(responseData);
+        });
+
+        it("returns processed errors when response status is not 200", async () => {
+          mockedAxios.put.mockResolvedValueOnce({
+            status: 500,
+            data: [],
+          });
+
+          const result = await api.validateCodes(codes, true, "QI-Core");
+
+          expect(result).toEqual([
+            {
+              code: "123",
+              errorMessage: "Unable to validate code, Please contact HelpDesk",
+              valid: false,
+              codeSystem: {
+                oid: "2.16.840",
+                errorMessage:
+                  "Unable to validate code, Please contact HelpDesk",
+                valid: false,
+              },
+            },
+          ]);
+        });
+
+        it("returns processed errors when axios throws", async () => {
+          mockedAxios.put.mockRejectedValueOnce(new Error("fail"));
+
+          const result = await api.validateCodes(codes, true, "QI-Core");
+
+          expect(result).toEqual([
+            {
+              code: "123",
+              errorMessage: "Unable to validate code, Please contact HelpDesk",
+              valid: false,
+              codeSystem: {
+                oid: "2.16.840",
+                errorMessage:
+                  "Unable to validate code, Please contact HelpDesk",
+                valid: false,
+              },
+            },
+          ]);
+        });
+      });
+      describe("searchValueSets", () => {
+        it("returns search results when request succeeds", async () => {
+          const searchValues = {
+            oid: "1.2.3.4",
+            name: "Test VS",
+          };
+
+          const responseData = {
+            resultBundle: "bundle",
+            valueSets: [
+              {
+                oid: "1.2.3.4",
+                name: "Test VS",
+              },
+            ],
+          };
+
+          mockedAxios.get.mockResolvedValueOnce({
+            data: responseData,
+          });
+
+          const result = await api.searchValueSets(searchValues);
+
+          expect(mockedAxios.get).toHaveBeenCalledWith(
+            `${baseUrl}/terminology/search-value-sets?oid=1.2.3.4&name=Test VS`,
+            {
+              headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+              },
+            }
+          );
+
+          expect(result).toEqual(responseData);
+        });
+
+        it("returns undefined when axios throws", async () => {
+          const consoleSpy = jest
+            .spyOn(console, "error")
+            .mockImplementation(() => {});
+
+          mockedAxios.get.mockRejectedValueOnce(new Error("fail"));
+
+          const result = await api.searchValueSets({
+            oid: "1.2.3.4",
+          });
+
+          expect(result).toBeUndefined();
+          expect(consoleSpy).toHaveBeenCalled();
+
+          consoleSpy.mockRestore();
+        });
+      });
     });
 
     describe("loginUMLS", () => {

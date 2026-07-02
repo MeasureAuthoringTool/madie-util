@@ -58,6 +58,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@madie/cql-antlr-parser": "^1.0.14",
     "@madie/madie-models": "^1.4.64",
     "axios": "^1.15.0",
     "dompurify": "^3.3.2",
