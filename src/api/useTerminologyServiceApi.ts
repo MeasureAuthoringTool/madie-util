@@ -2,7 +2,19 @@ import axios from "../api/axios-instance";
 import useOktaTokens from "../hooks/useOktaTokens";
 import { wafIntercept } from "../madie-madie-util";
 import useServiceConfig from "./useServiceConfig";
+import { CqlCode, CqlCodeSystem } from "@madie/cql-antlr-parser/dist/src";
 
+// customCqlCode contains validation result from VSAC
+// This object can be cached in future, to avoid calling VSAC everytime.
+export interface CustomCqlCodeSystem extends CqlCodeSystem {
+  valid?: boolean;
+  errorMessage?: string;
+}
+export interface CustomCqlCode extends Omit<CqlCode, "codeSystem"> {
+  codeSystem: CustomCqlCodeSystem;
+  valid?: boolean;
+  errorMessage?: string;
+}
 export type ValueSet = {
   resourceType: string;
   id: string;
@@ -82,10 +94,10 @@ export class TerminologyServiceApi {
   }
 
   async validateCodes(
-    customCqlCodes: any[],
+    customCqlCodes: CustomCqlCode[],
     loggedInUMLS: boolean,
     model: string
-  ): Promise<any[]> {
+  ): Promise<CustomCqlCode[]> {
     if (!loggedInUMLS) {
       return processCodeSystemErrors(
         customCqlCodes,
@@ -205,10 +217,10 @@ export class TerminologyServiceApi {
 }
 
 const processCodeSystemErrors = (
-  cqlCodes: any[],
+  cqlCodes: CustomCqlCode[],
   errorMessage: string,
   valid: boolean
-): any[] => {
+): CustomCqlCode[] => {
   return cqlCodes.map((code) => {
     return {
       ...code,
