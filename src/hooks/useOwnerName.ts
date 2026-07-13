@@ -20,7 +20,6 @@ const useOwnerName = (harpId: string): string => {
 
   useEffect(() => {
     if (harpId) {
-      console.log("here", harpId);
       userServiceApi
         .getOwnerDetails(harpId)
         .then((userDetails) => {
