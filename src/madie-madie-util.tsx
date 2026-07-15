@@ -37,6 +37,14 @@ import { useUserRoles } from "./hooks/useUserRoles";
 import { getOidFromString } from "./util/terminologyUtils";
 import axios from "./api/axios-instance";
 import { useIsRoleOrFeatureEnabled } from "./hooks/useIsRoleOrFeatureEnabled";
+import useNotificationServiceApi from "./api/useNotificationServiceApi";
+import useCodeReviewServiceApi, {
+  CodeReviewServiceApi,
+  type CodeReviewComment,
+  type CommentReply,
+  type CreateCommentPayload,
+  type AddReplyPayload,
+} from "./api/useCodeReviewServiceApi";
 
 export {
   useServiceConfig,
@@ -55,6 +63,13 @@ export {
   useTerminologyServiceApi,
   useMeasureServiceApi,
   useUserServiceApi,
+  useNotificationServiceApi,
+  useCodeReviewServiceApi,
+  CodeReviewServiceApi,
+  CodeReviewComment,
+  CommentReply,
+  CreateCommentPayload,
+  AddReplyPayload,
   useCqlLibraryServiceApi,
   useOrganizationApi,
   useDocumentTitle,
