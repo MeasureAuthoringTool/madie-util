@@ -30,6 +30,7 @@ import { default as useUserServiceApi } from "./api/useUserServiceApi";
 import { default as useCqlLibraryServiceApi } from "./api/useCqlLibraryServiceApi";
 import { default as useOrganizationApi } from "./api/useOrganizationApi";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
+import { default as useOwnerName } from "./hooks/useOwnerName";
 import { default as checkUserCanEdit } from "./util/useCheckCanEdit";
 import { default as checkUserCanDelete } from "./util/useCheckCanDelete";
 import { useFeatureFlags } from "./hooks/useFeatureFlags";
@@ -58,6 +59,7 @@ export {
   useCqlLibraryServiceApi,
   useOrganizationApi,
   useDocumentTitle,
+  useOwnerName,
   checkUserCanEdit,
   checkUserCanDelete,
   useFeatureFlags,
