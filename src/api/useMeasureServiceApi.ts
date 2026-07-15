@@ -187,6 +187,15 @@ export class MeasureServiceApi {
     });
   }
 
+  async adminDeleteMeasure(id: string, ownerHarpId: string): Promise<Response> {
+    return await axios.delete(`${this.baseUrl}/admin/measures/${id}`, {
+      headers: {
+        Authorization: `Bearer ${this.getAccessToken()}`,
+        harpId: ownerHarpId,
+      },
+    });
+  }
+
   async createGroup(group: Group, measureId: string): Promise<Group> {
     try {
       const response = await axios.post<Group>(
