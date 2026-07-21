@@ -5,7 +5,7 @@ import useMeasureServiceApi, {
 import { Group, Measure, OwnershipType } from "@madie/madie-models";
 import { libraryElm } from "./__mocks__/cqlLibraryElm";
 import { cqlLibraryElm_withFunction } from "./__mocks__/cqlLibraryElm_withFunctiion";
-import React from "react";
+import * as React from "react";
 import { renderHook } from "@testing-library/react-hooks";
 import { ServiceContext } from "./ServiceContext";
 
@@ -62,7 +62,7 @@ describe("MeasureServiceApi", () => {
     mockedAxios.put.mockResolvedValueOnce({ data: {} });
     const result = await measureServiceApi.updateMeasure(measure);
     expect(mockedAxios.put).toBeCalledTimes(1);
-    expect(result.data).toEqual({});
+    expect((result as any).data).toEqual({});
   });
 
   it("should succeed getCqmMeasure", async () => {
@@ -71,6 +71,7 @@ describe("MeasureServiceApi", () => {
     await measureServiceApi.getCqmMeasure("id", abortController);
     expect(mockedAxios.get).toHaveBeenCalled();
   });
+
   it("should fail getCqmMeasure", async () => {
     mockedAxios.get.mockRejectedValueOnce(new Error("failure"));
     const consoleWarnMock = jest.spyOn(console, "warn").mockImplementation();
@@ -1117,7 +1118,7 @@ describe("MeasureServiceApi admin coverage", () => {
 
     const callConfig = mockedAxios.put.mock.calls[0][2];
     expect(callConfig.signal).toBe(abortController.signal);
-    const serialized = callConfig.paramsSerializer({
+    const serialized = (callConfig.paramsSerializer as any)({
       ownershipTypes: ["OWNED", "SHARED"],
     });
     expect(serialized).toContain("ownershipTypes=OWNED");
