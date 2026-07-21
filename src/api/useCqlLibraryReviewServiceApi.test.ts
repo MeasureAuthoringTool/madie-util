@@ -87,6 +87,13 @@ describe("CqlLibraryReviewServiceApi", () => {
     expect(result).toBeNull();
   });
 
+  it("rethrows non-404 errors when fetching cql library review", async () => {
+    const error = { response: { status: 500 } };
+    mockedAxios.get.mockRejectedValueOnce(error);
+
+    await expect(api.getCqlLibraryReview("library-1")).rejects.toEqual(error);
+  });
+
   it("fetches cql library reviews by set id", async () => {
     mockedAxios.get.mockResolvedValueOnce({ data: [review] });
 

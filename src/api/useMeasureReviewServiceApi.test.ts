@@ -87,6 +87,15 @@ describe("MeasureReviewServiceApi", () => {
     expect(result).toBeNull();
   });
 
+  it("rethrows non-404 errors when fetching measure review", async () => {
+    const error = new Error("server error");
+    mockedAxios.get.mockRejectedValueOnce(error);
+
+    await expect(api.getMeasureReview("measure-1")).rejects.toThrow(
+      "server error"
+    );
+  });
+
   it("fetches measure reviews by set id", async () => {
     mockedAxios.get.mockResolvedValueOnce({ data: [review] });
 

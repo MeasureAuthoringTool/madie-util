@@ -74,7 +74,7 @@ export class CqlLibraryReviewServiceApi {
   }
 }
 
-export default function useCqlLibraryReviewServiceApi() {
+export default function useCqlLibraryReviewServiceApi(): CqlLibraryReviewServiceApi {
   const { cqlLibraryService } = useServiceConfig();
   const { getAccessToken } = useOktaTokens();
   const { baseUrl } = cqlLibraryService;
