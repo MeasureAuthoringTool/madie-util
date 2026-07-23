@@ -5,7 +5,7 @@ import useCqlLibraryServiceApi, {
 import { CqlLibrary, OwnershipType } from "@madie/madie-models";
 import { renderHook } from "@testing-library/react-hooks";
 import { ServiceContext } from "./ServiceContext";
-import React from "react";
+import * as React from "react";
 
 jest.mock("./axios-instance");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -421,6 +421,9 @@ describe("useCqlLibraryServiceApi", () => {
 
   it("test function useCqlLibraryServiceApi", () => {
     const mockConfig = {
+      measureService: {
+        baseUrl: mockBaseUrl,
+      },
       cqlLibraryService: {
         baseUrl: mockBaseUrl,
       },

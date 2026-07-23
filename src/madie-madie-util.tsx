@@ -26,8 +26,10 @@ import { userRolesStore } from "./Store/userRolesStore";
 import { adminUserStore } from "./Store/adminUserStore";
 import { default as useTerminologyServiceApi } from "./api/useTerminologyServiceApi";
 import { default as useMeasureServiceApi } from "./api/useMeasureServiceApi";
+import { default as useMeasureReviewServiceApi } from "./api/useMeasureReviewServiceApi";
 import { default as useUserServiceApi } from "./api/useUserServiceApi";
 import { default as useCqlLibraryServiceApi } from "./api/useCqlLibraryServiceApi";
+import { default as useCqlLibraryReviewServiceApi } from "./api/useCqlLibraryReviewServiceApi";
 import { default as useOrganizationApi } from "./api/useOrganizationApi";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { default as useOwnerName } from "./hooks/useOwnerName";
@@ -55,8 +57,10 @@ export {
   adminUserStore,
   useTerminologyServiceApi,
   useMeasureServiceApi,
+  useMeasureReviewServiceApi,
   useUserServiceApi,
   useCqlLibraryServiceApi,
+  useCqlLibraryReviewServiceApi,
   useOrganizationApi,
   useDocumentTitle,
   useOwnerName,
