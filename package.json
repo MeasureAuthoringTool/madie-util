@@ -26,8 +26,11 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/react-hooks": "^8.0.1",
+    "@testing-library/user-event": "^13.5.0",
     "@types/fhir": "^0.0.41",
+    "@types/file-saver": "^2.0.7",
     "@types/jest": "^27.0.1",
+    "@types/lodash": "^4.14.178",
     "@types/react": "^17.0.19",
     "@types/react-dom": "^17.0.9",
     "@types/systemjs": "^6.1.1",
@@ -37,6 +40,7 @@
     "babel-plugin-macros": "^3.1.0",
     "concurrently": "^6.2.1",
     "cross-env": "^7.0.3",
+    "css-loader": "^7.1.4",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-ts-react-important-stuff": "^3.0.0",
@@ -45,8 +49,13 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.0.6",
     "jest-cli": "^27.0.6",
+    "node-polyfill-webpack-plugin": "^1.1.4",
     "prettier": "^2.3.2",
     "pretty-quick": "^3.1.1",
+    "sass": "^1.51.0",
+    "sass-loader": "^12.6.0",
+    "style-loader": "^3.3.4",
+    "tailwindcss": "^3.4.10",
     "ts-config-single-spa": "^3.0.0",
     "typescript": "^4.3.5",
     "webpack": "^5.51.1",
@@ -58,16 +67,47 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@iconify-icon/react": "^2.3.0",
     "@madie/cql-antlr-parser": "^1.0.14",
-    "@madie/madie-models": "^1.4.71",
+    "@madie/madie-design-system": "^1.2.93",
+    "@madie/madie-models": "^1.4.73",
+    "@mui/icons-material": "^6.1.0",
+    "@mui/material": "^6.1.0",
+    "@mui/system": "^6.1.0",
+    "@tanstack/react-table": "^8.10.3",
+    "allotment": "^1.20.2",
     "axios": "^1.15.0",
+    "date-fns": "^2.28.0",
+    "diff": "^8.0.3",
     "dompurify": "^3.3.2",
+    "file-saver": "^2.0.5",
+    "formik": "^2.2.9",
+    "lodash": "^4.18.1",
     "react": "^17.0.2",
+    "react-diff-viewer-continued": "^3.4.0",
     "react-dom": "^17.0.2",
     "rxjs": "^7.5.5",
     "single-spa": "^5.9.3",
     "single-spa-react": "^4.3.1",
-    "styled-components": "^5.3.5"
+    "styled-components": "^5.3.7",
+    "twin.macro": "^3.4.0",
+    "yup": "^0.32.11"
+  },
+  "babelMacros": {
+    "twin": {
+      "preset": "styled-components",
+      "autoCssProp": false,
+      "styled": {
+        "import": "default",
+        "from": "styled-components"
+      },
+      "css": {
+        "import": "css",
+        "from": "styled-components"
+      }
+    }
   },
   "types": "dist/madie-madie-util.d.ts",
   "overrides": {
