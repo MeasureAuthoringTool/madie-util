@@ -59,6 +59,8 @@ import {
   EXPORT_FAILURE_MESSAGE,
   ShareAction,
   ShareDialog,
+  TransferAction,
+  TransferDialog,
 } from "./components/measureActions";
 
 export {
@@ -114,4 +116,6 @@ export {
   EXPORT_FAILURE_MESSAGE,
   ShareAction,
   ShareDialog,
+  TransferAction,
+  TransferDialog,
 };

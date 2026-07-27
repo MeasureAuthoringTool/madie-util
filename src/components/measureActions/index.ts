@@ -19,3 +19,5 @@ export {
 } from "./exportUtil";
 export { default as ShareAction } from "./actions/shareAction/ShareAction";
 export { default as ShareDialog } from "./dialogs/shareDialog/ShareDialog";
+export { default as TransferAction } from "./actions/transferAction/TransferAction";
+export { default as TransferDialog } from "./dialogs/transferDialog/TransferDialog";
