@@ -38,8 +38,28 @@ import { default as checkUserCanDelete } from "./util/useCheckCanDelete";
 import { useFeatureFlags } from "./hooks/useFeatureFlags";
 import { useUserRoles } from "./hooks/useUserRoles";
 import { getOidFromString } from "./util/terminologyUtils";
+import { formatCmsId, padCmsId } from "./util/cmsIdFormatter";
 import axios from "./api/axios-instance";
 import { useIsRoleOrFeatureEnabled } from "./hooks/useIsRoleOrFeatureEnabled";
+import {
+  ExportAction,
+  ViewHRAction,
+  HistoryAction,
+  CompareVersionsAction,
+  ExportDialog,
+  ExportIcon,
+  ViewHRModal,
+  ViewMeasureHistoryDialog,
+  CompareVersionsDialog,
+  getNewestMeasureInstance,
+  exportMeasure,
+  downloadZipFile,
+  generateTimestampedFileName,
+  parseErrorMessageFromBlob,
+  EXPORT_FAILURE_MESSAGE,
+  ShareAction,
+  ShareDialog,
+} from "./components/measureActions";
 
 export {
   useServiceConfig,
@@ -69,10 +89,29 @@ export {
   useFeatureFlags,
   useUserRoles,
   getOidFromString,
+  formatCmsId,
+  padCmsId,
   wafIntercept,
   axios,
   ApiContextConsumer,
   ApiContextProvider,
   OktaConfig,
   useIsRoleOrFeatureEnabled,
+  ExportAction,
+  ViewHRAction,
+  HistoryAction,
+  CompareVersionsAction,
+  ExportDialog,
+  ExportIcon,
+  ViewHRModal,
+  ViewMeasureHistoryDialog,
+  CompareVersionsDialog,
+  getNewestMeasureInstance,
+  exportMeasure,
+  downloadZipFile,
+  generateTimestampedFileName,
+  parseErrorMessageFromBlob,
+  EXPORT_FAILURE_MESSAGE,
+  ShareAction,
+  ShareDialog,
 };
