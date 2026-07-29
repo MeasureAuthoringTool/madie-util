@@ -55,7 +55,7 @@ describe("TransferAction", () => {
     );
   });
 
-  it("Should enable action btn if user select one measure", async () => {
+  it("Should enable action btn if user select one measure", () => {
     render(
       <TransferAction
         measures={[mockMeasure]}
@@ -63,7 +63,7 @@ describe("TransferAction", () => {
         activeTab={0}
       />
     );
-    await expect(screen.getByTestId("transfer-action-btn")).not.toBeDisabled();
+    expect(screen.getByTestId("transfer-action-btn")).not.toBeDisabled();
     expect(screen.getByTestId("transfer-action-tooltip")).toHaveAttribute(
       "aria-label",
       TRANSFER
