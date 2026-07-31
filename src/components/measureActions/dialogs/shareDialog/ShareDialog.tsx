@@ -845,6 +845,7 @@ const ShareDialog = ({
                         style={{
                           borderTop: "solid 1px #8c8c8c",
                           borderSpacing: "0 2em !important",
+                          height: "68px",
                         }}
                       >
                         {row.getVisibleCells().map((cell) => (

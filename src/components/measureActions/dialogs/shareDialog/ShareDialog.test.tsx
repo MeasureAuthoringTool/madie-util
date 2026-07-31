@@ -191,6 +191,26 @@ describe("Create Share Dialog component", () => {
     expect(screen.queryByText(/Export User List/i)).not.toBeInTheDocument();
   });
 
+  it("should render each grid row with a height of 68px", async () => {
+    render(
+      <ShareDialog
+        measures={[mockMeasure1, mockMeasure2]}
+        open={true}
+        option={"Share With"}
+        onClose={jest.fn()}
+        onSave={jest.fn()}
+        isAdmin={false}
+      />
+    );
+    await screen.findByTestId("share-measure-tbl");
+
+    const rows = await screen.findAllByTestId("row-item");
+    expect(rows.length).toBeGreaterThan(0);
+    rows.forEach((row) => {
+      expect(row).toHaveStyle({ height: "68px" });
+    });
+  });
+
   it("should render share dialog but not call getSharedMeasures if no measure is passed in to share dialog component", async () => {
     mockMeasureServiceApi.getSharedMeasures = jest.fn().mockResolvedValue([]);
     mockMeasureServiceApi.getRecentMeasuresByMeasureSetId = jest
