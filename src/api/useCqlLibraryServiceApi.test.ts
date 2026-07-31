@@ -585,4 +585,57 @@ describe("useCqlLibraryServiceApi", () => {
     );
     consoleErrorMock.mockRestore();
   });
+
+  it("should delete a library", async () => {
+    const response = { data: { id: "lib1" } };
+
+    mockedAxios.delete.mockResolvedValueOnce(response);
+
+    const result = await cqlLibraryServiceApi.deleteLibrary(
+      "lib1",
+      "harpId123"
+    );
+
+    expect(mockedAxios.delete).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/lib1`,
+      {
+        headers: {
+          Authorization: `Bearer ${mockToken}`,
+          harpId: "harpId123",
+        },
+      }
+    );
+
+    expect(result).toBe(response);
+  });
+  it("should log and rethrow errors when deleteLibrary fails", async () => {
+    const error = new Error("delete failed");
+
+    const consoleErrorSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    mockedAxios.delete.mockRejectedValueOnce(error);
+
+    await expect(
+      cqlLibraryServiceApi.deleteLibrary("lib1", "harpId123")
+    ).rejects.toThrow("delete failed");
+
+    expect(mockedAxios.delete).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/lib1`,
+      {
+        headers: {
+          Authorization: `Bearer ${mockToken}`,
+          harpId: "harpId123",
+        },
+      }
+    );
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Failed to delete library",
+      error
+    );
+
+    consoleErrorSpy.mockRestore();
+  });
 });
