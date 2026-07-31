@@ -54,6 +54,46 @@ export class CqlLibraryServiceApi {
     }
   }
 
+  async adminSearchCqlLibrariesForUser(
+    harpId: string,
+    ownershipType: OwnershipType,
+    limit: string | number = 25,
+    page: number = 0,
+    searchCriteria?,
+    sortInfo?,
+    signal?: AbortSignal
+  ): Promise<any> {
+    try {
+      limit = limit === "All" ? 1000 : limit;
+      const response = await axios.put<any>(
+        `${this.baseUrl}/cql-libraries/admin/userProfile/${encodeURIComponent(
+          harpId
+        )}/searches`,
+        searchCriteria ?? {},
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+          params: {
+            ownershipType,
+            limit,
+            page,
+            sortInfo: sortInfo || undefined,
+          },
+          signal,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      if (err.message === "canceled") {
+        throw new Error(err.message);
+      }
+      const message = `Unable to search Cql Libraries for user ${harpId}`;
+      console.error(message, err);
+      throw new Error(message);
+    }
+  }
+
   async fetchCqlLibrary(id: string): Promise<CqlLibrary> {
     try {
       const response = await axios.get<CqlLibrary>(

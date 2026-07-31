@@ -58,6 +58,18 @@ describe("wafIntercept", () => {
     await expect(wafIntercept(error)).rejects.toEqual(error);
   });
 
+  it("should pass through 403 responses without a content-type header", async () => {
+    const error = {
+      response: {
+        status: 403,
+        headers: {},
+        data: "Forbidden",
+      },
+    };
+
+    await expect(wafIntercept(error)).rejects.toEqual(error);
+  });
+
   it("should handle WAF block with different case variations", async () => {
     const error = {
       response: {

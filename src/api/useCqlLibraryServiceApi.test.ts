@@ -112,6 +112,42 @@ describe("useCqlLibraryServiceApi", () => {
     ).rejects.toThrow("canceled");
   });
 
+  it("should search Cql Libraries for an admin-selected user", async () => {
+    const mockedResponse = { data: { content: [{ id: "1" }] } };
+    const searchCriteria = {
+      searchField: "helper",
+      optionalSearchProperties: ["library"],
+    };
+    const controller = new AbortController();
+    mockedAxios.put.mockResolvedValueOnce(mockedResponse);
+
+    const result = await cqlLibraryServiceApi.adminSearchCqlLibrariesForUser(
+      "profile user/special",
+      OwnershipType.SHARED,
+      10,
+      2,
+      searchCriteria,
+      "cqlLibraryName,false",
+      controller.signal
+    );
+
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/admin/userProfile/profile%20user%2Fspecial/searches`,
+      searchCriteria,
+      {
+        headers: { Authorization: `Bearer ${mockToken}` },
+        params: {
+          ownershipType: OwnershipType.SHARED,
+          limit: 10,
+          page: 2,
+          sortInfo: "cqlLibraryName,false",
+        },
+        signal: controller.signal,
+      }
+    );
+    expect(result).toEqual(mockedResponse.data);
+  });
+
   it("should fetch a single Cql Library", async () => {
     const mockedResponse = { data: { id: "1" } };
     mockedAxios.get.mockResolvedValueOnce(mockedResponse);
