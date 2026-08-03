@@ -368,7 +368,7 @@ export class CqlLibraryServiceApi {
     harpId: string
   ): Promise<AxiosResponse<CqlLibrary>> {
     try {
-      return await axios.delete(`${this.baseUrl}/cql-libraries/${id}`, {
+      return await axios.delete(`${this.baseUrl}/cql-libraries/admin/${id}`, {
         headers: {
           Authorization: `Bearer ${this.getAccessToken()}`,
           harpId,

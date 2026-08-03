@@ -597,7 +597,7 @@ describe("useCqlLibraryServiceApi", () => {
     );
 
     expect(mockedAxios.delete).toHaveBeenCalledWith(
-      `${mockBaseUrl}/cql-libraries/lib1`,
+      `${mockBaseUrl}/cql-libraries/admin/lib1`,
       {
         headers: {
           Authorization: `Bearer ${mockToken}`,
@@ -622,7 +622,7 @@ describe("useCqlLibraryServiceApi", () => {
     ).rejects.toThrow("delete failed");
 
     expect(mockedAxios.delete).toHaveBeenCalledWith(
-      `${mockBaseUrl}/cql-libraries/lib1`,
+      `${mockBaseUrl}/cql-libraries/admin/lib1`,
       {
         headers: {
           Authorization: `Bearer ${mockToken}`,
