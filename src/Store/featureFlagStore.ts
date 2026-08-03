@@ -18,12 +18,12 @@ const initialState: FeatureFlags = {
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   qiCore7: false,
-  QICoreCompositeMeasure: false,
-  AdminUserList: false,
-  AdminUserProfile: false,
+  QICoreCompositeMeasure: true,
+  AdminUserList: true,
+  AdminUserProfile: true,
   usQualityCore: false,
-  MeasureReviewStatus: false,
-  LibraryReviewStatus: false,
+  MeasureReviewStatus: true,
+  LibraryReviewStatus: true,
 };
 
 let state: FeatureFlags | null = initialState;
