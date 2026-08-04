@@ -402,6 +402,24 @@ export class CqlLibraryServiceApi {
     }
   }
 
+  // admin delete
+  async deleteLibrary(
+    id: string,
+    harpId: string
+  ): Promise<AxiosResponse<CqlLibrary>> {
+    try {
+      return await axios.delete(`${this.baseUrl}/cql-libraries/admin/${id}`, {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+          harpId,
+        },
+      });
+    } catch (err) {
+      console.error("Failed to delete library", err);
+      throw err;
+    }
+  }
+
   async unlockLibraries(): Promise<String> {
     try {
       const response = await axios.delete<String>(
