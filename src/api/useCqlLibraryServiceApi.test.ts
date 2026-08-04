@@ -112,6 +112,98 @@ describe("useCqlLibraryServiceApi", () => {
     ).rejects.toThrow("canceled");
   });
 
+  it("should search Cql Libraries for an admin-selected user", async () => {
+    const mockedResponse = { data: { content: [{ id: "1" }] } };
+    const searchCriteria = {
+      searchField: "helper",
+      optionalSearchProperties: ["library"],
+    };
+    const controller = new AbortController();
+    mockedAxios.put.mockResolvedValueOnce(mockedResponse);
+
+    const result = await cqlLibraryServiceApi.adminSearchCqlLibrariesForUser(
+      "profile user/special",
+      OwnershipType.SHARED,
+      10,
+      2,
+      searchCriteria,
+      "cqlLibraryName,false",
+      controller.signal
+    );
+
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/admin/userProfile/profile%20user%2Fspecial/searches`,
+      searchCriteria,
+      {
+        headers: { Authorization: `Bearer ${mockToken}` },
+        params: {
+          ownershipType: OwnershipType.SHARED,
+          limit: 10,
+          page: 2,
+          sortInfo: "cqlLibraryName,false",
+        },
+        signal: controller.signal,
+      }
+    );
+    expect(result).toEqual(mockedResponse.data);
+  });
+
+  it("should use admin search defaults and convert an All limit", async () => {
+    const mockedResponse = { data: { content: [] } };
+    mockedAxios.put.mockResolvedValueOnce(mockedResponse);
+
+    const result = await cqlLibraryServiceApi.adminSearchCqlLibrariesForUser(
+      "profile-user",
+      OwnershipType.OWNED,
+      "All"
+    );
+
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/admin/userProfile/profile-user/searches`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${mockToken}` },
+        params: {
+          ownershipType: OwnershipType.OWNED,
+          limit: 1000,
+          page: 0,
+          sortInfo: undefined,
+        },
+        signal: undefined,
+      }
+    );
+    expect(result).toEqual(mockedResponse.data);
+  });
+
+  it("should preserve cancellation errors from admin library searches", async () => {
+    mockedAxios.put.mockRejectedValueOnce(new Error("canceled"));
+
+    await expect(
+      cqlLibraryServiceApi.adminSearchCqlLibrariesForUser(
+        "profile-user",
+        OwnershipType.OWNED
+      )
+    ).rejects.toThrow("canceled");
+  });
+
+  it("should provide context when an admin library search fails", async () => {
+    const error = new Error("Forbidden");
+    const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
+    mockedAxios.put.mockRejectedValueOnce(error);
+
+    await expect(
+      cqlLibraryServiceApi.adminSearchCqlLibrariesForUser(
+        "profile-user",
+        OwnershipType.SHARED
+      )
+    ).rejects.toThrow("Unable to search Cql Libraries for user profile-user");
+    expect(consoleErrorMock).toHaveBeenCalledWith(
+      "Unable to search Cql Libraries for user profile-user",
+      error
+    );
+    consoleErrorMock.mockRestore();
+  });
+
   it("should fetch a single Cql Library", async () => {
     const mockedResponse = { data: { id: "1" } };
     mockedAxios.get.mockResolvedValueOnce(mockedResponse);

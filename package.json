@@ -93,6 +93,7 @@
     "single-spa-react": "^4.3.1",
     "styled-components": "^5.3.7",
     "twin.macro": "^3.4.0",
+    "yaml": "^2.9.0",
     "yup": "^0.32.11"
   },
   "babelMacros": {
