@@ -1,12 +1,15 @@
 import DOMPurify from "dompurify";
 
 const wafIntercept = (error) => {
+  const contentType =
+    error?.response?.headers?.["content-type"] ??
+    error?.response?.headers?.get?.("content-type") ??
+    "";
+
   // Check for WAF block
   if (
     error?.response?.status === 403 &&
-    error?.response?.headers["content-type"]
-      .toLowerCase()
-      .includes("text/html") &&
+    contentType.toLowerCase().includes("text/html") &&
     (JSON.stringify(error.response.data)
       .toLocaleLowerCase()
       .includes("soc@hcqis.org") ||
