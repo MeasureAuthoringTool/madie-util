@@ -1564,8 +1564,48 @@ describe("UnshareFromMe Confirmation Dialog component", () => {
       />
     );
 
-    expect(screen.getByTestId("share-confirmation-dialog")).toBeInTheDocument();
+    expect(
+      await screen.findByTestId("share-confirmation-dialog")
+    ).toBeInTheDocument();
     expect(screen.queryByTestId("share-dialog")).toBeNull();
+  });
+
+  it("should unshare the passed unshareFromUser (not the logged-in user) and show the measure name", async () => {
+    const mockOnSave = jest.fn();
+    mockMeasureServiceApi.unshareMeasures = mockUnshareMeasures;
+    render(
+      <ShareDialog
+        measures={[mockMeasure1, mockMeasure2]}
+        open={true}
+        option="UnshareFromMe"
+        onClose={jest.fn()}
+        onSave={mockOnSave}
+        unshareFromUser="userId1"
+      />
+    );
+
+    const dialog = await screen.findByTestId("share-confirmation-dialog");
+    expect(dialog).toHaveTextContent(mockMeasure1.measureName);
+    expect(dialog).toHaveTextContent(mockMeasure2.measureName);
+
+    // The target user is the passed profile user, not the logged-in "test user".
+    expect(dialog).toHaveTextContent("userId1");
+    expect(dialog).not.toHaveTextContent("test user");
+
+    await userEvent.click(
+      await screen.findByTestId("share-confirmation-dialog-accept-button")
+    );
+
+    await waitFor(() => {
+      expect(mockUnshareMeasures).toHaveBeenCalledWith(expect.any(Map));
+    });
+    const requestMap = mockUnshareMeasures.mock.calls[0][0] as Map<
+      string,
+      string[]
+    >;
+
+    expect(requestMap.get(mockMeasure1.id)).toEqual(["userId1"]);
+    expect(requestMap.get(mockMeasure2.id)).toEqual(["userId1"]);
   });
 
   it("should close Share dialog and call onClose when option is 'Share With'", async () => {
@@ -1627,7 +1667,9 @@ describe("UnshareFromMe Confirmation Dialog component", () => {
       />
     );
 
-    expect(screen.getByTestId("share-confirmation-dialog")).toBeInTheDocument();
+    expect(
+      await screen.findByTestId("share-confirmation-dialog")
+    ).toBeInTheDocument();
     expect(screen.queryByTestId("share-dialog")).toBeNull();
 
     const cancelButton = screen.getByTestId(
