@@ -55,6 +55,7 @@ describe("userRolesStore", () => {
     expect(userRolesStore.initialState).toEqual({
       roles: [],
       isAdmin: false,
+      isReviewer: false,
     });
   });
 
@@ -65,6 +66,7 @@ describe("userRolesStore", () => {
     expect(userRolesStore.getState()).toEqual({
       roles: ["MADiE-User"],
       isAdmin: false,
+      isReviewer: false,
     });
   });
 
@@ -75,6 +77,7 @@ describe("userRolesStore", () => {
     expect(userRolesStore.getState()).toEqual({
       roles: ["MADiE-User", "MADiE-Admin"],
       isAdmin: true,
+      isReviewer: false,
     });
   });
 
@@ -84,6 +87,7 @@ describe("userRolesStore", () => {
     expect(userRolesStore.getState()).toEqual({
       roles: [],
       isAdmin: false,
+      isReviewer: false,
     });
   });
 
@@ -98,6 +102,7 @@ describe("userRolesStore", () => {
       expect(mockSetUserRoles).toHaveBeenCalledWith({
         roles: ["MADiE-Admin"],
         isAdmin: true,
+        isReviewer: false,
       });
       subscription.unsubscribe();
       done();
@@ -149,6 +154,7 @@ describe("userRolesStore", () => {
     expect(userRolesStore.getState()).toEqual({
       roles: ["MADiE-Admin", "MADiE-User"],
       isAdmin: true,
+      isReviewer: false,
     });
     localStorage.setItem(
       "madie-user-roles",
@@ -161,11 +167,16 @@ describe("userRolesStore", () => {
 
     userRolesStore.clearRoles();
 
-    expect(userRolesStore.getState()).toEqual({ roles: [], isAdmin: false });
+    expect(userRolesStore.getState()).toEqual({
+      roles: [],
+      isAdmin: false,
+      isReviewer: false,
+    });
     expect(localStorage.getItem("madie-user-roles")).toBeNull();
     expect(mockSetUserRoles).toHaveBeenCalledWith({
       roles: [],
       isAdmin: false,
+      isReviewer: false,
     });
     subscription.unsubscribe();
   });
