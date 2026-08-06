@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { IconButton } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import { Measure } from "@madie/madie-models";
-import SwapVertOutlinedIcon from "@mui/icons-material/SwapVertOutlined";
+import { ArrowRightLeft } from "lucide-react";
 import { useUserRoles } from "../../../../hooks/useUserRoles";
 import checkUserCanEdit from "../../../../util/useCheckCanEdit";
 
@@ -93,7 +93,7 @@ export default function TransferAction(props: PropTypes) {
           disabled={disableTransferBtn}
           data-testid="transfer-action-btn"
         >
-          <SwapVertOutlinedIcon style={{ transform: "rotate(90deg)" }} />
+          <ArrowRightLeft size={20} />
         </IconButton>
       </span>
     </Tooltip>
