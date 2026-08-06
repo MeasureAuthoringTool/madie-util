@@ -62,7 +62,10 @@ import {
   TransferAction,
   TransferDialog,
 } from "./components/measureActions";
-import { LibraryShareDialog } from "./components/libraryActions";
+import {
+  LibraryShareDialog,
+  LibraryShareAction,
+} from "./components/libraryActions";
 export {
   useServiceConfig,
   getServiceConfig,
@@ -108,6 +111,7 @@ export {
   ViewHRModal,
   ViewMeasureHistoryDialog,
   CompareVersionsDialog,
+  LibraryShareAction,
   LibraryShareDialog,
   getNewestMeasureInstance,
   exportMeasure,
