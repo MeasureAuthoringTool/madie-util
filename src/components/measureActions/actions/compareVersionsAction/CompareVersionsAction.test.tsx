@@ -197,7 +197,7 @@ describe("CompareVersionsAction component", () => {
     expect(screen.getByTestId("compare-versions-action-btn")).toBeDisabled();
   });
 
-  it("should render the compare icon correctly", () => {
+  it("should render the compare icon correctly", async () => {
     render(<CompareVersionsAction measures={[]} onClick={() => {}} />);
     const button = screen.getByTestId("compare-versions-action-btn");
     const svg = button.querySelector("svg");
@@ -205,6 +205,6 @@ describe("CompareVersionsAction component", () => {
     expect(svg).toBeInTheDocument();
     expect(svg).toHaveAttribute("width", "20");
     expect(svg).toHaveAttribute("height", "20");
-    expect(svg).toHaveClass("lucide-git-compare");
+    await expect(svg).toHaveClass("lucide-git-compare");
   });
 });
