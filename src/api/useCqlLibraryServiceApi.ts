@@ -65,7 +65,7 @@ export class CqlLibraryServiceApi {
    */
   async fetchReviewLibraries(signal?): Promise<LibraryListDTO[]> {
     try {
-      const response = await axios.get<any>(
+      const response = await axios.get<LibraryListDTO[]>(
         `${this.baseUrl}/cql-libraries/reviews`,
         {
           headers: {
