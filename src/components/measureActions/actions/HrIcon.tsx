@@ -1,10 +1,8 @@
 import React from "react";
-import { Icon } from "@iconify-icon/react";
+import { FileText } from "lucide-react";
 
 const HrIcon = () => {
-  return (
-    <Icon icon="lucide:file-text" data-testid={`view-hr-action-iconify-btn`} />
-  );
+  return <FileText size={20} data-testid="view-hr-action-iconify-btn" />;
 };
 
 export default HrIcon;
