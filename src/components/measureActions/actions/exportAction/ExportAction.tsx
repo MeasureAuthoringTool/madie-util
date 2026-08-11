@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import { Measure } from "@madie/madie-models";
-import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
+import { Upload } from "lucide-react";
 
 interface PropTypes {
   measures: Measure[];
@@ -95,7 +95,7 @@ export default function ExportAction(props: PropTypes) {
             data-testid="export-action-btn"
             ref={anchorRef}
           >
-            <FileUploadOutlinedIcon />
+            <Upload size={20} />
           </IconButton>
         </span>
       </Tooltip>
