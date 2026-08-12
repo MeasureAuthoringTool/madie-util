@@ -72,7 +72,7 @@
     "@iconify-icon/react": "^2.3.0",
     "@madie/cql-antlr-parser": "^1.0.14",
     "@madie/madie-design-system": "^1.2.93",
-    "@madie/madie-models": "^1.4.73",
+    "@madie/madie-models": "^1.4.74",
     "@mui/icons-material": "^6.1.0",
     "@mui/material": "^6.1.0",
     "@mui/system": "^6.1.0",
