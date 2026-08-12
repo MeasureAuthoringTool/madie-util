@@ -2,8 +2,7 @@ import axios from "./axios-instance";
 import useServiceConfig from "./useServiceConfig";
 import useOktaTokens from "../hooks/useOktaTokens";
 import { AxiosResponse } from "axios";
-
-import { CqlLibrary, OwnershipType } from "@madie/madie-models";
+import { CqlLibrary, LibraryListDTO, OwnershipType } from "@madie/madie-models";
 
 export type AuditRow = {
   actionType: string;
@@ -47,6 +46,40 @@ export class CqlLibraryServiceApi {
         throw new Error(err.message);
       }
       const message = `Unable to fetch Cql Libraries`;
+      console.error(message);
+      console.error(err);
+
+      throw new Error(message);
+    }
+  }
+
+  /**
+   * Fetches every library instance currently in the review process
+   * (backend GET /cql-libraries/reviews). The endpoint returns the full,
+   * unpaginated list of LibraryListDTOs (each carrying a populated
+   * reviewStatus); sorting/pagination are handled client-side. Only reviewers
+   * (MADiE-Reviewer) are authorized to call this.
+   *
+   * @param signal optional AbortSignal so callers can cancel an in-flight request
+   *               (e.g. when switching tabs).
+   */
+  async fetchReviewLibraries(signal?): Promise<LibraryListDTO[]> {
+    try {
+      const response = await axios.get<LibraryListDTO[]>(
+        `${this.baseUrl}/cql-libraries/reviews`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+          signal,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      if (err.message === "canceled") {
+        throw new Error(err.message);
+      }
+      const message = `Unable to fetch libraries in review`;
       console.error(message);
       console.error(err);
 
