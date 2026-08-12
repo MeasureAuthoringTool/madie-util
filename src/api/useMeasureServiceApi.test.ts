@@ -744,6 +744,7 @@ describe("MeasureServiceApi admin coverage", () => {
 
     const measuresList = await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED],
+      false,
       25,
       0,
       "lastModifiedAt",
@@ -762,6 +763,7 @@ describe("MeasureServiceApi admin coverage", () => {
     try {
       await api.searchMeasuresByCriteria(
         [OwnershipType.OWNED],
+        false,
         25,
         0,
         "lastModifiedAt",
@@ -786,6 +788,7 @@ describe("MeasureServiceApi admin coverage", () => {
     try {
       await api.searchMeasuresByCriteria(
         [OwnershipType.OWNED],
+        false,
         25,
         0,
         "lastModifiedAt",
@@ -902,6 +905,7 @@ describe("MeasureServiceApi admin coverage", () => {
 
     await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED, OwnershipType.SHARED],
+      false,
       25,
       0,
       "lastModifiedAt",
@@ -931,6 +935,7 @@ describe("MeasureServiceApi admin coverage", () => {
 
     await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED, OwnershipType.SHARED],
+      false,
       undefined,
       0,
       "lastModifiedAt",
@@ -960,6 +965,7 @@ describe("MeasureServiceApi admin coverage", () => {
 
     await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED, OwnershipType.SHARED],
+      false,
       25,
       undefined,
       "lastModifiedAt",
@@ -989,6 +995,7 @@ describe("MeasureServiceApi admin coverage", () => {
 
     await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED, OwnershipType.SHARED],
+      false,
       25,
       0,
       undefined,
@@ -1018,6 +1025,7 @@ describe("MeasureServiceApi admin coverage", () => {
 
     await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED, OwnershipType.SHARED],
+      false,
       "All",
       0,
       "lastModifiedAt",
