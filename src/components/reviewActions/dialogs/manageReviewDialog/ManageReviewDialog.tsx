@@ -72,8 +72,6 @@ const autoCompleteStyles = {
   width: "100%",
 };
 
-// Comments are captured with a rich text editor, so strip the markup before
-// displaying them in the read only Comment field.
 export const toPlainText = (comment?: string): string =>
   comment
     ?.replace(/<[^>]*>/g, " ")
@@ -104,8 +102,6 @@ const ManageReviewDialog = ({
   const [selectedReviewers, setSelectedReviewers] = useState<string[]>([]);
   const [status, setStatus] = useState<string>("");
 
-  // Reviewers are not persisted with the review yet, so the status the entity is
-  // already in is the only pre-populated value.
   const initialStatus = useMemo(
     () => (persistedStatus ? REVIEW_STATUS_LABELS[persistedStatus] ?? "" : ""),
     [persistedStatus]
