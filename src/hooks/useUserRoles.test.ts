@@ -14,6 +14,7 @@ describe("useUserRoles", () => {
     expect(result.current).toEqual({
       roles: [],
       isAdmin: false,
+      isReviewer: false,
     });
   });
 
@@ -27,6 +28,7 @@ describe("useUserRoles", () => {
     expect(result.current).toEqual({
       roles: ["MADiE-Admin"],
       isAdmin: true,
+      isReviewer: false,
     });
   });
 

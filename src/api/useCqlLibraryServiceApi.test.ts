@@ -112,6 +112,33 @@ describe("useCqlLibraryServiceApi", () => {
     ).rejects.toThrow("canceled");
   });
 
+  it("should fetch libraries in review", async () => {
+    const mockedResponse = { data: [{ id: "1", reviewStatus: "READY" }] };
+    mockedAxios.get.mockResolvedValueOnce(mockedResponse);
+    const result = await cqlLibraryServiceApi.fetchReviewLibraries(undefined);
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/reviews`,
+      expect.objectContaining({
+        headers: { Authorization: `Bearer ${mockToken}` },
+      })
+    );
+    expect(result).toEqual(mockedResponse.data);
+  });
+
+  it("should rethrow a cancellation from fetchReviewLibraries", async () => {
+    mockedAxios.get.mockRejectedValueOnce(new Error("canceled"));
+    await expect(
+      cqlLibraryServiceApi.fetchReviewLibraries(undefined)
+    ).rejects.toThrow("canceled");
+  });
+
+  it("should wrap non-cancellation errors from fetchReviewLibraries", async () => {
+    mockedAxios.get.mockRejectedValueOnce(new Error("boom"));
+    await expect(
+      cqlLibraryServiceApi.fetchReviewLibraries(undefined)
+    ).rejects.toThrow("Unable to fetch libraries in review");
+  });
+
   it("should search Cql Libraries for an admin-selected user", async () => {
     const mockedResponse = { data: { content: [{ id: "1" }] } };
     const searchCriteria = {

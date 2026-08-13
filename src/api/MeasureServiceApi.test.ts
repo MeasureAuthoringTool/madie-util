@@ -261,6 +261,7 @@ describe("MeasureServiceApi Tests", () => {
 
     const measuresList = await measureServiceApi.searchMeasuresByCriteria(
       [OwnershipType.ALL],
+      false,
       25,
       0,
       "lastModifiedAt",
@@ -303,6 +304,7 @@ describe("MeasureServiceApi Tests", () => {
     try {
       await measureServiceApi.searchMeasuresByCriteria(
         [OwnershipType.ALL],
+        false,
         25,
         0,
         "lastModifiedAt",
