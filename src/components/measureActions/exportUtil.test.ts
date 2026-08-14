@@ -5,7 +5,8 @@ import {
   exportMeasure,
   parseErrorMessageFromBlob,
 } from "./exportUtil";
-import { Model } from "@madie/madie-models";
+import { GroupScoring, MeasureScoring, Model } from "@madie/madie-models";
+import { COMPOSITE_VALIDATION_MESSAGES } from "../../util/compositeMeasureValidation";
 
 const setToastOpen = jest.fn();
 const setToastType = jest.fn();
@@ -15,6 +16,7 @@ const setFailureMessage = jest.fn();
 const abortController = { current: { signal: {} } };
 const mockMeasureServiceApi = {
   getMeasureExport: jest.fn<Promise<{ status: number; data: Blob }>, []>(),
+  fetchMeasuresByIds: jest.fn<Promise<any>, any>(),
 };
 
 const mockMeasure = {
@@ -123,6 +125,160 @@ describe("exportUtil", () => {
       expect(setToastMessage).toHaveBeenCalledWith(
         "Measure exported successfully"
       );
+      expect(setDownloadState).toHaveBeenCalledWith("success");
+    });
+
+    it("should block export and list composite and general failures together", async () => {
+      const invalidComposite = {
+        ...mockMeasure,
+        cqlLibraryName: "ValidLibraryName",
+        // steward omitted so a general export error is raised alongside the composite ones
+        measureMetaData: {
+          composite: true,
+          developers: [{ name: "dev" }],
+          description: "a description",
+        },
+        groups: [
+          {
+            id: "cg1",
+            scoring: GroupScoring.COMPOSITE,
+            compositeScoring: null,
+            components: [],
+            measureGroupTypes: ["Outcome"],
+          },
+        ],
+      };
+
+      await exportMeasure(
+        setFailureMessage,
+        setDownloadState,
+        abortController,
+        invalidComposite,
+        mockMeasureServiceApi,
+        setToastOpen,
+        setToastType,
+        setToastMessage,
+        elmErrorSeverity
+      );
+
+      expect(mockMeasureServiceApi.getMeasureExport).not.toHaveBeenCalled();
+      expect(setToastType).toHaveBeenCalledWith("danger");
+      expect(setDownloadState).toHaveBeenCalledWith("failure");
+      // composite failures first, then the general export failures
+      expect(setFailureMessage).toHaveBeenCalledWith([
+        COMPOSITE_VALIDATION_MESSAGES.COMPOSITE_SCORING_REQUIRED,
+        COMPOSITE_VALIDATION_MESSAGES.TWO_COMPONENTS_REQUIRED,
+        "Missing Steward",
+      ]);
+    });
+
+    it("should not report CQL failures for a composite measure", async () => {
+      const compositeWithoutCql = {
+        ...mockMeasure,
+        cql: "",
+        cqlErrors: true,
+        cqlLibraryName: "ValidLibraryName",
+        measureMetaData: {
+          composite: true,
+          developers: [{ name: "dev" }],
+          steward: { name: "steward" },
+          description: "a description",
+        },
+        groups: [
+          {
+            id: "cg1",
+            scoring: GroupScoring.COMPOSITE,
+            compositeScoring: null,
+            components: [],
+            measureGroupTypes: ["Outcome"],
+          },
+        ],
+      };
+
+      await exportMeasure(
+        setFailureMessage,
+        setDownloadState,
+        abortController,
+        compositeWithoutCql,
+        mockMeasureServiceApi,
+        setToastOpen,
+        setToastType,
+        setToastMessage,
+        elmErrorSeverity
+      );
+
+      // composites carry no CQL of their own
+      expect(setFailureMessage).toHaveBeenCalledWith([
+        COMPOSITE_VALIDATION_MESSAGES.COMPOSITE_SCORING_REQUIRED,
+        COMPOSITE_VALIDATION_MESSAGES.TWO_COMPONENTS_REQUIRED,
+      ]);
+    });
+
+    it("should export a valid composite measure", async () => {
+      const validComposite = {
+        ...mockMeasure,
+        cqlLibraryName: "ValidLibraryName",
+        measureMetaData: {
+          composite: true,
+          developers: [{ name: "dev" }],
+          steward: { name: "steward" },
+          description: "a description",
+        },
+        groups: [
+          {
+            id: "cg1",
+            scoring: GroupScoring.COMPOSITE,
+            compositeScoring: "Opportunity",
+            populationBasis: "boolean",
+            measureGroupTypes: ["Outcome"],
+            // no improvementNotation: optional for COMPOSITE scoring
+            components: [
+              { measureId: "m1", groupId: "g1" },
+              { measureId: "m2", groupId: "g2" },
+            ],
+          },
+        ],
+      };
+      mockMeasureServiceApi.fetchMeasuresByIds.mockResolvedValue([
+        {
+          id: "m1",
+          groups: [
+            {
+              id: "g1",
+              scoring: MeasureScoring.PROPORTION,
+              populationBasis: "boolean",
+            },
+          ],
+        },
+        {
+          id: "m2",
+          groups: [
+            {
+              id: "g2",
+              scoring: MeasureScoring.RATIO,
+              populationBasis: "boolean",
+            },
+          ],
+        },
+      ]);
+      mockMeasureServiceApi.getMeasureExport.mockResolvedValue({
+        status: 200,
+        data: new Blob(["test data"], { type: "application/zip" }),
+      });
+
+      await exportMeasure(
+        setFailureMessage,
+        setDownloadState,
+        abortController,
+        validComposite,
+        mockMeasureServiceApi,
+        setToastOpen,
+        setToastType,
+        setToastMessage,
+        elmErrorSeverity
+      );
+
+      expect(mockMeasureServiceApi.getMeasureExport).toHaveBeenCalled();
       expect(setDownloadState).toHaveBeenCalledWith("success");
     });
 
