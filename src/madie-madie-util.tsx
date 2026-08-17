@@ -66,6 +66,7 @@ import {
   LibraryShareDialog,
   LibraryShareAction,
 } from "./components/libraryActions";
+import { ManageReviewDialog } from "./components/reviewActions";
 export {
   useServiceConfig,
   getServiceConfig,
@@ -113,6 +114,7 @@ export {
   CompareVersionsDialog,
   LibraryShareAction,
   LibraryShareDialog,
+  ManageReviewDialog,
   getNewestMeasureInstance,
   exportMeasure,
   downloadZipFile,
