@@ -30,14 +30,13 @@ interface ManageReviewDialogProps {
 
 export const REVIEWER_ROLE = "MADiE-Reviewer";
 
-export const REVIEW_STATUS_OPTIONS = [
-  "Ready for Review",
-  "In Progress",
-  "Complete",
-];
+// Selectable review statuses, in the order they are displayed. Measures and
+// libraries use the same labels.
+export const REVIEW_STATUS_OPTIONS = ["Ready", "In Progress", "Complete"];
 
+// Review status as persisted by the services mapped to its display label.
 const REVIEW_STATUS_LABELS: Record<string, string> = {
-  READY_FOR_REVIEW: "Ready for Review",
+  READY_FOR_REVIEW: "Ready",
   IN_PROGRESS: "In Progress",
   COMPLETE: "Complete",
 };

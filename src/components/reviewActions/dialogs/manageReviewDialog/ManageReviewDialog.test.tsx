@@ -111,17 +111,40 @@ describe("ManageReviewDialog", () => {
     expect(screen.queryByText("Alan Adams")).not.toBeInTheDocument();
   });
 
-  it("offers the three review statuses", async () => {
-    renderDialog();
+  it.each([
+    ["measures", "measure", "measure-1"],
+    ["libraries", "library", "library-1"],
+  ])(
+    "offers the three review statuses for %s",
+    async (_label, entityType, entityId) => {
+      renderDialog({ entityType, entityId });
 
-    userEvent.click(screen.getByRole("combobox", { name: /Status/i }));
+      userEvent.click(screen.getByRole("combobox", { name: /Status/i }));
 
-    await waitFor(() => {
-      REVIEW_STATUS_OPTIONS.forEach((option) => {
+      await waitFor(() => {
         expect(
-          screen.getByTestId(`manage-review-status-option-${option}`)
+          screen.getByTestId("manage-review-status-option-Ready")
         ).toBeInTheDocument();
       });
+      expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(
+        REVIEW_STATUS_OPTIONS
+      );
+    }
+  );
+
+  it("pre-populates a library's Ready status", async () => {
+    mockLibraryReviewServiceApi.getCqlLibraryReview.mockResolvedValue({
+      id: "review-1",
+      status: "READY_FOR_REVIEW",
+      comment: "<p></p>",
+    });
+
+    renderDialog({ entityType: "library", entityId: "library-1" });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("manage-review-status")).toHaveTextContent(
+        "Ready"
+      );
     });
   });
 
