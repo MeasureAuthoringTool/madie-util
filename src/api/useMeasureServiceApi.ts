@@ -475,6 +475,7 @@ export class MeasureServiceApi {
 
   async searchMeasuresByCriteria(
     ownershipTypes: OwnershipType[],
+    isReview: boolean,
     limit: string | number = 25,
     page: number = 0,
     sort: string = "lastModifiedAt",
@@ -494,6 +495,7 @@ export class MeasureServiceApi {
           },
           params: {
             ownershipTypes,
+            isReview,
             limit,
             page,
             sort,

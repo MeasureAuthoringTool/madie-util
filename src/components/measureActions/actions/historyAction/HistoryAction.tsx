@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { IconButton } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import { Measure } from "@madie/madie-models";
-import HistoryIcon from "@mui/icons-material/History";
+import { History } from "lucide-react";
 
 interface PropTypes {
   measures: Measure[];
@@ -61,7 +61,7 @@ export default function HistoryAction(props: PropTypes) {
           disabled={disableHistoryBtn}
           data-testid="history-action-btn"
         >
-          <HistoryIcon />
+          <History size={20} />
         </IconButton>
       </span>
     </Tooltip>

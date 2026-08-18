@@ -55,6 +55,10 @@ interface ShareDialogProps {
   onClose: Function;
   onSave: Function;
   isAdmin?: boolean;
+  // HARP id to unshare from on the "UnshareFromMe" path. Defaults to the
+  // logged-in user in the Measures workspace while the Admin User Profile passes the
+  // profile user being viewed.
+  unshareFromUser?: string;
 }
 
 interface SharedMeasure {
@@ -116,9 +120,13 @@ const ShareDialog = ({
   onClose,
   onSave,
   isAdmin,
+  unshareFromUser,
 }: ShareDialogProps) => {
   const { getUserName } = useOktaTokens();
   const userName = getUserName();
+  // User whose access is removed on the "UnshareFromMe" path: the profile user
+  // in the Admin User Profile or defaults to the logged-in user if no unshareFromUser provided.
+  const unshareTargetUser = unshareFromUser ?? userName;
 
   const showShareDialog = option === "Share With" || option === "Unshare";
 
@@ -626,19 +634,19 @@ const ShareDialog = ({
   }, [rowSelection]);
 
   useEffect(() => {
-    // Only trigger when dialog is open and the option is UnshareFromMe
-    if (option === "UnshareFromMe" && open) {
-      // Prepare the unshare request
+    // Only trigger once the dialog is open, the option is UnshareFromMe, and the
+    // shared measures have loaded.
+    if (option === "UnshareFromMe" && open && sharedMeasures.length) {
       const directUnshareRequest = new Map<string, string[]>();
-      measures.forEach((measure) => {
-        directUnshareRequest.set(measure.id, [userName]);
+      sharedMeasures.forEach((sharedMeasure) => {
+        directUnshareRequest.set(sharedMeasure.measureId, [unshareTargetUser]);
       });
       setUnshareMeasuresRequest(directUnshareRequest);
 
       // Open the confirmation dialog
       setConfirmationDialogOpen(true);
     }
-  }, [option, open, measures, userName]);
+  }, [option, open, sharedMeasures, unshareTargetUser]);
 
   // export user list in Excel format for admin users
   const handleExportUserList = async (e) => {
@@ -845,6 +853,7 @@ const ShareDialog = ({
                         style={{
                           borderTop: "solid 1px #8c8c8c",
                           borderSpacing: "0 2em !important",
+                          height: "68px",
                         }}
                       >
                         {row.getVisibleCells().map((cell) => (

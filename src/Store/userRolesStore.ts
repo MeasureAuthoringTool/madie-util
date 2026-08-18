@@ -4,6 +4,7 @@ import { BehaviorSubject } from "rxjs";
 export interface UserRoles {
   roles: string[];
   isAdmin: boolean;
+  isReviewer: boolean;
 }
 
 const STORAGE_KEY = "madie-user-roles";
@@ -29,14 +30,20 @@ const subject = new BehaviorSubject<UserRoles | null>(storedRoles);
 const initialState: UserRoles = {
   roles: [],
   isAdmin: false,
+  isReviewer: false,
 };
 
 let state: UserRoles = storedRoles ?? initialState;
 
 const ADMIN_ROLE = "MADiE-Admin";
+const REVIEWER_ROLE = "MADiE-Reviewer";
 
 const checkIsAdmin = (roles: string[]): boolean => {
   return roles?.includes(ADMIN_ROLE) ?? false;
+};
+
+const checkIsReviewer = (roles: string[]): boolean => {
+  return roles?.includes(REVIEWER_ROLE) ?? false;
 };
 
 export const userRolesStore = {
@@ -50,9 +57,11 @@ export const userRolesStore = {
   updateUserRoles: (roles: string[] | null) => {
     const rolesList = roles ?? [];
     const isAdmin = checkIsAdmin(rolesList);
+    const isReviewer = checkIsReviewer(rolesList);
     state = {
       roles: rolesList,
       isAdmin: isAdmin,
+      isReviewer: isReviewer,
     };
 
     // Persist to localStorage
