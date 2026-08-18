@@ -110,14 +110,16 @@ describe("exportUtil", () => {
         setToastOpen,
         setToastType,
         setToastMessage,
-        elmErrorSeverity
+        elmErrorSeverity,
+        "publish"
       );
 
       expect(setDownloadState).toHaveBeenCalledWith("downloading");
       expect(mockMeasureServiceApi.getMeasureExport).toHaveBeenCalledWith(
         mockMeasure.id,
         elmErrorSeverity,
-        abortController.current.signal
+        abortController.current.signal,
+        "publish"
       );
       expect(setToastType).toHaveBeenCalledWith("success");
       expect(setToastMessage).toHaveBeenCalledWith(
@@ -332,7 +334,8 @@ describe("exportUtil", () => {
       expect(mockMeasureServiceApi.getMeasureExport).toHaveBeenCalledWith(
         mockMeasure.id,
         elmErrorSeverity,
-        abortController.current.signal
+        abortController.current.signal,
+        "export"
       );
       expect(setDownloadState).toHaveBeenCalledWith("failure");
       expect(setFailureMessage).toHaveBeenCalledWith(

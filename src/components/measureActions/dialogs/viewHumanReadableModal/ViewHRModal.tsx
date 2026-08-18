@@ -83,7 +83,7 @@ export default function ViewHRModal(props: ModalProps) {
             dataTestId: "export-option",
             toImplementFunction: () => {
               const event = new CustomEvent("export-measure", {
-                detail: { elmErrorSeverity: "Info" },
+                detail: { elmErrorSeverity: "Info", bundleType: "export" },
               });
               window.dispatchEvent(event);
               exportMeasure("Info");
@@ -94,7 +94,7 @@ export default function ViewHRModal(props: ModalProps) {
             dataTestId: "export-publishing-option",
             toImplementFunction: () => {
               const event = new CustomEvent("export-measure", {
-                detail: { elmErrorSeverity: "Error" },
+                detail: { elmErrorSeverity: "Error", bundleType: "publish" },
               });
               window.dispatchEvent(event);
               exportMeasure("Error");
