@@ -25,10 +25,14 @@ jest.mock("../../../../api/useUserServiceApi", () => ({
 
 const mockMeasureReviewServiceApi = {
   getMeasureReview: jest.fn(),
+  createMeasureReview: jest.fn(),
+  updateMeasureReview: jest.fn(),
 };
 
 const mockLibraryReviewServiceApi = {
   getCqlLibraryReview: jest.fn(),
+  createCqlLibraryReview: jest.fn(),
+  updateCqlLibraryReview: jest.fn(),
 };
 
 const mockUserServiceApi = {
@@ -71,7 +75,11 @@ describe("ManageReviewDialog", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue(null);
+    mockMeasureReviewServiceApi.createMeasureReview.mockResolvedValue({});
+    mockMeasureReviewServiceApi.updateMeasureReview.mockResolvedValue({});
     mockLibraryReviewServiceApi.getCqlLibraryReview.mockResolvedValue(null);
+    mockLibraryReviewServiceApi.createCqlLibraryReview.mockResolvedValue({});
+    mockLibraryReviewServiceApi.updateCqlLibraryReview.mockResolvedValue({});
     mockUserServiceApi.fetchUsers.mockResolvedValue(reviewers);
   });
 
@@ -280,6 +288,282 @@ describe("ManageReviewDialog", () => {
 
     expect(mockUserServiceApi.fetchUsers).not.toHaveBeenCalled();
     expect(mockMeasureReviewServiceApi.getMeasureReview).not.toHaveBeenCalled();
+  });
+
+  describe("saving", () => {
+    it("creates the review, closes the dialog and notifies on save", async () => {
+      const onClose = jest.fn();
+      const onSuccess = jest.fn();
+      const savedReview = { id: "review-1", status: "READY_FOR_REVIEW" };
+      mockMeasureReviewServiceApi.createMeasureReview.mockResolvedValue(
+        savedReview
+      );
+      const reviewSaved = jest.fn();
+      window.addEventListener("review-measure-saved", reviewSaved);
+
+      renderDialog({ onClose, onSuccess, entitySetId: "set-1" });
+
+      const reviewerInput = await screen.findByTestId(
+        "manage-review-reviewers-input"
+      );
+      userEvent.click(reviewerInput);
+      userEvent.click(await screen.findByText("Jonathan Traeger"));
+
+      userEvent.click(screen.getByRole("combobox", { name: /Status/i }));
+      userEvent.click(
+        await screen.findByTestId("manage-review-status-option-Ready")
+      );
+
+      userEvent.click(screen.getByTestId("manage-review-dialog-save-button"));
+
+      await waitFor(() => {
+        expect(
+          mockMeasureReviewServiceApi.createMeasureReview
+        ).toHaveBeenCalledWith(
+          "measure-1",
+          expect.objectContaining({
+            measureId: "measure-1",
+            measureSetId: "set-1",
+            status: "READY_FOR_REVIEW",
+            reviewers: ["jtraeger"],
+          })
+        );
+      });
+      expect(
+        mockMeasureReviewServiceApi.updateMeasureReview
+      ).not.toHaveBeenCalled();
+      await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+      expect(onClose).toHaveBeenCalled();
+      expect(reviewSaved).toHaveBeenCalled();
+      expect(
+        await screen.findByTestId("manage-review-dialog-success-text")
+      ).toHaveTextContent("Review information has been saved successfully.");
+
+      window.removeEventListener("review-measure-saved", reviewSaved);
+    });
+
+    it.each([
+      ["In Progress", "IN_PROGRESS"],
+      ["Complete", "COMPLETE"],
+    ])("saves the %s status as %s", async (label, expectedStatus) => {
+      mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue({
+        id: "review-1",
+        status: "READY_FOR_REVIEW",
+        comment: "<p></p>",
+      });
+
+      renderDialog();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("manage-review-status")).toHaveTextContent(
+          "Ready"
+        );
+      });
+
+      userEvent.click(screen.getByRole("combobox", { name: /Status/i }));
+      userEvent.click(
+        await screen.findByTestId(`manage-review-status-option-${label}`)
+      );
+      userEvent.click(screen.getByTestId("manage-review-dialog-save-button"));
+
+      await waitFor(() => {
+        expect(
+          mockMeasureReviewServiceApi.updateMeasureReview
+        ).toHaveBeenCalledWith(
+          "measure-1",
+          expect.objectContaining({ id: "review-1", status: expectedStatus })
+        );
+      });
+      expect(
+        mockMeasureReviewServiceApi.createMeasureReview
+      ).not.toHaveBeenCalled();
+    });
+
+    it("pre-populates reviewers already assigned to the measure", async () => {
+      mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue({
+        id: "review-1",
+        status: "IN_PROGRESS",
+        comment: "<p></p>",
+        reviewers: ["jtraeger"],
+      });
+
+      renderDialog();
+
+      await waitFor(() => {
+        expect(screen.getByText("Jonathan Traeger")).toBeInTheDocument();
+      });
+      // Pre-populated reviewers alone are not a change.
+      expect(
+        screen.getByTestId("manage-review-dialog-save-button")
+      ).toBeDisabled();
+    });
+
+    it("treats the reviewer list as a set, not an ordered list", async () => {
+      // Persisted out of order: formik compares deeply, so the form has to
+      // normalise ordering or this would read as an edit straight away.
+      mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue({
+        id: "review-1",
+        status: "READY_FOR_REVIEW",
+        comment: "<p></p>",
+        reviewers: ["zuser", "jtraeger"],
+      });
+
+      renderDialog();
+
+      const saveButton = screen.getByTestId("manage-review-dialog-save-button");
+      await waitFor(() => {
+        expect(screen.getByText("Jonathan Traeger")).toBeInTheDocument();
+      });
+      expect(saveButton).toBeDisabled();
+
+      const reviewerInput = screen.getByTestId("manage-review-reviewers-input");
+      userEvent.click(reviewerInput);
+      // Target the dropdown option; the same name also renders as a chip.
+      const zoeOption = await screen.findByRole("option", {
+        name: /Zoe Zimmer/,
+      });
+
+      // Removing a reviewer is a real change...
+      userEvent.click(zoeOption);
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
+
+      // ...and putting them back restores the original set, whatever the order.
+      userEvent.click(zoeOption);
+      await waitFor(() => {
+        expect(saveButton).toBeDisabled();
+      });
+    });
+
+    it("saves a library review through the library service", async () => {
+      renderDialog({
+        entityType: "library",
+        entityId: "library-1",
+        entitySetId: "lib-set-1",
+      });
+
+      userEvent.click(screen.getByRole("combobox", { name: /Status/i }));
+      userEvent.click(
+        await screen.findByTestId("manage-review-status-option-Complete")
+      );
+      userEvent.click(screen.getByTestId("manage-review-dialog-save-button"));
+
+      await waitFor(() => {
+        expect(
+          mockLibraryReviewServiceApi.createCqlLibraryReview
+        ).toHaveBeenCalledWith(
+          "library-1",
+          expect.objectContaining({
+            libraryId: "library-1",
+            librarySetId: "lib-set-1",
+            status: "COMPLETE",
+          })
+        );
+      });
+      expect(
+        mockMeasureReviewServiceApi.createMeasureReview
+      ).not.toHaveBeenCalled();
+    });
+
+    it("shows the success toast when a reviewer changes only the status", async () => {
+      mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue({
+        id: "review-1",
+        status: "READY_FOR_REVIEW",
+        comment: "<p></p>",
+      });
+
+      renderDialog();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("manage-review-status")).toHaveTextContent(
+          "Ready"
+        );
+      });
+
+      userEvent.click(screen.getByRole("combobox", { name: /Status/i }));
+      userEvent.click(
+        await screen.findByTestId("manage-review-status-option-In Progress")
+      );
+      userEvent.click(screen.getByTestId("manage-review-dialog-save-button"));
+
+      expect(
+        await screen.findByTestId("manage-review-dialog-success-text")
+      ).toHaveTextContent("Review information has been saved successfully.");
+      expect(
+        screen.queryByTestId("manage-review-dialog-error-text")
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows the success toast when saving a library review", async () => {
+      renderDialog({ entityType: "library", entityId: "library-1" });
+
+      userEvent.click(screen.getByRole("combobox", { name: /Status/i }));
+      userEvent.click(
+        await screen.findByTestId("manage-review-status-option-Complete")
+      );
+      userEvent.click(screen.getByTestId("manage-review-dialog-save-button"));
+
+      expect(
+        await screen.findByTestId("manage-review-dialog-success-text")
+      ).toHaveTextContent("Review information has been saved successfully.");
+    });
+
+    it("leaves the success toast up after the dialog closes", async () => {
+      // The parent keeps this component mounted and only flips `open`, so the
+      // confirmation has to outlive the close.
+      const { rerender } = render(
+        <ManageReviewDialog
+          open={true}
+          entityType="measure"
+          entityId="measure-1"
+          onClose={jest.fn()}
+        />
+      );
+
+      userEvent.click(screen.getByRole("combobox", { name: /Status/i }));
+      userEvent.click(
+        await screen.findByTestId("manage-review-status-option-Ready")
+      );
+      userEvent.click(screen.getByTestId("manage-review-dialog-save-button"));
+
+      await screen.findByTestId("manage-review-dialog-success-text");
+
+      rerender(
+        <ManageReviewDialog
+          open={false}
+          entityType="measure"
+          entityId="measure-1"
+          onClose={jest.fn()}
+        />
+      );
+
+      expect(
+        screen.getByTestId("manage-review-dialog-success-text")
+      ).toHaveTextContent("Review information has been saved successfully.");
+    });
+
+    it("keeps the dialog open and shows an error when the save fails", async () => {
+      const onClose = jest.fn();
+      mockMeasureReviewServiceApi.createMeasureReview.mockRejectedValue(
+        new Error("boom")
+      );
+
+      renderDialog({ onClose });
+
+      userEvent.click(screen.getByRole("combobox", { name: /Status/i }));
+      userEvent.click(
+        await screen.findByTestId("manage-review-status-option-Ready")
+      );
+      userEvent.click(screen.getByTestId("manage-review-dialog-save-button"));
+
+      expect(
+        await screen.findByTestId("manage-review-dialog-error-text")
+      ).toHaveTextContent(
+        "An error occurred while saving the review. Please try again."
+      );
+      expect(onClose).not.toHaveBeenCalled();
+    });
   });
 
   describe("helpers", () => {
