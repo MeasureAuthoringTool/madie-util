@@ -287,8 +287,6 @@ const ManageReviewDialog = ({
   });
   const { resetForm, setFieldValue } = formik;
 
-  // Selected HARP ids rendered as options. Ids with no matching user (e.g. a
-  // reviewer whose role was revoked) still show, labelled by their HARP id.
   const selectedReviewers = useMemo<ReviewerOption[]>(
     () =>
       formik.values.reviewers.map(

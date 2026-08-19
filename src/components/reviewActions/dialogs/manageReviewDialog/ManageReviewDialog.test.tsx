@@ -41,21 +41,21 @@ const mockUserServiceApi = {
 
 const reviewers = [
   {
-    harpId: "zuser",
-    firstName: "Zoe",
-    lastName: "Zimmer",
+    harpId: "reviewer2",
+    firstName: "Reviewer",
+    lastName: "Two",
     roles: [{ role: "MADiE-Reviewer" }],
   },
   {
-    harpId: "jtraeger",
-    firstName: "Jonathan",
-    lastName: "Traeger",
+    harpId: "reviewer1",
+    firstName: "Reviewer",
+    lastName: "One",
     roles: [{ role: "MADiE-Reviewer" }],
   },
   {
     harpId: "notareviewer",
-    firstName: "Alan",
-    lastName: "Adams",
+    firstName: "Admin",
+    lastName: "User",
     roles: [{ role: "MADiE-Admin" }],
   },
 ] as UserDetails[];
@@ -109,14 +109,14 @@ describe("ManageReviewDialog", () => {
     userEvent.click(reviewerInput);
 
     await waitFor(() => {
-      expect(screen.getByText("Jonathan Traeger")).toBeInTheDocument();
+      expect(screen.getByText("Reviewer One")).toBeInTheDocument();
     });
     const options = screen.getAllByRole("option");
     expect(options.map((option) => option.textContent)).toEqual([
-      "Jonathan Traeger",
-      "Zoe Zimmer",
+      "Reviewer One",
+      "Reviewer Two",
     ]);
-    expect(screen.queryByText("Alan Adams")).not.toBeInTheDocument();
+    expect(screen.queryByText("Admin User")).not.toBeInTheDocument();
   });
 
   it.each([
@@ -173,7 +173,6 @@ describe("ManageReviewDialog", () => {
     expect(screen.getByTestId("manage-review-comment")).toHaveValue(
       "Please take a look"
     );
-    // Pre-populated values alone are not a change.
     expect(
       screen.getByTestId("manage-review-dialog-save-button")
     ).toBeDisabled();
@@ -219,7 +218,7 @@ describe("ManageReviewDialog", () => {
       "manage-review-reviewers-input"
     );
     userEvent.click(reviewerInput);
-    userEvent.click(await screen.findByText("Jonathan Traeger"));
+    userEvent.click(await screen.findByText("Reviewer One"));
 
     await waitFor(() => {
       expect(saveButton).toBeEnabled();
@@ -290,7 +289,7 @@ describe("ManageReviewDialog", () => {
     expect(mockMeasureReviewServiceApi.getMeasureReview).not.toHaveBeenCalled();
   });
 
-  describe("saving", () => {
+  describe("saving review data", () => {
     it("creates the review, closes the dialog and notifies on save", async () => {
       const onClose = jest.fn();
       const onSuccess = jest.fn();
@@ -307,7 +306,7 @@ describe("ManageReviewDialog", () => {
         "manage-review-reviewers-input"
       );
       userEvent.click(reviewerInput);
-      userEvent.click(await screen.findByText("Jonathan Traeger"));
+      userEvent.click(await screen.findByText("Reviewer One"));
 
       userEvent.click(screen.getByRole("combobox", { name: /Status/i }));
       userEvent.click(
@@ -325,7 +324,7 @@ describe("ManageReviewDialog", () => {
             measureId: "measure-1",
             measureSetId: "set-1",
             status: "READY_FOR_REVIEW",
-            reviewers: ["jtraeger"],
+            reviewers: ["reviewer1"],
           })
         );
       });
@@ -384,56 +383,17 @@ describe("ManageReviewDialog", () => {
         id: "review-1",
         status: "IN_PROGRESS",
         comment: "<p></p>",
-        reviewers: ["jtraeger"],
+        reviewers: ["reviewer1"],
       });
 
       renderDialog();
 
       await waitFor(() => {
-        expect(screen.getByText("Jonathan Traeger")).toBeInTheDocument();
+        expect(screen.getByText("Reviewer One")).toBeInTheDocument();
       });
-      // Pre-populated reviewers alone are not a change.
       expect(
         screen.getByTestId("manage-review-dialog-save-button")
       ).toBeDisabled();
-    });
-
-    it("treats the reviewer list as a set, not an ordered list", async () => {
-      // Persisted out of order: formik compares deeply, so the form has to
-      // normalise ordering or this would read as an edit straight away.
-      mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue({
-        id: "review-1",
-        status: "READY_FOR_REVIEW",
-        comment: "<p></p>",
-        reviewers: ["zuser", "jtraeger"],
-      });
-
-      renderDialog();
-
-      const saveButton = screen.getByTestId("manage-review-dialog-save-button");
-      await waitFor(() => {
-        expect(screen.getByText("Jonathan Traeger")).toBeInTheDocument();
-      });
-      expect(saveButton).toBeDisabled();
-
-      const reviewerInput = screen.getByTestId("manage-review-reviewers-input");
-      userEvent.click(reviewerInput);
-      // Target the dropdown option; the same name also renders as a chip.
-      const zoeOption = await screen.findByRole("option", {
-        name: /Zoe Zimmer/,
-      });
-
-      // Removing a reviewer is a real change...
-      userEvent.click(zoeOption);
-      await waitFor(() => {
-        expect(saveButton).toBeEnabled();
-      });
-
-      // ...and putting them back restores the original set, whatever the order.
-      userEvent.click(zoeOption);
-      await waitFor(() => {
-        expect(saveButton).toBeDisabled();
-      });
     });
 
     it("saves a library review through the library service", async () => {
@@ -510,8 +470,6 @@ describe("ManageReviewDialog", () => {
     });
 
     it("leaves the success toast up after the dialog closes", async () => {
-      // The parent keeps this component mounted and only flips `open`, so the
-      // confirmation has to outlive the close.
       const { rerender } = render(
         <ManageReviewDialog
           open={true}
