@@ -518,10 +518,6 @@ export class MeasureServiceApi {
     }
   }
 
-  /**
-   * Searches the measures currently under review. Searching, sorting and paging are all done by
-   * the backend, exactly like the other measure list tabs.
-   */
   async searchMeasuresInReview(
     limit: string | number = 10,
     page: number = 0,
