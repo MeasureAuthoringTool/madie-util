@@ -744,7 +744,6 @@ describe("MeasureServiceApi admin coverage", () => {
 
     const measuresList = await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED],
-      false,
       25,
       0,
       "lastModifiedAt",
@@ -756,6 +755,80 @@ describe("MeasureServiceApi admin coverage", () => {
     expect(measuresList).toEqual(measures);
   });
 
+  it("searchMeasuresInReview returns the page of measures under review", async () => {
+    const measures = {
+      content: [
+        { id: "IDIDID1", measureName: "measure - A", reviewStatus: "Ready" },
+      ],
+      totalElements: 1,
+      totalPages: 1,
+    };
+    mockedAxios.put.mockResolvedValue({ status: 200, data: measures });
+    const searchCriteria = {
+      searchField: "measure",
+      optionalSearchProperties: ["measureName"],
+    };
+
+    const measuresInReview = await api.searchMeasuresInReview(
+      10,
+      0,
+      "lastModifiedAt",
+      "DESC",
+      searchCriteria,
+      new AbortController()
+    );
+
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/measures/reviews/searches`,
+      searchCriteria,
+      expect.objectContaining({
+        params: {
+          limit: 10,
+          page: 0,
+          sort: "lastModifiedAt",
+          direction: "DESC",
+        },
+      })
+    );
+    expect(measuresInReview).toEqual(measures);
+  });
+
+  it("searchMeasuresInReview converts a limit of All", async () => {
+    mockedAxios.put.mockResolvedValue({ status: 200, data: {} });
+
+    await api.searchMeasuresInReview("All");
+
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/measures/reviews/searches`,
+      {},
+      expect.objectContaining({
+        params: expect.objectContaining({ limit: 1000 }),
+      })
+    );
+  });
+
+  it("searchMeasuresInReview throws a friendly error on failure", async () => {
+    mockedAxios.put.mockRejectedValueOnce({ status: 500, data: "failure" });
+
+    try {
+      await api.searchMeasuresInReview();
+      fail("searchMeasuresInReview should have thrown");
+    } catch (error) {
+      expect(error.message).toBe("Unable to search measures in review");
+    }
+  });
+
+  it("searchMeasuresInReview rethrows cancellations", async () => {
+    mockedAxios.put.mockRejectedValueOnce({ message: "canceled" });
+
+    try {
+      await api.searchMeasuresInReview();
+      fail("searchMeasuresInReview should have thrown");
+    } catch (error) {
+      expect(error.message).toBe("canceled");
+    }
+  });
+
   it("test searchMeasuresByMeasureNameOrEcqmTitle fail", async () => {
     const resp = { status: 500, data: "failure", error: { message: "error" } };
     mockedAxios.put.mockRejectedValueOnce(resp);
@@ -763,7 +836,6 @@ describe("MeasureServiceApi admin coverage", () => {
     try {
       await api.searchMeasuresByCriteria(
         [OwnershipType.OWNED],
-        false,
         25,
         0,
         "lastModifiedAt",
@@ -788,7 +860,6 @@ describe("MeasureServiceApi admin coverage", () => {
     try {
       await api.searchMeasuresByCriteria(
         [OwnershipType.OWNED],
-        false,
         25,
         0,
         "lastModifiedAt",
@@ -905,7 +976,6 @@ describe("MeasureServiceApi admin coverage", () => {
 
     await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED, OwnershipType.SHARED],
-      false,
       25,
       0,
       "lastModifiedAt",
@@ -935,7 +1005,6 @@ describe("MeasureServiceApi admin coverage", () => {
 
     await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED, OwnershipType.SHARED],
-      false,
       undefined,
       0,
       "lastModifiedAt",
@@ -965,7 +1034,6 @@ describe("MeasureServiceApi admin coverage", () => {
 
     await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED, OwnershipType.SHARED],
-      false,
       25,
       undefined,
       "lastModifiedAt",
@@ -995,7 +1063,6 @@ describe("MeasureServiceApi admin coverage", () => {
 
     await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED, OwnershipType.SHARED],
-      false,
       25,
       0,
       undefined,
@@ -1025,7 +1092,6 @@ describe("MeasureServiceApi admin coverage", () => {
 
     await api.searchMeasuresByCriteria(
       [OwnershipType.OWNED, OwnershipType.SHARED],
-      false,
       "All",
       0,
       "lastModifiedAt",
