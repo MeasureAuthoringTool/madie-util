@@ -112,6 +112,66 @@ describe("getMeasureExportErrors", () => {
     });
   });
 
+  describe("measure type", () => {
+    // QDM carries measure types on baseConfigurationTypes, not on the group
+    const qdmMeasure = (overrides: any = {}) =>
+      baseMeasure({
+        model: Model.QDM_5_6,
+        cqlLibraryName: "Valid_QDM_Name",
+        baseConfigurationTypes: ["Outcome"],
+        groups: [
+          {
+            id: "g1",
+            scoring: MeasureScoring.PROPORTION,
+            improvementNotation: "",
+          },
+        ],
+        ...overrides,
+      });
+
+    it("returns no errors for a complete QDM measure", () => {
+      expect(getMeasureExportErrors(qdmMeasure())).toEqual([]);
+    });
+
+    it("reports missing baseConfigurationTypes for QDM", () => {
+      expect(
+        getMeasureExportErrors(qdmMeasure({ baseConfigurationTypes: [] }))
+      ).toEqual(["Measure Type is required"]);
+    });
+
+    it("reports missing group measure types for FHIR models", () => {
+      expect(
+        getMeasureExportErrors(
+          baseMeasure({
+            groups: [
+              {
+                id: "g1",
+                scoring: MeasureScoring.PROPORTION,
+                improvementNotation: "Increased score indicates improvement",
+                measureGroupTypes: [],
+              },
+            ],
+          })
+        )
+      ).toEqual(["At least one Population Criteria is missing Type"]);
+    });
+  });
+
+  it("maps every recognized response error code and ignores unknown ones", () => {
+    expect(
+      getMeasureExportErrors(baseMeasure(), [
+        "MISMATCH_CQL_POPULATION_RETURN_TYPES",
+        "MISMATCH_CQL_RISK_ADJUSTMENT",
+        "MISMATCH_CQL_SUPPLEMENTAL_DATA",
+        "SOME_UNRECOGNIZED_CODE",
+      ])
+    ).toEqual([
+      "CQL Populations Return Types are invalid",
+      "CQL Risk Adjustment are invalid",
+      "CQL Supplemental Data Elements are invalid",
+    ]);
+  });
+
   it("prefers parsed response errors over the measure's own errors", () => {
     const measure = baseMeasure({
       errors: ["MISMATCH_CQL_RISK_ADJUSTMENT"],

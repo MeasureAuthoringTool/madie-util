@@ -4,6 +4,7 @@ import {
   MeasureScoring,
   Measure,
   Model,
+  isFhirModel,
 } from "@madie/madie-models";
 
 export const getMeasureExportErrors = (
@@ -47,8 +48,7 @@ export const getMeasureExportErrors = (
   }
 
   if (
-    (model?.startsWith("QI-Core") &&
-      !/^(^[A-Z][a-zA-Z0-9]*$)/.test(cqlLibraryName)) ||
+    (isFhirModel(model) && !/^(^[A-Z][a-zA-Z0-9]*$)/.test(cqlLibraryName)) ||
     (model?.startsWith("QDM") &&
       !/^(^[A-Z][a-zA-Z0-9_]*$)/.test(cqlLibraryName)) ||
     cqlLibraryName == null ||
@@ -69,7 +69,7 @@ export const getMeasureExportErrors = (
     missing.push("Missing Description");
   }
   if (
-    model === Model.QICORE &&
+    isFhirModel(model) &&
     groups &&
     groups.filter(
       (group) =>
@@ -81,10 +81,7 @@ export const getMeasureExportErrors = (
   if (model === Model.QDM_5_6 && _.isEmpty(baseConfigurationTypes)) {
     missing.push("Measure Type is required");
   }
-  if (
-    (model === Model.QICORE || model === Model.QICORE_6_0_0) &&
-    measureMetaData?.draft
-  ) {
+  if (isFhirModel(model) && measureMetaData?.draft) {
     // optional for Cohort and Composite
     if (
       groups?.some(
