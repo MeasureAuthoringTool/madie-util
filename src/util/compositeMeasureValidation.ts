@@ -13,9 +13,10 @@ export const COMPOSITE_VALIDATION_MESSAGES = {
   SCORING_MUST_BE_COMPOSITE: "Measure score must be Composite",
   COMPOSITE_SCORING_REQUIRED: "Composite measure score is required",
   COMPOSITE_SCORING_INVALID: "Component measures score is inaccurate",
-  COMPONENT_MEASURE_TYPES_INVALID: "Component measures measure types invalid",
+  COMPONENT_MEASURE_TYPES_INVALID:
+    "The measure type of the component measure(s) is invalid",
   COMPONENT_POPULATION_BASIS_INVALID:
-    "Component measures measure population basis is inaccurate",
+    "The population basis for the component measure(s) is inaccurate",
   UNABLE_TO_VALIDATE_COMPONENTS:
     "Unable to validate component measures. Please try again and contact the Help Desk if the problem persists.",
 };
