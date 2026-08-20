@@ -475,7 +475,6 @@ export class MeasureServiceApi {
 
   async searchMeasuresByCriteria(
     ownershipTypes: OwnershipType[],
-    isReview: boolean,
     limit: string | number = 25,
     page: number = 0,
     sort: string = "lastModifiedAt",
@@ -495,7 +494,6 @@ export class MeasureServiceApi {
           },
           params: {
             ownershipTypes,
-            isReview,
             limit,
             page,
             sort,
@@ -514,6 +512,45 @@ export class MeasureServiceApi {
         throw new Error(err.message);
       }
       const message = `Unable to search measures`;
+      console.error(message);
+      console.error(err);
+      throw new Error(message);
+    }
+  }
+
+  async searchMeasuresInReview(
+    limit: string | number = 10,
+    page: number = 0,
+    sort: string = "lastModifiedAt",
+    direction: string = "DESC",
+    searchCriteria?: MeasureSearchCriteria,
+    abortController?: AbortController
+  ): Promise<any> {
+    try {
+      limit = limit === "All" ? 1000 : limit; // if limit is "All", set it to a high number to fetch all results
+      const response = await axios.put<any>(
+        `${this.baseUrl}/measures/reviews/searches`,
+        searchCriteria ?? {},
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+            "Content-Type": "application/json",
+          },
+          params: {
+            limit,
+            page,
+            sort,
+            direction,
+          },
+          signal: abortController?.signal,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      if (err.message === "canceled") {
+        throw new Error(err.message);
+      }
+      const message = `Unable to search measures in review`;
       console.error(message);
       console.error(err);
       throw new Error(message);

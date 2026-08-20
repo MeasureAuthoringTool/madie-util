@@ -64,11 +64,11 @@ describe("ExportAction", () => {
     userEvent.click(exportIcon);
 
     const exportForPublishingButton = await screen.findByRole("menuitem", {
-      name: "Export for Publishing",
+      name: "Publishable Export",
     });
     userEvent.click(exportForPublishingButton);
     expect(handleClick).toHaveBeenCalledTimes(1);
-    expect(handleClick).toHaveBeenCalledWith("Export for Publishing");
+    expect(handleClick).toHaveBeenCalledWith("Publishable Export");
   });
 
   it("should call onClick for exports when btn is clicked", async () => {
@@ -79,11 +79,11 @@ describe("ExportAction", () => {
     userEvent.click(exportIcon);
 
     const exportForPublishingButton = await screen.findByRole("menuitem", {
-      name: "Export",
+      name: "Executable Export",
     });
     userEvent.click(exportForPublishingButton);
     expect(handleClick).toHaveBeenCalledTimes(1);
-    expect(handleClick).toHaveBeenCalledWith("Export");
+    expect(handleClick).toHaveBeenCalledWith("Executable Export");
   });
 });
 
