@@ -77,7 +77,7 @@ describe("View Human Readable Modal component", () => {
     renderComponent();
     userEvent.click(screen.getByText(/Export/i));
     const exportForPublishingButton = await screen.findByRole("button", {
-      name: "Export for Publishing",
+      name: "Publishable Export",
     });
     userEvent.click(exportForPublishingButton);
     expect(exportMeasure).toHaveBeenCalledWith("Error");
@@ -87,7 +87,7 @@ describe("View Human Readable Modal component", () => {
     renderComponent();
     userEvent.click(screen.getByText(/Export/i));
     const exportButton = await screen.findByRole("button", {
-      name: "Export",
+      name: "Executable Export",
     });
     userEvent.click(exportButton);
     expect(exportMeasure).toHaveBeenCalledWith("Info");
