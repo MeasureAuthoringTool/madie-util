@@ -60,16 +60,23 @@ export class CqlLibraryServiceApi {
    * reviewStatus); sorting/pagination are handled client-side. Only reviewers
    * (MADiE-Reviewer) are authorized to call this.
    *
+   * @param ownershipType
    * @param signal optional AbortSignal so callers can cancel an in-flight request
    *               (e.g. when switching tabs).
    */
-  async fetchReviewLibraries(signal?): Promise<LibraryListDTO[]> {
+  async fetchReviewLibraries(
+    ownershipType: OwnershipType,
+    signal?
+  ): Promise<LibraryListDTO[]> {
     try {
       const response = await axios.get<LibraryListDTO[]>(
         `${this.baseUrl}/cql-libraries/reviews`,
         {
           headers: {
             Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+          params: {
+            ownershipType,
           },
           signal,
         }
