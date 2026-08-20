@@ -451,7 +451,7 @@ describe("exportUtil", () => {
     it("should display error message to the user when export is not available status 404", async () => {
       const errorPayload = {
         message:
-          'Measure cannot be exported for publishing because it was versioned prior to MADiE version 2.2.0. Please use a newer version or select "Export" for this measure.',
+          'Measure cannot be exported for publishing because it was versioned prior to MADiE version 2.2.0. Please use a newer version or select "Executable Export" for this measure.',
         status: 404,
         error: "Bad Request",
       };
@@ -492,7 +492,7 @@ describe("exportUtil", () => {
       );
       expect(setDownloadState).toHaveBeenCalledWith("failure");
       expect(setFailureMessage).toHaveBeenCalledWith(
-        'Measure cannot be exported for publishing because it was versioned prior to MADiE version 2.2.0. Please use a newer version or select "Export" for this measure.'
+        'Measure cannot be exported for publishing because it was versioned prior to MADiE version 2.2.0. Please use a newer version or select "Executable Export" for this measure.'
       );
     });
   });
