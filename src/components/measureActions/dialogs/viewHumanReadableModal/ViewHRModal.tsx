@@ -79,8 +79,8 @@ export default function ViewHRModal(props: ModalProps) {
         hidden: error,
         popoverOptions: [
           {
-            label: "Export",
-            dataTestId: "export-option",
+            label: "Executable Export",
+            dataTestId: "executable-export-option",
             toImplementFunction: () => {
               const event = new CustomEvent("export-measure", {
                 detail: { elmErrorSeverity: "Info", bundleType: "export" },
@@ -90,8 +90,8 @@ export default function ViewHRModal(props: ModalProps) {
             },
           },
           {
-            label: "Export for Publishing",
-            dataTestId: "export-publishing-option",
+            label: "Publishable Export",
+            dataTestId: "publishable-export-option",
             toImplementFunction: () => {
               const event = new CustomEvent("export-measure", {
                 detail: { elmErrorSeverity: "Error", bundleType: "publish" },
