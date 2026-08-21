@@ -710,11 +710,13 @@ export class MeasureServiceApi {
   async getMeasureExport(
     measureId: string,
     elmErrorSeverity: string,
-    signal
+    signal,
+    bundleType = "export"
   ): Promise<any> {
     return await axios.get(`${this.baseUrl}/measures/${measureId}/exports`, {
       params: {
         elmErrorSeverity,
+        bundleType,
       },
       headers: {
         Authorization: `Bearer ${this.getAccessToken()}`,
@@ -815,11 +817,15 @@ export class MeasureServiceApi {
     }
   }
 
-  async fetchMeasureBundle(measure: Measure): Promise<Bundle> {
+  async fetchMeasureBundle(
+    measure: Measure,
+    bundleType = "calculation"
+  ): Promise<Bundle> {
     try {
       const response = await axios.get(
         `${this.baseUrl}/measures/${measure.id}/bundle`,
         {
+          params: { bundleType },
           headers: {
             Authorization: `Bearer ${this.getAccessToken()}`,
           },
