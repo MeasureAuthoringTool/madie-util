@@ -176,6 +176,56 @@ describe("CompareVersionsDialog component", () => {
     ).toBeInTheDocument();
   });
 
+  it("only renders the Human Readable tab for composite measures", () => {
+    const compositeMeasures = mockMeasures.map((measure) => ({
+      ...measure,
+      measureMetaData: { ...measure.measureMetaData, composite: true },
+    }));
+
+    render(
+      <CompareVersionsDialog
+        measures={compositeMeasures}
+        open={true}
+        onClose={mockOnClose}
+      />
+    );
+
+    expect(screen.queryByTestId("cql-tab")).not.toBeInTheDocument();
+    expect(screen.getByTestId("human-readable-tab")).toBeInTheDocument();
+    expect(screen.queryByTestId("tab-content-cql")).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("tab-content-human-readable")
+    ).toBeInTheDocument();
+  });
+
+  it("shows Human Readable when the selected measures become composite", () => {
+    const { rerender } = render(
+      <CompareVersionsDialog
+        measures={mockMeasures}
+        open={true}
+        onClose={mockOnClose}
+      />
+    );
+
+    const compositeMeasures = mockMeasures.map((measure) => ({
+      ...measure,
+      measureMetaData: { ...measure.measureMetaData, composite: true },
+    }));
+
+    rerender(
+      <CompareVersionsDialog
+        measures={compositeMeasures}
+        open={true}
+        onClose={mockOnClose}
+      />
+    );
+
+    expect(screen.queryByTestId("cql-tab")).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("tab-content-human-readable")
+    ).toBeInTheDocument();
+  });
+
   it("calls onClose when Close button is clicked", () => {
     render(
       <CompareVersionsDialog
