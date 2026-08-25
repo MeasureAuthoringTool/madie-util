@@ -62,7 +62,8 @@ export const exportMeasure = async (
   setToastOpen,
   setToastType,
   setToastMessage,
-  elmErrorSeverity
+  elmErrorSeverity,
+  bundleType = "export"
 ) => {
   setFailureMessage(null);
   setDownloadState("downloading");
@@ -87,7 +88,8 @@ export const exportMeasure = async (
     const { status, data } = await measureServiceApi?.getMeasureExport(
       measure.id,
       elmErrorSeverity,
-      abortController.current.signal
+      abortController.current.signal,
+      bundleType
     );
     const warn = status === 201 && !measure?.measureMetaData?.draft;
     downloadZipFile(

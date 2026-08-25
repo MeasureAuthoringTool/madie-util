@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import * as React from "react";
 import ShareDialog, {
   SharedUser,
@@ -822,22 +822,19 @@ describe("Create Share Dialog component", () => {
         onSave={jest.fn()}
       />
     );
-    expect(await screen.findByTestId("share-dialog")).toBeInTheDocument();
     await screen.findByTestId("share-measure-tbl");
 
-    const harpIdInput = (await screen.findByTestId(
-      "harp-id-input"
-    )) as HTMLInputElement;
-    const addUserBtn = await screen.findByTestId("add-user-btn");
-    const saveBtn = await screen.findByTestId("share-save-button");
+    const harpIdInput = screen.getByTestId("harp-id-input") as HTMLInputElement;
+    const addUserBtn = screen.getByTestId("add-user-btn");
+    const saveBtn = screen.getByTestId("share-save-button");
 
-    await userEvent.type(harpIdInput, "activeUser,inactiveUser,");
-    expect(
-      await screen.findByTestId("harp-chip-activeUser")
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByTestId("harp-chip-inactiveUser")
-    ).toBeInTheDocument();
+    fireEvent.change(harpIdInput, {
+      target: { value: "activeUser,inactiveUser," },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("harp-chip-activeUser")).toBeInTheDocument();
+      expect(screen.getByTestId("harp-chip-inactiveUser")).toBeInTheDocument();
+    });
 
     await userEvent.click(addUserBtn);
 

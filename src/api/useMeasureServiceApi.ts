@@ -519,6 +519,7 @@ export class MeasureServiceApi {
   }
 
   async searchMeasuresInReview(
+    ownershipTypes: OwnershipType[] = [OwnershipType.ALL],
     limit: string | number = 10,
     page: number = 0,
     sort: string = "lastModifiedAt",
@@ -537,11 +538,14 @@ export class MeasureServiceApi {
             "Content-Type": "application/json",
           },
           params: {
+            ownershipTypes,
             limit,
             page,
             sort,
             direction,
           },
+          paramsSerializer: (params) =>
+            qs.stringify(params, { arrayFormat: "repeat" }),
           signal: abortController?.signal,
         }
       );
@@ -710,11 +714,13 @@ export class MeasureServiceApi {
   async getMeasureExport(
     measureId: string,
     elmErrorSeverity: string,
-    signal
+    signal,
+    bundleType = "export"
   ): Promise<any> {
     return await axios.get(`${this.baseUrl}/measures/${measureId}/exports`, {
       params: {
         elmErrorSeverity,
+        bundleType,
       },
       headers: {
         Authorization: `Bearer ${this.getAccessToken()}`,
@@ -815,11 +821,15 @@ export class MeasureServiceApi {
     }
   }
 
-  async fetchMeasureBundle(measure: Measure): Promise<Bundle> {
+  async fetchMeasureBundle(
+    measure: Measure,
+    bundleType = "calculation"
+  ): Promise<Bundle> {
     try {
       const response = await axios.get(
         `${this.baseUrl}/measures/${measure.id}/bundle`,
         {
+          params: { bundleType },
           headers: {
             Authorization: `Bearer ${this.getAccessToken()}`,
           },
