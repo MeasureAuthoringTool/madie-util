@@ -115,7 +115,10 @@ describe("useCqlLibraryServiceApi", () => {
   it("should fetch libraries in review", async () => {
     const mockedResponse = { data: [{ id: "1", reviewStatus: "READY" }] };
     mockedAxios.get.mockResolvedValueOnce(mockedResponse);
-    const result = await cqlLibraryServiceApi.fetchReviewLibraries(undefined);
+    const result = await cqlLibraryServiceApi.fetchReviewLibraries(
+      OwnershipType.ALL,
+      undefined
+    );
     expect(mockedAxios.get).toHaveBeenCalledWith(
       `${mockBaseUrl}/cql-libraries/reviews`,
       expect.objectContaining({
@@ -128,14 +131,14 @@ describe("useCqlLibraryServiceApi", () => {
   it("should rethrow a cancellation from fetchReviewLibraries", async () => {
     mockedAxios.get.mockRejectedValueOnce(new Error("canceled"));
     await expect(
-      cqlLibraryServiceApi.fetchReviewLibraries(undefined)
+      cqlLibraryServiceApi.fetchReviewLibraries(OwnershipType.ALL, undefined)
     ).rejects.toThrow("canceled");
   });
 
   it("should wrap non-cancellation errors from fetchReviewLibraries", async () => {
     mockedAxios.get.mockRejectedValueOnce(new Error("boom"));
     await expect(
-      cqlLibraryServiceApi.fetchReviewLibraries(undefined)
+      cqlLibraryServiceApi.fetchReviewLibraries(OwnershipType.ALL, undefined)
     ).rejects.toThrow("Unable to fetch libraries in review");
   });
 
