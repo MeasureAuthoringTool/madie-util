@@ -770,6 +770,7 @@ describe("MeasureServiceApi admin coverage", () => {
     };
 
     const measuresInReview = await api.searchMeasuresInReview(
+      [OwnershipType.ALL],
       10,
       0,
       "lastModifiedAt",
@@ -783,6 +784,7 @@ describe("MeasureServiceApi admin coverage", () => {
       searchCriteria,
       expect.objectContaining({
         params: {
+          ownershipTypes: [OwnershipType.ALL],
           limit: 10,
           page: 0,
           sort: "lastModifiedAt",
@@ -793,10 +795,28 @@ describe("MeasureServiceApi admin coverage", () => {
     expect(measuresInReview).toEqual(measures);
   });
 
+  it("searchMeasuresInReview asks for the reviewer's own reviews with OWNED", async () => {
+    mockedAxios.put.mockResolvedValue({ status: 200, data: {} });
+
+    await api.searchMeasuresInReview([OwnershipType.OWNED], 25, 1);
+
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/measures/reviews/searches`,
+      {},
+      expect.objectContaining({
+        params: expect.objectContaining({
+          ownershipTypes: [OwnershipType.OWNED],
+          limit: 25,
+          page: 1,
+        }),
+      })
+    );
+  });
+
   it("searchMeasuresInReview converts a limit of All", async () => {
     mockedAxios.put.mockResolvedValue({ status: 200, data: {} });
 
-    await api.searchMeasuresInReview("All");
+    await api.searchMeasuresInReview([OwnershipType.ALL], "All");
 
     expect(mockedAxios.put).toHaveBeenCalledWith(
       `${mockBaseUrl}/measures/reviews/searches`,
