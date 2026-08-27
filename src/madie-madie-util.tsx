@@ -69,6 +69,8 @@ import {
   LibraryHistoryAction,
   LibraryCompareVersionsDialog,
   LibraryCompareVersionsAction,
+  LibraryTransferDialog,
+  LibraryTransferAction,
 } from "./components/libraryActions";
 import { ManageReviewDialog } from "./components/reviewActions";
 export {
@@ -122,6 +124,8 @@ export {
   LibraryCompareVersionsDialog,
   LibraryCompareVersionsAction,
   LibraryShareDialog,
+  LibraryTransferDialog,
+  LibraryTransferAction,
   ManageReviewDialog,
   getNewestMeasureInstance,
   exportMeasure,
