@@ -41,7 +41,7 @@ const qiCoreMeasure = {
 } as unknown as Measure;
 
 describe("ShareAction on Owned/All Measures tab", () => {
-  it("Should disable share action btn if no measure selected", () => {
+  it("Should disable share action btn if no measure selected", async () => {
     render(
       <ShareAction
         measures={[]}
@@ -54,10 +54,10 @@ describe("ShareAction on Owned/All Measures tab", () => {
     const shareButton = screen.getByTestId("share-action-btn");
     const shareTooltip = screen.getByTestId("share-action-tooltip");
 
-    expect(shareButton).toBeDisabled();
+    await expect(shareButton).toBeDisabled();
     expect(shareButton).toHaveAccessibleName(SHARE_ACTION_LABEL);
     expect(shareTooltip.tagName).toBe("DIV");
-    expect(shareTooltip).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    await expect(shareTooltip).toHaveAttribute("aria-label", NOTHING_SELECTED);
   });
 
   it("Should disable share action btn if user selects one measure but isOwner is false", () => {

@@ -30,15 +30,15 @@ const qiCoreMeasure = {
 } as unknown as Measure;
 
 describe("ViewHRAction component", () => {
-  it("Should disable action btn if no measure selected", () => {
+  it("Should disable action btn if no measure selected", async () => {
     render(<ViewHRAction measures={[]} onClick={() => {}} />);
     const viewHrButton = screen.getByTestId("view-hr-action-btn");
     const viewHrTooltip = screen.getByTestId("view-hr-action-tooltip");
 
-    expect(viewHrButton).toBeDisabled();
+    await expect(viewHrButton).toBeDisabled();
     expect(viewHrButton).toHaveAccessibleName(VIEW_HUMAN_READABLE_ACTION_LABEL);
     expect(viewHrTooltip.tagName).toBe("DIV");
-    expect(viewHrTooltip).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    await expect(viewHrTooltip).toHaveAttribute("aria-label", NOTHING_SELECTED);
   });
 
   it("Should enable action btn if user select one measure", () => {

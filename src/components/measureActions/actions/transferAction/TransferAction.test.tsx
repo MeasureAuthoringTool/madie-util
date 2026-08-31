@@ -47,15 +47,18 @@ describe("TransferAction", () => {
     });
   });
 
-  it("Should disable action btn if no measure selected", () => {
+  it("Should disable action btn if no measure selected", async () => {
     render(<TransferAction measures={[]} onClick={() => {}} activeTab={0} />);
     const transferButton = screen.getByTestId("transfer-action-btn");
     const transferTooltip = screen.getByTestId("transfer-action-tooltip");
 
-    expect(transferButton).toBeDisabled();
+    await expect(transferButton).toBeDisabled();
     expect(transferButton).toHaveAccessibleName(TRANSFER_ACTION_LABEL);
     expect(transferTooltip.tagName).toBe("DIV");
-    expect(transferTooltip).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    await expect(transferTooltip).toHaveAttribute(
+      "aria-label",
+      NOTHING_SELECTED
+    );
   });
 
   it("Should enable action btn if user select one measure", () => {

@@ -26,15 +26,15 @@ const qiCoreMeasure = {
 } as Measure;
 
 describe("ExportAction", () => {
-  it("Should disable action btn if no measure selected", () => {
+  it("Should disable action btn if no measure selected", async () => {
     render(<ExportAction measures={[]} onClick={() => {}} />);
     const exportButton = screen.getByTestId("export-action-btn");
     const exportTooltip = screen.getByTestId("export-action-tooltip");
 
-    expect(exportButton).toBeDisabled();
+    await expect(exportButton).toBeDisabled();
     expect(exportButton).toHaveAccessibleName(EXPORT_MEASURE);
     expect(exportTooltip.tagName).toBe("DIV");
-    expect(exportTooltip).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    await expect(exportTooltip).toHaveAttribute("aria-label", NOTHING_SELECTED);
   });
 
   it("Should enable action btn if user select one measure ", () => {
