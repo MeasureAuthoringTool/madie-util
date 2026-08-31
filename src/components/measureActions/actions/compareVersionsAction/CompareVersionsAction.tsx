@@ -12,7 +12,8 @@ interface PropTypes {
 
 export const NOTHING_SELECTED =
   "Select 2 instances within the same measure set to compare measure versions";
-export const VALID_COMPARE = "Compare Measure Versions";
+export const VALID_COMPARE = "Compare measure versions";
+export const COMPARE_VERSIONS_ACTION_LABEL = "compare measure versions";
 
 export default function CompareVersionsAction(props: PropTypes) {
   const { measures } = props;
@@ -64,18 +65,19 @@ export default function CompareVersionsAction(props: PropTypes) {
         },
       }}
     >
-      <span>
+      <div role="group" style={{ display: "inline-block" }}>
         <IconButton
           onClick={handleClick}
           disabled={disableCompareBtn}
           data-testid="compare-versions-action-btn"
+          aria-label={COMPARE_VERSIONS_ACTION_LABEL}
         >
           <GitCompare
             size={20}
             color={disableCompareBtn ? grey[500] : blue[500]}
           />
         </IconButton>
-      </span>
+      </div>
     </Tooltip>
   );
 }

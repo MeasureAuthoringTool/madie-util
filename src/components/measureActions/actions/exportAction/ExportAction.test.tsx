@@ -28,11 +28,13 @@ const qiCoreMeasure = {
 describe("ExportAction", () => {
   it("Should disable action btn if no measure selected", () => {
     render(<ExportAction measures={[]} onClick={() => {}} />);
-    expect(screen.getByTestId("export-action-btn")).toBeDisabled();
-    expect(screen.getByTestId("export-action-tooltip")).toHaveAttribute(
-      "aria-label",
-      NOTHING_SELECTED
-    );
+    const exportButton = screen.getByTestId("export-action-btn");
+    const exportTooltip = screen.getByTestId("export-action-tooltip");
+
+    expect(exportButton).toBeDisabled();
+    expect(exportButton).toHaveAccessibleName(EXPORT_MEASURE);
+    expect(exportTooltip.tagName).toBe("DIV");
+    expect(exportTooltip).toHaveAttribute("aria-label", NOTHING_SELECTED);
   });
 
   it("Should enable action btn if user select one measure ", () => {

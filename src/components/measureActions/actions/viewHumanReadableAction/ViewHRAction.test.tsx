@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import ViewHRAction, {
   NOTHING_SELECTED,
   VIEW_HUMANREADABLE,
+  VIEW_HUMAN_READABLE_ACTION_LABEL,
 } from "./ViewHRAction";
 import { Measure, MeasureSet, Model } from "@madie/madie-models";
 
@@ -31,11 +32,13 @@ const qiCoreMeasure = {
 describe("ViewHRAction component", () => {
   it("Should disable action btn if no measure selected", () => {
     render(<ViewHRAction measures={[]} onClick={() => {}} />);
-    expect(screen.getByTestId("view-hr-action-btn")).toBeDisabled();
-    expect(screen.getByTestId("view-hr-action-tooltip")).toHaveAttribute(
-      "aria-label",
-      NOTHING_SELECTED
-    );
+    const viewHrButton = screen.getByTestId("view-hr-action-btn");
+    const viewHrTooltip = screen.getByTestId("view-hr-action-tooltip");
+
+    expect(viewHrButton).toBeDisabled();
+    expect(viewHrButton).toHaveAccessibleName(VIEW_HUMAN_READABLE_ACTION_LABEL);
+    expect(viewHrTooltip.tagName).toBe("DIV");
+    expect(viewHrTooltip).toHaveAttribute("aria-label", NOTHING_SELECTED);
   });
 
   it("Should enable action btn if user select one measure", () => {

@@ -17,7 +17,7 @@ interface PropTypes {
   onClick: (exportType: string) => void;
 }
 
-export const NOTHING_SELECTED = "Select measure to export";
+export const NOTHING_SELECTED = "Select a measure to export";
 export const EXPORT_MEASURE = "Export measure";
 
 export default function ExportAction(props: PropTypes) {
@@ -90,16 +90,17 @@ export default function ExportAction(props: PropTypes) {
           },
         }}
       >
-        <span>
+        <div role="group" style={{ display: "inline-block" }}>
           <IconButton
             onClick={handleClick}
             disabled={disableExportBtn}
             data-testid="export-action-btn"
             ref={anchorRef}
+            aria-label={EXPORT_MEASURE}
           >
             <Upload size={20} />
           </IconButton>
-        </span>
+        </div>
       </Tooltip>
 
       <Popper

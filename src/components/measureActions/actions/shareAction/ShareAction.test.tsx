@@ -7,6 +7,7 @@ import ShareAction, {
   SHARED_TAB_INVALID_UNSHARE_MEASURE,
   SHARED_TAB_NOTHING_SELECTED,
   SHARED_TAB_UNSHARE,
+  SHARE_ACTION_LABEL,
   VALID_SHARE_MEASURE,
 } from "./ShareAction";
 import userEvent from "@testing-library/user-event";
@@ -50,11 +51,13 @@ describe("ShareAction on Owned/All Measures tab", () => {
         activeTab={0}
       />
     );
-    expect(screen.getByTestId("share-action-btn")).toBeDisabled();
-    expect(screen.getByTestId("share-action-tooltip")).toHaveAttribute(
-      "aria-label",
-      NOTHING_SELECTED
-    );
+    const shareButton = screen.getByTestId("share-action-btn");
+    const shareTooltip = screen.getByTestId("share-action-tooltip");
+
+    expect(shareButton).toBeDisabled();
+    expect(shareButton).toHaveAccessibleName(SHARE_ACTION_LABEL);
+    expect(shareTooltip.tagName).toBe("DIV");
+    expect(shareTooltip).toHaveAttribute("aria-label", NOTHING_SELECTED);
   });
 
   it("Should disable share action btn if user selects one measure but isOwner is false", () => {
