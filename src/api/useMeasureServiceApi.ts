@@ -519,6 +519,7 @@ export class MeasureServiceApi {
   }
 
   async searchMeasuresInReview(
+    ownershipTypes: OwnershipType[] = [OwnershipType.ALL],
     limit: string | number = 10,
     page: number = 0,
     sort: string = "lastModifiedAt",
@@ -537,11 +538,14 @@ export class MeasureServiceApi {
             "Content-Type": "application/json",
           },
           params: {
+            ownershipTypes,
             limit,
             page,
             sort,
             direction,
           },
+          paramsSerializer: (params) =>
+            qs.stringify(params, { arrayFormat: "repeat" }),
           signal: abortController?.signal,
         }
       );

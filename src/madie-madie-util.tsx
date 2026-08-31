@@ -39,6 +39,12 @@ import { useFeatureFlags } from "./hooks/useFeatureFlags";
 import { useUserRoles } from "./hooks/useUserRoles";
 import { getOidFromString } from "./util/terminologyUtils";
 import { formatCmsId, padCmsId } from "./util/cmsIdFormatter";
+import {
+  validateCompositeMeasure,
+  getAllowedScoringTypes,
+  compositeScoringValues,
+  COMPOSITE_VALIDATION_MESSAGES,
+} from "./util/compositeMeasureValidation";
 import axios from "./api/axios-instance";
 import { useIsRoleOrFeatureEnabled } from "./hooks/useIsRoleOrFeatureEnabled";
 import {
@@ -104,6 +110,10 @@ export {
   formatCmsId,
   padCmsId,
   wafIntercept,
+  validateCompositeMeasure,
+  getAllowedScoringTypes,
+  compositeScoringValues,
+  COMPOSITE_VALIDATION_MESSAGES,
   axios,
   ApiContextConsumer,
   ApiContextProvider,

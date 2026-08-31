@@ -4,10 +4,11 @@ import { Tab, Tabs } from "@madie/madie-design-system/dist/react";
 export interface NavTabProps {
   activeTab: string;
   setActiveTab: (value: string) => void;
+  isCompositeMeasure?: boolean;
 }
 
 export default function CompareVersionsNavTabs(props: NavTabProps) {
-  const { activeTab, setActiveTab } = props;
+  const { activeTab, setActiveTab, isCompositeMeasure } = props;
 
   return (
     <Tabs
@@ -16,14 +17,16 @@ export default function CompareVersionsNavTabs(props: NavTabProps) {
       value={activeTab}
       onChange={(e, v) => setActiveTab(v)}
     >
-      <Tab
-        tabIndex={0}
-        aria-label="CQL tab panel"
-        type="B"
-        label="CQL"
-        data-testid="cql-tab"
-        value="cql"
-      />
+      {!isCompositeMeasure && (
+        <Tab
+          tabIndex={0}
+          aria-label="CQL tab panel"
+          type="B"
+          label="CQL"
+          data-testid="cql-tab"
+          value="cql"
+        />
+      )}
       <Tab
         tabIndex={0}
         aria-label="Human Readable tab panel"
