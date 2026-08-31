@@ -1,0 +1,90 @@
+.library-info-container {
+  background: #f3f3f3;
+  padding: 16px 24px;
+  border-radius: 4px;
+
+  .library-name {
+    font-family: "Rubik", sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 24px;
+    letter-spacing: 0;
+    color: #333;
+  }
+}
+
+.horizontal-padding {
+  padding: 0 24px;
+}
+
+.divider {
+  border-color: #8c8c8c;
+}
+
+.cql-diff-viewer {
+  max-height: calc(100vh - 500px);
+  overflow-y: auto;
+}
+
+.cql-comparison-panels-container {
+  display: flex;
+
+  .MuiTypography-root {
+    font-family: "Rubik", sans-serif;
+  }
+
+  .comparison-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    &:first-child {
+      border-right: 1px solid #8c8c8c;
+    }
+
+    .info-section {
+      background: #f3f3f3;
+      padding: 16px 24px;
+      border-top: 1px solid #8c8c8c;
+      border-bottom: 1px solid #8c8c8c;
+
+      /* Version row */
+      .library-version-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .version-chip-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .version-text {
+            color: #242424;
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 24px;
+          }
+
+          .draft-chip {
+            height: 24px;
+            min-width: 55px;
+            border-radius: 16px;
+            background-color: #cbe4ff;
+            font-size: 14.4px;
+            line-height: 20px;
+            text-align: center;
+            padding: 0 8px;
+          }
+        }
+
+        .last-updated {
+          color: #707070;
+          font-weight: 400;
+          font-size: 14px;
+          line-height: 24px;
+        }
+      }
+    }
+  }
+}
