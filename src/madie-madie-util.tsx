@@ -71,6 +71,12 @@ import {
 import {
   LibraryShareDialog,
   LibraryShareAction,
+  LibraryHistoryDialog,
+  LibraryHistoryAction,
+  LibraryCompareVersionsDialog,
+  LibraryCompareVersionsAction,
+  LibraryTransferDialog,
+  LibraryTransferAction,
 } from "./components/libraryActions";
 import { ManageReviewDialog } from "./components/reviewActions";
 export {
@@ -123,7 +129,13 @@ export {
   ViewMeasureHistoryDialog,
   CompareVersionsDialog,
   LibraryShareAction,
+  LibraryHistoryDialog,
+  LibraryHistoryAction,
+  LibraryCompareVersionsDialog,
+  LibraryCompareVersionsAction,
   LibraryShareDialog,
+  LibraryTransferDialog,
+  LibraryTransferAction,
   ManageReviewDialog,
   getNewestMeasureInstance,
   exportMeasure,

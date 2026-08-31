@@ -46,8 +46,11 @@ const CompareVersionsDialog = ({
   open,
   onClose,
 }: CompareVersionsDialogProps) => {
+  const isCompositeMeasure =
+    measures?.some((measure) => measure.measureMetaData?.composite) ?? false;
   const [activeTab, setActiveTab] = useState<string>("cql");
   const [differences, setDifferences] = useState<number>(0);
+  const visibleActiveTab = isCompositeMeasure ? "human-readable" : activeTab;
 
   if (!measures || measures.length !== 2) return null;
 
@@ -92,12 +95,13 @@ const CompareVersionsDialog = ({
 
         <div className="tabs-container">
           <CompareVersionsNavTabs
-            activeTab={activeTab}
+            activeTab={visibleActiveTab}
             setActiveTab={setActiveTab}
+            isCompositeMeasure={isCompositeMeasure}
           />
         </div>
 
-        {activeTab === "cql" && (
+        {visibleActiveTab === "cql" && (
           <>
             <div
               className="cql-comparison-panels-container"
@@ -113,7 +117,7 @@ const CompareVersionsDialog = ({
           </>
         )}
 
-        {activeTab === "human-readable" && (
+        {visibleActiveTab === "human-readable" && (
           <div className="allotment-container">
             <Allotment vertical defaultSizes={[75, 25]}>
               <Allotment.Pane>

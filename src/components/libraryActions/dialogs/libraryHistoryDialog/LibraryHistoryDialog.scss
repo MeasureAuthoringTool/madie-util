@@ -1,0 +1,48 @@
+#cql-library-history-dialog {
+  .header-info {
+    font-size: 16px;
+    margin-bottom: 24px;
+
+    span:first-of-type {
+      font-weight: 500;
+    }
+  }
+
+  > .madie-table {
+    font-family: Rubik, sans-serif;
+
+    tr {
+      border-bottom: solid 1px #8c8c8c;
+    }
+
+    thead {
+      background: #ededed;
+
+      tr {
+        text-align: left;
+
+        button {
+          font-family: Rubik, sans-serif;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 24px;
+          padding: 16px 16px 16px 24px;
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        td {
+          padding: 24px;
+          font-size: 16px;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+}
