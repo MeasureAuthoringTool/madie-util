@@ -11,30 +11,28 @@ import {
 } from "@madie/madie-design-system/dist/react";
 import tw from "twin.macro";
 import "styled-components/macro";
-import { Measure } from "@madie/madie-models";
-import { formatCmsId } from "../../../../util/cmsIdFormatter";
+import { CqlLibrary } from "@madie/madie-models";
 import { formatOwner } from "../../../../util/ownerFormatter";
+
+interface RowData {
+  libraryName: string;
+  model: string;
+  owner?: string;
+}
 
 const TH = tw.th`p-3 text-left text-sm`;
 const TD = tw.td`p-3 text-left text-sm break-keep`;
 
-interface TransferredMeasuresTableProps {
-  measures: Measure[];
+interface TransferredLibrariesTableProps {
+  libraries: CqlLibrary[];
   showOwnerColumn?: boolean;
 }
 
-interface RowData {
-  measureName: string;
-  model: string;
-  cmsId: number;
-  owner?: string;
-}
-
-export const TransferredMeasuresTable = ({
-  measures,
+const TransferredLibrariesTable = ({
+  libraries,
   showOwnerColumn = false,
-}: TransferredMeasuresTableProps) => {
-  const [visibleMeasures, setVisibleMeasures] = useState<Measure[]>([]);
+}: TransferredLibrariesTableProps) => {
+  const [visibleLibraries, setVisibleLibraries] = useState<CqlLibrary[]>([]);
   // pagination utilities
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalItems, setTotalItems] = useState<number>(0);
@@ -44,36 +42,34 @@ export const TransferredMeasuresTable = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const managePagination = useCallback(() => {
-    if (measures.length < currentLimit) {
+    if (libraries.length < currentLimit) {
       setOffset(0);
-      setVisibleMeasures([...measures]);
-      setVisibleItems(measures.length);
-      setTotalItems(measures.length);
+      setVisibleLibraries([...libraries]);
+      setVisibleItems(libraries.length);
+      setTotalItems(libraries.length);
       setTotalPages(1);
     } else {
       const start = (currentPage - 1) * currentLimit;
       const end = start + currentLimit;
-      const newVisibleMeasures = measures.slice(start, end);
-      setVisibleMeasures(newVisibleMeasures);
+      const newVisibleLibraries = libraries.slice(start, end);
+      setVisibleLibraries(newVisibleLibraries);
       setOffset(start);
-      setVisibleItems(newVisibleMeasures.length);
-      setTotalItems(measures.length);
-      setTotalPages(Math.ceil(measures.length / currentLimit));
+      setVisibleItems(newVisibleLibraries.length);
+      setTotalItems(libraries.length);
+      setTotalPages(Math.ceil(libraries.length / currentLimit));
     }
   }, [
     currentLimit,
     currentPage,
-    measures,
+    libraries,
     setOffset,
-    setVisibleMeasures,
+    setVisibleLibraries,
     setVisibleItems,
     setTotalItems,
     setTotalPages,
   ]);
 
-  const canGoNext = (() => {
-    return currentPage < totalPages;
-  })();
+  const canGoNext = currentPage < totalPages;
   const canGoPrev = currentPage > 1;
 
   const handlePageChange = (e, v) => {
@@ -86,31 +82,28 @@ export const TransferredMeasuresTable = ({
 
   useEffect(() => {
     managePagination();
-  }, [measures, currentPage, currentLimit, managePagination]);
+  }, [libraries, currentPage, currentLimit, managePagination]);
 
-  // Table data
   const data: RowData[] = useMemo(
     () =>
-      visibleMeasures.map((measure) => ({
-        measureName: measure.measureName,
-        model: measure.model,
-        cmsId: measure.measureSet?.cmsId,
-        owner: formatOwner(measure.ownerDisplayName, measure.measureSet?.owner),
+      visibleLibraries.map((library) => ({
+        libraryName: library.cqlLibraryName,
+        model: library.model,
+        owner: formatOwner(library.ownerDisplayName, library.librarySet?.owner),
       })),
-    [visibleMeasures]
+    [visibleLibraries]
   );
 
-  // Column definitions
-  const columns: ColumnDef<RowData>[] = useMemo(() => {
-    const baseColumns: ColumnDef<RowData>[] = [
+  const columns: ColumnDef<RowData>[] = useMemo(
+    () => [
       {
-        accessorKey: "measureName",
-        header: "Measure",
+        accessorKey: "libraryName",
+        header: "Library",
         cell: (info) => (
           <TruncateText
-            text={info.row.original.measureName}
+            text={info.row.original.libraryName}
             maxLength={120}
-            dataTestId={`measure-name-${info.row.original.measureName}`}
+            dataTestId={`library-name-${info.row.original.libraryName}`}
           />
         ),
       },
@@ -119,26 +112,19 @@ export const TransferredMeasuresTable = ({
         header: "Model",
         cell: (info) => info.getValue(),
       },
-      {
-        accessorKey: "cmsId",
-        header: "CMS ID",
-        cell: (info) =>
-          formatCmsId(info.getValue() as number, info.row.original.model),
-      },
-    ];
+      ...(showOwnerColumn
+        ? [
+            {
+              accessorKey: "owner" as const,
+              header: "Current Library Owner",
+              cell: (info) => info.getValue(),
+            },
+          ]
+        : []),
+    ],
+    [showOwnerColumn]
+  );
 
-    if (showOwnerColumn) {
-      baseColumns.push({
-        accessorKey: "owner",
-        header: "Current Measure Owner",
-        cell: (info) => info.getValue() || "",
-      });
-    }
-
-    return baseColumns;
-  }, [showOwnerColumn]);
-
-  // Create the table instance
   const table = useReactTable({
     data,
     columns,
@@ -147,7 +133,7 @@ export const TransferredMeasuresTable = ({
 
   return (
     <>
-      <table tw="min-w-full" data-testid="transfer-measure-tbl">
+      <table tw="min-w-full" data-testid="transfer-library-tbl">
         <thead tw="bg-slate">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
@@ -162,11 +148,11 @@ export const TransferredMeasuresTable = ({
             </tr>
           ))}
         </thead>
-        <tbody data-testid="transfer-measure-tbl-body">
+        <tbody data-testid="transfer-library-tbl-body">
           {table.getRowModel().rows.map((row, index) => (
             <tr
               key={row.id}
-              className="transfer-measure-row"
+              className="transfer-library-row"
               data-testid={`row-${index}`}
               style={{
                 borderTop: "solid 1px #8c8c8c",
@@ -182,12 +168,10 @@ export const TransferredMeasuresTable = ({
           ))}
         </tbody>
       </table>
-      {measures?.length > 0 && (
-        <div
-          className="pagination-container"
-          data-testid="trasfer-measure-pagination"
-        >
+      {libraries?.length > 0 && (
+        <div className="pagination-container">
           <Pagination
+            data-testid="trasfer-library-pagination"
             totalItems={totalItems}
             limitOptions={[5, 10, 25, 50]}
             visibleItems={visibleItems}
@@ -207,4 +191,4 @@ export const TransferredMeasuresTable = ({
   );
 };
 
-export default TransferredMeasuresTable;
+export default TransferredLibrariesTable;

@@ -4,3 +4,5 @@ export { default as LibraryHistoryDialog } from "./dialogs/libraryHistoryDialog/
 export { default as LibraryHistoryAction } from "./actions/historyAction/HistoryAction";
 export { default as LibraryCompareVersionsDialog } from "./dialogs/compareVersionsDialog/CompareVersionsDialog";
 export { default as LibraryCompareVersionsAction } from "./actions/compareVersionsAction/CompareVersionsAction";
+export { default as LibraryTransferDialog } from "./dialogs/transferDialog/TransferDialog";
+export { default as LibraryTransferAction } from "./actions/transferAction/TransferAction";
