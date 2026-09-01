@@ -1,90 +1,89 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   MadieDialog,
   TextField,
   ReadOnlyTextField,
   FormControlLabel,
 } from "@madie/madie-design-system/dist/react";
-import { Measure } from "@madie/madie-models";
+import { CqlLibrary } from "@madie/madie-models";
 import { useFormik } from "formik";
 import { Checkbox, Divider } from "@mui/material";
 import "../../../transferDialog.scss";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import * as Yup from "yup";
-import useMeasureServiceApi from "../../../../api/useMeasureServiceApi";
-import TransferredMeasuresTable from "./TransferredMeasuresTable";
+import useCqlLibraryServiceApi from "../../../../api/useCqlLibraryServiceApi";
+import { useUserRoles } from "../../../../hooks/useUserRoles";
 import { formatOwner } from "../../../../util/ownerFormatter";
+import TransferredLibrariesTable from "./TransferredLibrariesTable";
 
-// Resets the parent status banner. Mirrors the shape of the measure
-// workspace's INITIAL_STATUS_HANDLER so the callback contract is unchanged.
 const INITIAL_STATUS_HANDLER = {
   success: { status: undefined, primaryMessage: "", secondaryMessages: [] },
   warning: { status: false, primaryMessage: "", secondaryMessages: [] },
   error: false,
   errorMessage: "",
   outboundAnnotations: [],
-  hasSubtitle: false,
 };
 
-export const TRANSFER_MEASURE_SUCCESS =
-  "The measure(s) were successfully transferred. If you chose to retain share access, you will still be able to edit the measures.";
-export const TRANSFER_MEASURE_FAILURE =
-  "Unable to transfer the selected measure(s) to the harpId. If the error persists, please contact the help desk.";
+export const TRANSFER_LIBRARY_SUCCESS =
+  "The library(s) were successfully transferred. If you chose to retain share access, you will still be able to edit the libraries.";
+export const TRANSFER_LIBRARY_FAILURE =
+  "Unable to transfer the selected library(s) to the harpId. If the error persists, please contact the help desk.";
 export const INVALID_HARP_ID_MESSAGE =
   "The provided HARP ID is not associated with an active MADiE user.";
 
 interface TransferDialogProps {
-  measures: Measure[];
+  libraries: CqlLibrary[];
   open: boolean;
   onClose: Function;
   setStatusHandler: Function;
-  isAdminTransfer?: boolean;
 }
 
 const TransferDialog = ({
-  measures,
+  libraries,
   open,
   onClose,
   setStatusHandler,
-  isAdminTransfer = false,
 }: TransferDialogProps) => {
-  const measureServiceApi = useRef(useMeasureServiceApi()).current;
+  const cqlLibraryServiceApi = useRef(useCqlLibraryServiceApi()).current;
+  const isAdmin = useUserRoles()?.isAdmin;
 
   const handleSave = async () => {
     setStatusHandler(INITIAL_STATUS_HANDLER);
 
-    const measureIds = measures.map((m) => m.id);
+    const libraryIds = libraries.map((library) => library.id);
 
-    const transferPromise = measureServiceApi.transferMeasures(
-      measureIds,
-      formik.values.harpId,
-      formik.values.retainShareAccess
-    );
-
-    return transferPromise
+    return cqlLibraryServiceApi
+      .transferLibraries(
+        libraryIds,
+        formik.values.harpId,
+        formik.values.retainShareAccess
+      )
       .then((response) => {
         if (response.status === 200) {
           onClose({
             toastType: "success",
-            toastMessage: TRANSFER_MEASURE_SUCCESS,
+            toastMessage: TRANSFER_LIBRARY_SUCCESS,
             toastOpen: true,
           });
         } else if (response.status === 207) {
-          const failedMeasureIds: string[] = response.data;
+          const failedLibraryIds: string[] = response.data;
 
-          const failedMeasureNames = measures
-            .filter((measure) => failedMeasureIds.includes(measure.id))
-            .map((measure) => measure.measureName);
+          const failedLibraryNames = libraries
+            .filter((library) => failedLibraryIds.includes(library.id))
+            .map((library) => library.cqlLibraryName);
 
+          const count = failedLibraryNames?.length;
           setStatusHandler({
             warning: {
               status: true,
-              primaryMessage: `${failedMeasureNames?.length} Measures could not be transferred. Please try again, or contact help desk if the issue persists.`,
-              secondaryMessages: failedMeasureNames,
+              primaryMessage: `${count} ${
+                count === 1 ? "library" : "libraries"
+              } could not be transferred. Please try again, or contact help desk if the issue persists.`,
+              secondaryMessages: failedLibraryNames,
             },
           });
 
-          // Close dialog and refresh the measure list without showing a toast.
+          // Close dialog and refresh the library list without showing a toast.
           onClose({
             toastType: "success",
             toastOpen: false,
@@ -101,7 +100,7 @@ const TransferDialog = ({
         } else {
           onClose({
             toastType: "danger",
-            toastMessage: TRANSFER_MEASURE_FAILURE,
+            toastMessage: TRANSFER_LIBRARY_FAILURE,
             toastOpen: true,
           });
         }
@@ -111,15 +110,15 @@ const TransferDialog = ({
   const formik = useFormik({
     initialValues: {
       currentUser: formatOwner(
-        measures?.[0]?.ownerDisplayName,
-        measures?.[0]?.measureSet?.owner
+        libraries?.[0]?.ownerDisplayName,
+        libraries?.[0]?.librarySet?.owner
       ),
       harpId: "",
       retainShareAccess: false,
     },
     enableReinitialize: true,
     validationSchema: Yup.object().shape({
-      harpId: Yup.string().required("New Measure Owner is required."),
+      harpId: Yup.string().required("New Library Owner is required."),
     }),
     onSubmit: handleSave,
   });
@@ -134,7 +133,7 @@ const TransferDialog = ({
     <>
       <MadieDialog
         form
-        title="Transfer Measure Ownership"
+        title="Transfer Library Ownership"
         dialogProps={{
           onClose,
           open,
@@ -148,7 +147,7 @@ const TransferDialog = ({
           "data-testid": "transfer-cancel-button",
         }}
         continueButtonProps={{
-          variant: isAdminTransfer ? "cyan-primary" : "danger-primary",
+          variant: isAdmin ? "cyan" : "danger-primary",
           type: "submit",
           continueText: "Transfer",
           "data-testid": "transfer-save-button",
@@ -157,32 +156,32 @@ const TransferDialog = ({
       >
         <div className="transfer-dialog-info-text">
           <div>
-            You are about to Transfer ownership of the {measures?.length || 0}{" "}
-            selected measure(s) below. All versions and drafts will be
-            transferred, but only the most recent measure name appears in the
+            You are about to Transfer ownership of the {libraries?.length || 0}{" "}
+            selected library(s) below. All versions and drafts will be
+            transferred, but only the most recent library name appears in the
             list below.
           </div>
-          {!isAdminTransfer && (
+          {!isAdmin && (
             <div className="warning-message">
               <ErrorOutlineIcon color="error" fontSize="small" />
               This action cannot be undone.
             </div>
           )}
         </div>
-        <div data-testid="transferred-measures-list">
-          <TransferredMeasuresTable
-            measures={measures}
-            showOwnerColumn={isAdminTransfer}
+        <div data-testid="transferred-libraries-list">
+          <TransferredLibrariesTable
+            libraries={libraries}
+            showOwnerColumn={isAdmin}
           />
         </div>
         <div className="owner">Owner</div>
         <Divider sx={{ borderColor: "#8c8c8c", paddingBottom: "16px" }} />
 
-        <div id="transfer-measure">
-          {!isAdminTransfer && (
+        <div id="transfer-library">
+          {!isAdmin && (
             <div className="current-owner">
               <ReadOnlyTextField
-                label="Current Measure Owner"
+                label="Current Library Owner"
                 inputProps={{
                   "data-testid": "current-owner",
                 }}
@@ -193,7 +192,7 @@ const TransferDialog = ({
           )}
           <div>
             <TextField
-              label="New Measure Owner"
+              label="New Library Owner"
               id="harp-id-input"
               required={true}
               inputProps={{
