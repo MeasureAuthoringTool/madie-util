@@ -1,12 +1,10 @@
 import { useFeatureFlags } from "./useFeatureFlags";
-import { useUserRoles } from "./useUserRoles";
 
 export enum FeatureFlagsEnum {
   QDM_HIDE_JSON = "qdmHideJson",
   ENABLE_QDM_REPEAT_TRANSFER = "enableQdmRepeatTransfer",
   QI_CORE_7 = "qiCore7",
   QI_CORE_COMPOSITE_MEASURE = "QICoreCompositeMeasure",
-  ADMIN_USER_LIST = "AdminUserList",
 }
 
 /**
@@ -15,7 +13,6 @@ export enum FeatureFlagsEnum {
  */
 export function useIsRoleOrFeatureEnabled(feature: string): boolean {
   const featureFlags = useFeatureFlags();
-  const userRoles = useUserRoles();
 
   if (feature === FeatureFlagsEnum.QDM_HIDE_JSON) {
     return featureFlags?.qdmHideJson;
@@ -25,8 +22,6 @@ export function useIsRoleOrFeatureEnabled(feature: string): boolean {
     return featureFlags?.qiCore7;
   } else if (feature === FeatureFlagsEnum.QI_CORE_COMPOSITE_MEASURE) {
     return featureFlags?.QICoreCompositeMeasure;
-  } else if (feature === FeatureFlagsEnum.ADMIN_USER_LIST) {
-    return Boolean(featureFlags?.AdminUserList && userRoles?.isAdmin);
   }
   return false;
 }
