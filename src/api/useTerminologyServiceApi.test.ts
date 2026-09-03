@@ -365,7 +365,7 @@ describe("useTerminologyServiceApi", () => {
 
         mockedAxios.delete.mockResolvedValueOnce(response);
 
-        const result = await api.deleteValueSet("vs-123"); // #nosec
+        const result = await api.deleteValueSet("vs-123"); // gitleaks:allow
 
         expect(mockedAxios.delete).toHaveBeenCalledWith(
           `${baseUrl}/terminology/admin/value-set/vs-123`,
