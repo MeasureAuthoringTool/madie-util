@@ -24,7 +24,10 @@ import { routeHandlerStore } from "./Store/routeHandlerStore";
 import { featureFlagsStore } from "./Store/featureFlagStore";
 import { userRolesStore } from "./Store/userRolesStore";
 import { adminUserStore } from "./Store/adminUserStore";
-import { default as useTerminologyServiceApi } from "./api/useTerminologyServiceApi";
+import {
+  default as useTerminologyServiceApi,
+  type ValueSetDisplayForAdmin,
+} from "./api/useTerminologyServiceApi";
 import { default as useMeasureServiceApi } from "./api/useMeasureServiceApi";
 import { default as useMeasureReviewServiceApi } from "./api/useMeasureReviewServiceApi";
 import { default as useUserServiceApi } from "./api/useUserServiceApi";
@@ -97,6 +100,7 @@ export {
   userRolesStore,
   adminUserStore,
   useTerminologyServiceApi,
+  ValueSetDisplayForAdmin,
   useMeasureServiceApi,
   useMeasureReviewServiceApi,
   useUserServiceApi,
