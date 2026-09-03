@@ -1,6 +1,7 @@
 import * as React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import CompareVersionsAction, {
+  COMPARE_VERSIONS_ACTION_LABEL,
   NOTHING_SELECTED,
   VALID_COMPARE,
 } from "./CompareVersionsAction";
@@ -56,9 +57,14 @@ const differentMeasure: Measure = {
 describe("CompareVersionsAction component", () => {
   it("should render the compare versions button", () => {
     render(<CompareVersionsAction measures={[]} onClick={() => {}} />);
-    expect(
-      screen.getByTestId("compare-versions-action-btn")
-    ).toBeInTheDocument();
+    const compareButton = screen.getByTestId("compare-versions-action-btn");
+    const compareTooltip = screen.getByTestId(
+      "compare-versions-action-tooltip"
+    );
+
+    expect(compareButton).toBeInTheDocument();
+    expect(compareButton).toHaveAccessibleName(COMPARE_VERSIONS_ACTION_LABEL);
+    expect(compareTooltip.tagName).toBe("DIV");
   });
 
   it("should disable button when no measures are selected", () => {

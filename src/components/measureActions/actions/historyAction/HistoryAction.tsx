@@ -10,7 +10,7 @@ interface PropTypes {
 }
 
 export const NOTHING_SELECTED = "Select a measure to view history";
-export const VALID_HISTORY_MEASURE = "View History";
+export const VALID_HISTORY_MEASURE = "View measure history";
 
 export default function HistoryAction(props: PropTypes) {
   const { measures } = props;
@@ -55,15 +55,16 @@ export default function HistoryAction(props: PropTypes) {
         },
       }}
     >
-      <span>
+      <div role="group" style={{ display: "inline-block" }}>
         <IconButton
           onClick={handleClick}
           disabled={disableHistoryBtn}
           data-testid="history-action-btn"
+          aria-label={VALID_HISTORY_MEASURE}
         >
           <History size={20} />
         </IconButton>
-      </span>
+      </div>
     </Tooltip>
   );
 }

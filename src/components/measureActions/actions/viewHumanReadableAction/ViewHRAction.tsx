@@ -9,8 +9,10 @@ interface PropTypes {
   measures: Measure[];
   onClick: () => void;
 }
-export const NOTHING_SELECTED = "Select measure to view human readable";
+export const NOTHING_SELECTED = "Select a measure to view human readable";
 export const VIEW_HUMANREADABLE = "View human readable";
+export const VIEW_HUMAN_READABLE_ACTION_LABEL =
+  "View human readable for measure";
 
 export default function ViewHRAction(props: PropTypes) {
   const { measures, onClick } = props;
@@ -50,15 +52,16 @@ export default function ViewHRAction(props: PropTypes) {
         },
       }}
     >
-      <span>
+      <div role="group" style={{ display: "inline-block" }}>
         <IconButton
           onClick={onClick}
           disabled={disableViewHRBtn}
           data-testid="view-hr-action-btn"
+          aria-label={VIEW_HUMAN_READABLE_ACTION_LABEL}
         >
           <HrIcon />
         </IconButton>
-      </span>
+      </div>
     </Tooltip>
   );
 }
