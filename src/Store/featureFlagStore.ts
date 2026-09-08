@@ -10,6 +10,7 @@ export interface FeatureFlags {
   QICoreCompositeMeasure: boolean;
   MeasureReviewStatus?: boolean;
   LibraryReviewStatus?: boolean;
+  Commenting?: boolean;
 }
 const initialState: FeatureFlags = {
   qdmHideJson: true,
@@ -18,6 +19,7 @@ const initialState: FeatureFlags = {
   QICoreCompositeMeasure: false,
   MeasureReviewStatus: false,
   LibraryReviewStatus: false,
+  Commenting: false,
 };
 
 let state: FeatureFlags | null = initialState;
