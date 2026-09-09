@@ -17,6 +17,20 @@ describe("reviewCommentVisibility", () => {
     ).toBe(false);
   });
 
+  it.each([undefined, null, "", "   "])(
+    "returns false when currentUser is not available (%s)",
+    (currentUser) => {
+      expect(
+        shouldShowReviewCommentLink({
+          commentingEnabled: true,
+          currentUser,
+          owner,
+          reviewStatus: ReviewStatus.READY_FOR_REVIEW,
+        })
+      ).toBe(false);
+    }
+  );
+
   it.each([
     ReviewStatus.READY_FOR_REVIEW,
     ReviewStatus.IN_PROGRESS,
