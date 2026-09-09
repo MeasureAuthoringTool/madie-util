@@ -6,8 +6,6 @@ import { Hash } from "lucide-react";
 import useMeasureServiceApi from "../../../../api/useMeasureServiceApi";
 import { getLatestVersion } from "../../../../util/versionUtils";
 
-// the measure list endpoints add `component` (true when the measure is used by
-// a composite measure), which isn't on the Measure model itself
 type MeasureListItem = Measure & { component?: boolean };
 
 interface PropTypes {
@@ -26,7 +24,6 @@ export default function ChangeVersionAction(props: PropTypes) {
   const measureServiceApi = useRef(useMeasureServiceApi()).current;
   const [disableChangeVersionBtn, setDisableChangeVersionBtn] = useState(true);
   const [tooltipMessage, setTooltipMessage] = useState(NOTHING_SELECTED);
-  // guards against an earlier measure set lookup resolving after a later one
   const lookupId = useRef(0);
 
   const validateChangeVersionActionState = useCallback(async () => {
@@ -41,7 +38,6 @@ export default function ChangeVersionAction(props: PropTypes) {
     const selectedMeasure = measures[0];
     setTooltipMessage(INELIGIBLE_MEASURE);
 
-    // a draft, or a component of a composite, is never eligible - no lookup needed
     if (selectedMeasure?.measureMetaData?.draft || selectedMeasure?.component) {
       return;
     }
