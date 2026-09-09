@@ -42,7 +42,6 @@ export default function ChangeVersionDialog({
 
   useEffect(() => {
     if (!open || !selectedLibrary?.librarySetId) {
-      // reset so the next open starts clean
       setNewVersion("");
       setVersionsExpanded(false);
       setLibrarySetVersions([]);
@@ -83,7 +82,6 @@ export default function ChangeVersionDialog({
       dialogProps={{
         open,
         onClose,
-        // save is out of scope for this story
         onSubmit: (event) => event.preventDefault(),
         "data-testid": "change-version-dialog",
       }}

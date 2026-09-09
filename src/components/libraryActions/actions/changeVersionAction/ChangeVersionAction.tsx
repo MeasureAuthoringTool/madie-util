@@ -20,7 +20,6 @@ export default function ChangeVersionAction(props: PropTypes) {
   const cqlLibraryServiceApi = useRef(useCqlLibraryServiceApi()).current;
   const [disableChangeVersionBtn, setDisableChangeVersionBtn] = useState(true);
   const [tooltipMessage, setTooltipMessage] = useState(NOTHING_SELECTED);
-  // guards against an earlier library set lookup resolving after a later one
   const lookupId = useRef(0);
 
   const validateChangeVersionActionState = useCallback(async () => {
@@ -33,7 +32,6 @@ export default function ChangeVersionAction(props: PropTypes) {
     }
 
     const selectedLibrary = libraries[0];
-    // a draft is never eligible - no lookup needed
     if (selectedLibrary?.draft) {
       return;
     }

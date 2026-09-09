@@ -1,4 +1,3 @@
-// versions come across as "major.minor.revision" strings e.g. "3.2.003"
 export const compareVersions = (a: string = "", b: string = ""): number => {
   const left = a.split(".").map(Number);
   const right = b.split(".").map(Number);

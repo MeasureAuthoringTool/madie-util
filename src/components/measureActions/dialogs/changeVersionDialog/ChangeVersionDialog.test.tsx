@@ -33,7 +33,6 @@ const measureSet = [
   measure({ id: "m-2", version: "3.2.002", lastModifiedAt: "2026-04-13" }),
 ];
 
-// the versions lookup resolves asynchronously; wait for it before asserting
 const waitForVersionsLoaded = async (count: number) =>
   waitFor(() =>
     expect(screen.getByTestId("measure-versions-toggle")).toHaveTextContent(
