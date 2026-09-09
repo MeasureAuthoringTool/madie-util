@@ -26,6 +26,7 @@ export const CANNOT_TRANSFER = "You cannot transfer a measure you do not own";
 export const MORE_THAN_ONE_NOT_OWNED =
   "You cannot transfer a measure you do not own, you have selected at least 1 measure that you do not own";
 export const TRANSFER = "Transfer";
+export const TRANSFER_ACTION_LABEL = "Transfer measure";
 
 export default function TransferAction(props: PropTypes) {
   const { measures, activeTab } = props;
@@ -87,15 +88,16 @@ export default function TransferAction(props: PropTypes) {
         },
       }}
     >
-      <span>
+      <div role="group" style={{ display: "inline-block" }}>
         <IconButton
           onClick={props.onClick}
           disabled={disableTransferBtn}
           data-testid="transfer-action-btn"
+          aria-label={TRANSFER_ACTION_LABEL}
         >
           <ArrowRightLeft size={20} />
         </IconButton>
-      </span>
+      </div>
     </Tooltip>
   );
 }

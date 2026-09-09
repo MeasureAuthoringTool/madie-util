@@ -8,22 +8,18 @@ export interface FeatureFlags {
   enableQdmRepeatTransfer: boolean;
   qiCore7: boolean;
   QICoreCompositeMeasure: boolean;
-  AdminUserList: boolean;
-  AdminUserProfile: boolean;
-  usQualityCore?: boolean;
   MeasureReviewStatus?: boolean;
   LibraryReviewStatus?: boolean;
+  Commenting?: boolean;
 }
 const initialState: FeatureFlags = {
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   qiCore7: false,
   QICoreCompositeMeasure: false,
-  AdminUserList: false,
-  AdminUserProfile: false,
-  usQualityCore: false,
   MeasureReviewStatus: false,
   LibraryReviewStatus: false,
+  Commenting: false,
 };
 
 let state: FeatureFlags | null = initialState;

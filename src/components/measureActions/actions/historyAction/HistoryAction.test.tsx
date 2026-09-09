@@ -29,10 +29,15 @@ const qiCoreMeasure = {
 } as unknown as Measure;
 
 describe("HistoryAction", () => {
-  it("Should disable history action btn if no measure selected", () => {
+  it("Should disable history action btn if no measure selected", async () => {
     render(<HistoryAction measures={[]} onClick={() => {}} />);
-    expect(screen.getByTestId("history-action-btn")).toBeDisabled();
-    expect(screen.getByTestId("history-action-tooltip")).toHaveAttribute(
+    const historyButton = screen.getByTestId("history-action-btn");
+    const historyTooltip = screen.getByTestId("history-action-tooltip");
+
+    await expect(historyButton).toBeDisabled();
+    expect(historyButton).toHaveAccessibleName(VALID_HISTORY_MEASURE);
+    expect(historyTooltip.tagName).toBe("DIV");
+    await expect(historyTooltip).toHaveAttribute(
       "aria-label",
       NOTHING_SELECTED
     );

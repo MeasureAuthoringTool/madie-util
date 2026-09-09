@@ -25,7 +25,8 @@ interface PropTypes {
 export const NOTHING_SELECTED = "Select a measure to share/unshare";
 export const INVALID_SHARE_MEASURE =
   "You cannot share/unshare a measure you do not own";
-export const VALID_SHARE_MEASURE = "Share/Unshare";
+export const VALID_SHARE_MEASURE = "Share/unshare";
+export const SHARE_ACTION_LABEL = "Share/unshare measure";
 
 // Tooltips that show on Shared Measures tabs
 export const SHARED_TAB_NOTHING_SELECTED = "Select a measure to unshare";
@@ -130,12 +131,13 @@ export default function ShareAction(props: PropTypes) {
         },
       }}
     >
-      <span>
+      <div role="group" style={{ display: "inline-block" }}>
         <IconButton
           onClick={handleClick}
           disabled={disableShareBtn}
           data-testid="share-action-btn"
           ref={anchorRef}
+          aria-label={SHARE_ACTION_LABEL}
         >
           <ShareIcon />
         </IconButton>
@@ -178,7 +180,7 @@ export default function ShareAction(props: PropTypes) {
             </Grow>
           )}
         </Popper>
-      </span>
+      </div>
     </Tooltip>
   );
 }

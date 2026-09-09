@@ -5,6 +5,7 @@ import TransferAction, {
   CANNOT_TRANSFER,
   MORE_THAN_ONE_NOT_OWNED,
   TRANSFER,
+  TRANSFER_ACTION_LABEL,
 } from "./TransferAction";
 import { Measure, MeasureSet, Model } from "@madie/madie-models";
 import { useUserRoles } from "../../../../hooks/useUserRoles";
@@ -46,10 +47,15 @@ describe("TransferAction", () => {
     });
   });
 
-  it("Should disable action btn if no measure selected", () => {
+  it("Should disable action btn if no measure selected", async () => {
     render(<TransferAction measures={[]} onClick={() => {}} activeTab={0} />);
-    expect(screen.getByTestId("transfer-action-btn")).toBeDisabled();
-    expect(screen.getByTestId("transfer-action-tooltip")).toHaveAttribute(
+    const transferButton = screen.getByTestId("transfer-action-btn");
+    const transferTooltip = screen.getByTestId("transfer-action-tooltip");
+
+    await expect(transferButton).toBeDisabled();
+    expect(transferButton).toHaveAccessibleName(TRANSFER_ACTION_LABEL);
+    expect(transferTooltip.tagName).toBe("DIV");
+    await expect(transferTooltip).toHaveAttribute(
       "aria-label",
       NOTHING_SELECTED
     );
