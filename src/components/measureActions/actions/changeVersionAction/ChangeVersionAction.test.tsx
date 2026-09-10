@@ -3,8 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Measure } from "@madie/madie-models";
 import ChangeVersionAction, {
-  NOTHING_SELECTED,
-  INELIGIBLE_MEASURE,
+  INELIGIBLE_SELECTION,
   VALID_CHANGE_VERSION,
 } from "./ChangeVersionAction";
 
@@ -45,21 +44,21 @@ describe("ChangeVersionAction", () => {
     mockGetMeasuresByMeasureSetId.mockResolvedValue([latest, older]);
   });
 
-  it("is disabled with the nothing-selected tooltip when no measure is selected", async () => {
+  it("is disabled when no measure is selected", async () => {
     render(<ChangeVersionAction measures={[]} onClick={jest.fn()} />);
 
     expect(button()).toBeDisabled();
-    expect(tooltip()).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
     expect(mockGetMeasuresByMeasureSetId).not.toHaveBeenCalled();
   });
 
-  it("is disabled with the nothing-selected tooltip when more than one measure is selected", async () => {
+  it("is disabled when more than one measure is selected", async () => {
     render(
       <ChangeVersionAction measures={[latest, older]} onClick={jest.fn()} />
     );
 
     expect(button()).toBeDisabled();
-    expect(tooltip()).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
     expect(mockGetMeasuresByMeasureSetId).not.toHaveBeenCalled();
   });
 
@@ -75,7 +74,7 @@ describe("ChangeVersionAction", () => {
     render(<ChangeVersionAction measures={[draft]} onClick={jest.fn()} />);
 
     await waitFor(() =>
-      expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_MEASURE)
+      expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION)
     );
     expect(button()).toBeDisabled();
     expect(mockGetMeasuresByMeasureSetId).not.toHaveBeenCalled();
@@ -90,7 +89,7 @@ describe("ChangeVersionAction", () => {
     );
 
     await waitFor(() =>
-      expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_MEASURE)
+      expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION)
     );
     expect(button()).toBeDisabled();
     expect(mockGetMeasuresByMeasureSetId).not.toHaveBeenCalled();
@@ -103,7 +102,7 @@ describe("ChangeVersionAction", () => {
       expect(mockGetMeasuresByMeasureSetId).toHaveBeenCalledWith("set-1", true)
     );
     expect(button()).toBeDisabled();
-    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_MEASURE);
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
   });
 
   it("is disabled when the set contains a draft, even for the latest version", async () => {
@@ -115,7 +114,7 @@ describe("ChangeVersionAction", () => {
       expect(mockGetMeasuresByMeasureSetId).toHaveBeenCalledWith("set-1", true)
     );
     expect(button()).toBeDisabled();
-    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_MEASURE);
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
   });
 
   it("is disabled when the measure set lookup fails", async () => {
@@ -128,7 +127,7 @@ describe("ChangeVersionAction", () => {
 
     await waitFor(() => expect(consoleError).toHaveBeenCalled());
     expect(button()).toBeDisabled();
-    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_MEASURE);
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
     consoleError.mockRestore();
   });
 

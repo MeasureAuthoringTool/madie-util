@@ -13,9 +13,7 @@ interface PropTypes {
   onClick: () => void;
 }
 
-export const NOTHING_SELECTED =
-  "Select the latest version in a measure set that does not have a draft to change version #";
-export const INELIGIBLE_MEASURE =
+export const INELIGIBLE_SELECTION =
   "Select the latest version in a measure set that does not have a draft and is not a component of a composite measure to change version #";
 export const VALID_CHANGE_VERSION = "Change Version #";
 
@@ -23,21 +21,19 @@ export default function ChangeVersionAction(props: PropTypes) {
   const { measures, onClick } = props;
   const measureServiceApi = useRef(useMeasureServiceApi()).current;
   const [disableChangeVersionBtn, setDisableChangeVersionBtn] = useState(true);
-  const [tooltipMessage, setTooltipMessage] = useState(NOTHING_SELECTED);
+  const [tooltipMessage, setTooltipMessage] = useState(INELIGIBLE_SELECTION);
   const lookupId = useRef(0);
 
   const validateChangeVersionActionState = useCallback(async () => {
     const requestId = ++lookupId.current;
     setDisableChangeVersionBtn(true);
+    setTooltipMessage(INELIGIBLE_SELECTION);
 
     if (measures?.length !== 1) {
-      setTooltipMessage(NOTHING_SELECTED);
       return;
     }
 
     const selectedMeasure = measures[0];
-    setTooltipMessage(INELIGIBLE_MEASURE);
-
     if (selectedMeasure?.measureMetaData?.draft || selectedMeasure?.component) {
       return;
     }

@@ -3,7 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CqlLibrary } from "@madie/madie-models";
 import ChangeVersionAction, {
-  NOTHING_SELECTED,
+  INELIGIBLE_SELECTION,
   VALID_CHANGE_VERSION,
 } from "./ChangeVersionAction";
 
@@ -43,7 +43,7 @@ describe("Library ChangeVersionAction", () => {
     render(<ChangeVersionAction libraries={[]} onClick={jest.fn()} />);
 
     expect(button()).toBeDisabled();
-    expect(tooltip()).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
     expect(mockGetLibrariesByLibrarySetId).not.toHaveBeenCalled();
   });
 
@@ -53,7 +53,7 @@ describe("Library ChangeVersionAction", () => {
     );
 
     expect(button()).toBeDisabled();
-    expect(tooltip()).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
     expect(mockGetLibrariesByLibrarySetId).not.toHaveBeenCalled();
   });
 
@@ -69,7 +69,7 @@ describe("Library ChangeVersionAction", () => {
     render(<ChangeVersionAction libraries={[draft]} onClick={jest.fn()} />);
 
     expect(button()).toBeDisabled();
-    expect(tooltip()).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
     expect(mockGetLibrariesByLibrarySetId).not.toHaveBeenCalled();
   });
 
@@ -80,7 +80,7 @@ describe("Library ChangeVersionAction", () => {
       expect(mockGetLibrariesByLibrarySetId).toHaveBeenCalledWith("set-1", true)
     );
     expect(button()).toBeDisabled();
-    expect(tooltip()).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
   });
 
   it("is disabled when the set contains a draft, even for the latest version", async () => {
@@ -92,7 +92,7 @@ describe("Library ChangeVersionAction", () => {
       expect(mockGetLibrariesByLibrarySetId).toHaveBeenCalledWith("set-1", true)
     );
     expect(button()).toBeDisabled();
-    expect(tooltip()).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
   });
 
   it("is disabled when the library set lookup fails", async () => {
@@ -105,7 +105,7 @@ describe("Library ChangeVersionAction", () => {
 
     await waitFor(() => expect(consoleError).toHaveBeenCalled());
     expect(button()).toBeDisabled();
-    expect(tooltip()).toHaveAttribute("aria-label", NOTHING_SELECTED);
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
     consoleError.mockRestore();
   });
 

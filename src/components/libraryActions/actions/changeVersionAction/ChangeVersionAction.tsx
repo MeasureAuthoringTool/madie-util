@@ -11,7 +11,7 @@ interface PropTypes {
   onClick: () => void;
 }
 
-export const NOTHING_SELECTED =
+export const INELIGIBLE_SELECTION =
   "Select the latest version in a library set that does not have a draft to change version #";
 export const VALID_CHANGE_VERSION = "Change Version #";
 
@@ -19,13 +19,13 @@ export default function ChangeVersionAction(props: PropTypes) {
   const { libraries, onClick } = props;
   const cqlLibraryServiceApi = useRef(useCqlLibraryServiceApi()).current;
   const [disableChangeVersionBtn, setDisableChangeVersionBtn] = useState(true);
-  const [tooltipMessage, setTooltipMessage] = useState(NOTHING_SELECTED);
+  const [tooltipMessage, setTooltipMessage] = useState(INELIGIBLE_SELECTION);
   const lookupId = useRef(0);
 
   const validateChangeVersionActionState = useCallback(async () => {
     const requestId = ++lookupId.current;
     setDisableChangeVersionBtn(true);
-    setTooltipMessage(NOTHING_SELECTED);
+    setTooltipMessage(INELIGIBLE_SELECTION);
 
     if (libraries?.length !== 1) {
       return;
