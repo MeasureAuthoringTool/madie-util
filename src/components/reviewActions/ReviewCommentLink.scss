@@ -1,0 +1,24 @@
+.review-comments-link-button {
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  padding: 5px 10px;
+  background: transparent;
+  border-width: medium;
+  border-style: none;
+  border-color: currentcolor;
+  border-image: none;
+  font-family: Rubik, sans-serif;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.82);
+  white-space: nowrap;
+  line-height: 1;
+  transition: color 0.13s, background 0.13s;
+  outline: none;
+  outline-offset: 2px;
+}
+
+.review-comments-link-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
