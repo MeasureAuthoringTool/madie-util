@@ -84,6 +84,36 @@ export interface ValueSetForSearch {
   version?: string;
 }
 
+export interface CodeSystem {
+  id: string;
+  fullUrl: string;
+  title?: string;
+  name: string;
+  version: Version;
+  versionId?: string;
+  oid: string;
+  lastUpdated?: string;
+  lastUpdatedUpstream?: string;
+  isLatestVersion: boolean;
+}
+
+export interface Version {
+  fhirVersion: string;
+  vsacVersion?: string;
+}
+
+export interface CreateCodeSystemRequest {
+  title?: string;
+  name: string;
+  fullUrl: string;
+  oid?: string;
+  isLatestVersion: boolean;
+  version: {
+    fhirVersion: string;
+    vsacVersion?: string;
+  };
+}
+
 export class TerminologyServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
 
@@ -358,6 +388,82 @@ export class TerminologyServiceApi {
       console.error("UMLS Logout failed:", error);
       throw error;
     }
+  }
+
+  async getCodeSystems(
+    page = 0,
+    limit = 10,
+    sortInfo?: string,
+    filterField?: string,
+    searchText?: string
+  ): Promise<Page<CodeSystem>> {
+    const params: Record<string, string | number> = {
+      page,
+      limit,
+    };
+
+    if (sortInfo) {
+      params.sortInfo = sortInfo;
+    }
+
+    if (filterField) {
+      params.filterField = filterField;
+    }
+
+    if (searchText) {
+      params.searchText = searchText;
+    }
+
+    const response = await axios.get(
+      `${this.baseUrl}/terminology/admin/codesystems`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+        params,
+      }
+    );
+
+    return response.data;
+  }
+
+  async createCodeSystem(
+    codeSystem: CreateCodeSystemRequest
+  ): Promise<CodeSystem> {
+    const response = await axios.post(
+      `${this.baseUrl}/terminology/admin/code-system`,
+      codeSystem,
+      {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+      }
+    );
+    return response.data;
+  }
+
+  async updateCodeSystem(
+    id: string,
+    codeSystem: CreateCodeSystemRequest
+  ): Promise<CodeSystem> {
+    const response = await axios.put(
+      `${this.baseUrl}/terminology/admin/code-system/${id}`,
+      codeSystem,
+      {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+      }
+    );
+    return response.data;
+  }
+
+  async deleteCodeSystem(id: string): Promise<void> {
+    await axios.delete(`${this.baseUrl}/terminology/admin/code-system/${id}`, {
+      headers: {
+        Authorization: `Bearer ${this.getAccessToken()}`,
+      },
+    });
   }
 }
 
