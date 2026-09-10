@@ -27,6 +27,9 @@ import { adminUserStore } from "./Store/adminUserStore";
 import {
   default as useTerminologyServiceApi,
   type ValueSetDisplayForAdmin,
+  type CodeSystem,
+  type CreateCodeSystemRequest,
+  type Version,
 } from "./api/useTerminologyServiceApi";
 import { default as useMeasureServiceApi } from "./api/useMeasureServiceApi";
 import { default as useMeasureReviewServiceApi } from "./api/useMeasureReviewServiceApi";
@@ -101,6 +104,9 @@ export {
   adminUserStore,
   useTerminologyServiceApi,
   ValueSetDisplayForAdmin,
+  CodeSystem,
+  CreateCodeSystemRequest,
+  Version,
   useMeasureServiceApi,
   useMeasureReviewServiceApi,
   useUserServiceApi,
