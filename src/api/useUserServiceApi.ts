@@ -144,6 +144,28 @@ export class UserServiceApi {
       throw err;
     }
   }
+
+  /**
+   * Requests the full user export report from the user service.
+   * The backend is responsible for generating the workbook and returning it as an `.xlsx` binary payload.
+   */
+  async exportFullUserList(signal?: AbortSignal): Promise<Blob> {
+    try {
+      const response = await axios.get<Blob>(`${this.baseUrl}/users/export`, {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+          Accept:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+        responseType: "blob",
+        signal,
+      });
+      return response.data;
+    } catch (err) {
+      console.error("Unable to export the full user list", err);
+      throw new Error("Unable to export the full user list.");
+    }
+  }
 }
 
 export default function useUserServiceApi(): UserServiceApi {
