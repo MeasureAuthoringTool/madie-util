@@ -58,6 +58,7 @@ import {
   ViewHRAction,
   HistoryAction,
   CompareVersionsAction,
+  ChangeVersionAction,
   ExportDialog,
   ExportIcon,
   ViewHRModal,
@@ -73,6 +74,7 @@ import {
   ShareDialog,
   TransferAction,
   TransferDialog,
+  ChangeVersionDialog,
 } from "./components/measureActions";
 import {
   LibraryShareDialog,
@@ -83,6 +85,8 @@ import {
   LibraryCompareVersionsAction,
   LibraryTransferDialog,
   LibraryTransferAction,
+  LibraryChangeVersionAction,
+  LibraryChangeVersionDialog,
 } from "./components/libraryActions";
 import {
   ManageReviewDialog,
@@ -136,6 +140,7 @@ export {
   ViewHRAction,
   HistoryAction,
   CompareVersionsAction,
+  ChangeVersionAction,
   ExportDialog,
   ExportIcon,
   ViewHRModal,
@@ -149,6 +154,8 @@ export {
   LibraryShareDialog,
   LibraryTransferDialog,
   LibraryTransferAction,
+  LibraryChangeVersionAction,
+  LibraryChangeVersionDialog,
   ManageReviewDialog,
   REVIEW_STATUS_OPTIONS,
   getNewestMeasureInstance,
@@ -161,4 +168,5 @@ export {
   ShareDialog,
   TransferAction,
   TransferDialog,
+  ChangeVersionDialog,
 };
