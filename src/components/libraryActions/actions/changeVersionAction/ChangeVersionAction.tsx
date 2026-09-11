@@ -37,18 +37,18 @@ export default function ChangeVersionAction(props: PropTypes) {
     }
 
     try {
-      const librarySet: CqlLibrary[] =
+      const libraryList: CqlLibrary[] =
         await cqlLibraryServiceApi.getLibrariesByLibrarySetId(
           selectedLibrary?.librarySetId,
           true
         );
       if (requestId !== lookupId.current) return;
 
-      const hasDraft = (librarySet ?? []).some((library) => library?.draft);
+      const hasDraft = (libraryList ?? []).some((library) => library?.draft);
 
       if (
         !hasDraft &&
-        getLatestVersion(librarySet)?.id === selectedLibrary?.id
+        getLatestVersion(libraryList)?.id === selectedLibrary?.id
       ) {
         setDisableChangeVersionBtn(false);
         setTooltipMessage(VALID_CHANGE_VERSION);

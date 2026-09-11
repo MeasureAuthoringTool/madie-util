@@ -39,20 +39,20 @@ export default function ChangeVersionAction(props: PropTypes) {
     }
 
     try {
-      const measureSet: MeasureListItem[] =
+      const measureList: MeasureListItem[] =
         await measureServiceApi.getMeasuresByMeasureSetId(
           selectedMeasure?.measureSetId,
           true
         );
       if (requestId !== lookupId.current) return;
 
-      const hasDraft = (measureSet ?? []).some(
+      const hasDraft = (measureList ?? []).some(
         (measure) => measure?.measureMetaData?.draft
       );
 
       if (
         !hasDraft &&
-        getLatestVersion(measureSet)?.id === selectedMeasure?.id
+        getLatestVersion(measureList)?.id === selectedMeasure?.id
       ) {
         setDisableChangeVersionBtn(false);
         setTooltipMessage(VALID_CHANGE_VERSION);
