@@ -44,6 +44,7 @@ import { default as checkUserCanDelete } from "./util/useCheckCanDelete";
 import { useFeatureFlags } from "./hooks/useFeatureFlags";
 import { useUserRoles } from "./hooks/useUserRoles";
 import { getOidFromString } from "./util/terminologyUtils";
+import { shouldShowReviewCommentLink } from "./util/reviewCommentVisibility";
 import { formatCmsId, padCmsId } from "./util/cmsIdFormatter";
 import {
   validateCompositeMeasure,
@@ -91,7 +92,9 @@ import {
 import {
   ManageReviewDialog,
   REVIEW_STATUS_OPTIONS,
+  ReviewCommentLink,
 } from "./components/reviewActions";
+
 export {
   useServiceConfig,
   getServiceConfig,
@@ -123,6 +126,7 @@ export {
   checkUserCanDelete,
   useFeatureFlags,
   useUserRoles,
+  shouldShowReviewCommentLink,
   getOidFromString,
   formatCmsId,
   padCmsId,
@@ -158,6 +162,7 @@ export {
   LibraryChangeVersionDialog,
   ManageReviewDialog,
   REVIEW_STATUS_OPTIONS,
+  ReviewCommentLink,
   getNewestMeasureInstance,
   exportMeasure,
   downloadZipFile,
