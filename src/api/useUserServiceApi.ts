@@ -151,15 +151,18 @@ export class UserServiceApi {
    */
   async exportFullUserList(signal?: AbortSignal): Promise<Blob> {
     try {
-      const response = await axios.get<Blob>(`${this.baseUrl}/users/export`, {
-        headers: {
-          Authorization: `Bearer ${this.getAccessToken()}`,
-          Accept:
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        },
-        responseType: "blob",
-        signal,
-      });
+      const response = await axios.get<Blob>(
+        `${this.baseUrl}/admin/users/export`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+            Accept:
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          },
+          responseType: "blob",
+          signal,
+        }
+      );
       return response.data;
     } catch (err) {
       console.error("Unable to export the full user list", err);

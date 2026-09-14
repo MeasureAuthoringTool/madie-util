@@ -337,7 +337,7 @@ describe("UserServiceApi", () => {
     axios.get.mockResolvedValue({ status: 200, data: blob });
 
     const result = await userServiceApi.exportFullUserList();
-    expect(axios.get).toBeCalledWith("test.url/users/export", {
+    expect(axios.get).toBeCalledWith("test.url/admin/users/export", {
       headers: {
         Authorization: "Bearer test.jwt",
         Accept:
@@ -355,7 +355,7 @@ describe("UserServiceApi", () => {
 
     await userServiceApi.exportFullUserList(controller.signal);
     expect(axios.get).toBeCalledWith(
-      "test.url/users/export",
+      "test.url/admin/users/export",
       expect.objectContaining({ signal: controller.signal })
     );
   });
