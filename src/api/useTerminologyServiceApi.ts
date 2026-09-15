@@ -352,6 +352,27 @@ export class TerminologyServiceApi {
     }
   }
 
+  async updateValueSets(ig?: string, version?: string): Promise<void> {
+    try {
+      await axios.get(
+        `${this.baseUrl}/terminology/admin/implementation-guides/update-value-sets`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+          params: { ig, version },
+        }
+      );
+    } catch (error: any) {
+      let message =
+        "An error occurred while updating Value Sets. Please try again. If the error persists, please contact the help desk.";
+      if (error.response?.data?.message) {
+        message = `${message}: ${error.response.data.message}`;
+      }
+      throw new Error(message);
+    }
+  }
+
   async loginUMLS(apiKey: string): Promise<String> {
     try {
       const resp = await axios.post(
@@ -387,6 +408,32 @@ export class TerminologyServiceApi {
     } catch (error) {
       console.error("UMLS Logout failed:", error);
       throw error;
+    }
+  }
+
+  async triggerUpdateCodeSystems(): Promise<void> {
+    try {
+      return await axios.post(
+        `${this.baseUrl}/terminology/admin/trigger-code-system-refresh`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+        }
+      );
+    } catch (error: any) {
+      let message =
+        "An error occurred while triggering the code system refresh. Please try again. If the error persists, please contact the help desk.";
+      if (error.status === 409) {
+        throw new Error(error.response.data);
+      }
+
+      if (error.response?.data?.message) {
+        message = `${message}: ${error.response.data.message}`;
+      }
+
+      throw new Error(message);
     }
   }
 
