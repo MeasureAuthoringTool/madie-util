@@ -156,6 +156,12 @@
   justify-content: space-between;
 }
 
+.cql-library-table {
+  .subtr {
+    background-color: #f8f8f8;
+  }
+}
+
 .shared-with-cell {
   display: flex;
   flex-direction: row;

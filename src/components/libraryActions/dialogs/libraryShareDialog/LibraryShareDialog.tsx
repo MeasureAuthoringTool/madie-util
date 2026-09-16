@@ -20,6 +20,7 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { type CqlLibrary } from "@madie/madie-models";
@@ -501,13 +502,14 @@ const LibraryShareDialog = ({
     } else if (option === "Unshare") {
       columnDefs.push({
         header: "Library",
-        cell: (info) => (
-          <TruncateText
-            text={info.row.original.cqlLibraryName}
-            maxLength={120}
-            dataTestId={`library-name-${info.row.original.cqlLibraryName}_${info.row.original.libraryId}`}
-          />
-        ),
+        cell: (info) =>
+          !info.row.original.userId ? (
+            <TruncateText
+              text={info.row.original.cqlLibraryName}
+              maxLength={120}
+              dataTestId={`library-name-${info.row.original.cqlLibraryName}_${info.row.original.libraryId}`}
+            />
+          ) : null,
         accessorKey: "cqlLibraryName",
       });
     }
@@ -529,9 +531,9 @@ const LibraryShareDialog = ({
             <span>Shared With</span>
           </div>
         ),
-        cell: (info) => (
-          <div className="shared-with-cell">
-            {option === "Unshare" && (
+        cell: (info) =>
+          option === "Unshare" && info.row.original.userId ? (
+            <div className="shared-with-cell">
               <Checkbox
                 icon={icon}
                 checkedIcon={checkedIcon}
@@ -539,14 +541,19 @@ const LibraryShareDialog = ({
                 onChange={info.row.getToggleSelectedHandler()}
                 data-testid={`unshare-checkbox-${info.row.original.userId}_${info.row.original.libraryId}`}
               />
-            )}
+              <TruncateText
+                text={info.row.original.displayName ?? info.row.original.userId}
+                maxLength={120}
+                dataTestId={`user-${info.row.original.userId}_${info.row.original.libraryId}`}
+              />
+            </div>
+          ) : (
             <TruncateText
               text={info.row.original.displayName ?? info.row.original.userId}
               maxLength={120}
               dataTestId={`user-${info.row.original.userId}_${info.row.original.libraryId}`}
             />
-          </div>
-        ),
+          ),
         accessorKey: "userId",
       },
       {
@@ -569,10 +576,10 @@ const LibraryShareDialog = ({
     ];
 
     return columnDefs;
-  }, [libraries]);
+  }, [libraries, option]);
 
   const table = useReactTable({
-    data: flattenedSharedLibraries,
+    data: option === "Unshare" ? sharedLibraries : flattenedSharedLibraries,
     getRowId: (row) => `${row.libraryId}${row.userId ? ` ${row.userId}` : ""}`,
     columns,
     defaultColumn: {
@@ -581,7 +588,12 @@ const LibraryShareDialog = ({
       maxSize: 500,
     },
     getCoreRowModel: getCoreRowModel(),
-    enableRowSelection: true,
+    getExpandedRowModel: getExpandedRowModel(),
+    getSubRows: (row) => row.subRows,
+    initialState: {
+      expanded: true,
+    },
+    enableRowSelection: (row) => !!row.original.userId,
     onRowSelectionChange: setRowSelection,
     state: {
       rowSelection,
@@ -895,11 +907,16 @@ const LibraryShareDialog = ({
                     table.getRowModel().rows.map((row) => (
                       <tr
                         key={row.id}
-                        className="ml-tr"
+                        className={
+                          row.original.userId
+                            ? String.raw`ml-tr subtr`
+                            : String.raw`ml-tr`
+                        }
                         data-testid="row-item"
                         style={{
                           borderTop: "solid 1px #8c8c8c",
                           borderSpacing: "0 2em !important",
+                          height: "68px",
                         }}
                       >
                         {row.getVisibleCells().map((cell) => (

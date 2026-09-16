@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import * as React from "react";
 import LibraryShareDialog, {
   convertDate,
@@ -770,6 +776,57 @@ describe("LibraryShareDialog", () => {
       userEvent.click(acceptBtn);
 
       await waitFor(() => expect(mockApi.unshareLibraries).toHaveBeenCalled());
+    });
+
+    it("nests the shared users under their library row", async () => {
+      renderShareDialog({ option: "Unshare" });
+      await waitForDialog();
+
+      const rows = await screen.findAllByTestId("row-item");
+      expect(rows).toHaveLength(6);
+
+      const [libraryRow, ...userRows] = rows.slice(0, 3);
+      expect(libraryRow).toHaveTextContent("mockCqlLibrary1");
+      expect(within(libraryRow).queryByRole("checkbox")).toBeNull();
+
+      expect(userRows[0]).toHaveTextContent("userId1");
+      expect(userRows[0]).not.toHaveTextContent("mockCqlLibrary1");
+      expect(within(userRows[0]).getByRole("checkbox")).toBeChecked();
+      expect(userRows[1]).toHaveTextContent("userId2");
+      expect(within(userRows[1]).getByRole("checkbox")).toBeChecked();
+
+      expect(rows[3]).toHaveTextContent("mockCqlLibrary2");
+      expect(within(rows[3]).queryByRole("checkbox")).toBeNull();
+    });
+
+    it("unshares only the users that were unchecked", async () => {
+      const mockApi = createMockLibraryServiceApi();
+      (useCqlLibraryServiceApi as jest.Mock).mockReturnValue(mockApi);
+
+      renderShareDialog({ option: "Unshare" });
+      await waitForDialog();
+
+      const rows = await screen.findAllByTestId("row-item");
+      const userId1Checkbox = within(rows[1]).getByRole("checkbox");
+
+      expect(await screen.findByTestId("share-save-button")).toBeDisabled();
+
+      userEvent.click(userId1Checkbox);
+      await waitFor(() => expect(userId1Checkbox).not.toBeChecked());
+      expect(within(rows[2]).getByRole("checkbox")).toBeChecked();
+
+      const saveBtn = await screen.findByTestId("share-save-button");
+      await waitFor(() => expect(saveBtn).toBeEnabled());
+      userEvent.click(saveBtn);
+
+      const acceptBtn = await screen.findByTestId(
+        "share-confirmation-dialog-accept-button"
+      );
+      userEvent.click(acceptBtn);
+
+      await waitFor(() => expect(mockApi.unshareLibraries).toHaveBeenCalled());
+      const request = (mockApi.unshareLibraries as jest.Mock).mock.calls[0][0];
+      expect(Array.from(request)).toEqual([["TestLibraryId1", ["userId1"]]]);
     });
 
     it("shows confirmation dialog for UnshareFromMe option", () => {
