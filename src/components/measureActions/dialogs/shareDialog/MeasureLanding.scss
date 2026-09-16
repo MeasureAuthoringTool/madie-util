@@ -177,10 +177,14 @@
   }
 }
 
-.measures-share-unshare-dialog-info-text {
+#measure-landing .measures-share-unshare-dialog-info-text {
   color: #515151;
-  font-weight: 400;
   font-family: Rubik, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0;
   margin-left: 32px;
   margin-right: 32px;
   padding-bottom: 17px;
@@ -188,7 +192,6 @@
   display: flex;
   gap: 10px;
   align-items: flex-end;
-  font-size: 14px;
 
   .export-user-list-btn {
     display: flex;
@@ -200,6 +203,8 @@
     color: #0073c8;
     padding: 0;
     font: inherit;
+    font-size: 14px;
+    line-height: normal;
 
     img {
       width: 14px;

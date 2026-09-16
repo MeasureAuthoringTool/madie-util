@@ -138,22 +138,28 @@
   line-height: 17px;
   text-align: center;
   margin-left: auto; /* aligns to right in flex container */
+  flex-shrink: 0;
 }
 
 .export-button-text {
   white-space: nowrap;
 }
 
-.share-unshare-dialog-info-text {
+#library-landing .share-unshare-dialog-info-text {
   color: #515151;
-  font-weight: 400;
   font-family: Rubik, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0;
   margin-left: 32px;
   margin-right: 32px;
   padding-bottom: 17px;
+  flex-direction: row;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-end;
 }
 
 .cql-library-table {
