@@ -441,7 +441,7 @@ describe("LibraryShareDialog", () => {
       });
     });
 
-    it("displays library name in new row when user is added", async () => {
+    it("displays the added user under its library row", async () => {
       renderShareDialog({ libraries: [mockCqlLibrary1] });
       await waitForDialog();
       await addHarpIdChip("newUserId");
@@ -451,15 +451,26 @@ describe("LibraryShareDialog", () => {
       );
       await clickAddUserButton();
 
-      await waitFor(() => {
-        const newRowCell = screen.getByTestId(
-          "TestLibraryId1 newUserId_cqlLibraryName"
-        );
-        expect(newRowCell).toHaveTextContent("mockCqlLibrary1");
-      });
+      await waitFor(() =>
+        expect(
+          screen.getByTestId("TestLibraryId1 newUserId_userId")
+        ).toHaveTextContent("newUserId")
+      );
+      expect(
+        screen.getByTestId("TestLibraryId1_cqlLibraryName")
+      ).toHaveTextContent("mockCqlLibrary1");
+      expect(
+        screen.getByTestId("TestLibraryId1 newUserId_cqlLibraryName")
+      ).toBeEmptyDOMElement();
+
+      const rows = screen.getAllByTestId("row-item");
+      const libraryRowIndex = rows.indexOf(
+        screen.getByTestId("TestLibraryId1_cqlLibraryName").closest("tr")
+      );
+      expect(rows[libraryRowIndex + 1]).toHaveTextContent("newUserId");
     });
 
-    it("displays library name for each library when adding user to multiple libraries", async () => {
+    it("displays the added user under each library when sharing multiple libraries", async () => {
       renderShareDialog({ libraries: [mockCqlLibrary1, mockCqlLibrary2] });
       await waitForDialog();
       await addHarpIdChip("multiLibUser");
@@ -469,14 +480,23 @@ describe("LibraryShareDialog", () => {
       );
       await clickAddUserButton();
 
-      await waitFor(() => {
+      await waitFor(() =>
         expect(
-          screen.getByTestId("TestLibraryId1 multiLibUser_cqlLibraryName")
-        ).toHaveTextContent("mockCqlLibrary1");
-        expect(
-          screen.getByTestId("TestLibraryId2 multiLibUser_cqlLibraryName")
-        ).toHaveTextContent("mockCqlLibrary2");
-      });
+          screen.getByTestId("TestLibraryId2 multiLibUser_userId")
+        ).toHaveTextContent("multiLibUser")
+      );
+
+      const rows = screen.getAllByTestId("row-item");
+      expect(rows.map((row) => row.textContent)).toEqual([
+        "mockCqlLibrary1",
+        expect.stringContaining("multiLibUser"),
+        expect.stringContaining("userId1"),
+        expect.stringContaining("userId2"),
+        "mockCqlLibrary2",
+        expect.stringContaining("multiLibUser"),
+        expect.stringContaining("userId1"),
+        expect.stringContaining("userId2"),
+      ]);
     });
 
     it("processes both chips and trailing input value together", async () => {

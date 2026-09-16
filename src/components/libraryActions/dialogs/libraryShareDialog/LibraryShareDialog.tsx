@@ -128,10 +128,6 @@ const LibraryShareDialog = ({
   const [libraryMap, setLibraryMap] = useState(new Map<string, CqlLibrary>());
   const [sharedLibraries, setSharedLibraries] = useState<SharedLibrary[]>([]);
 
-  const flattenedSharedLibraries = useMemo(() => {
-    return sharedLibraries.flatMap((library) => library.subRows ?? []);
-  }, [sharedLibraries]);
-
   const [sharedWithAllSelectedLibraries, setSharedWithAllSelectedLibraries] =
     useState<boolean>(false);
   const [shareLibrariesRequest, setShareLibrariesRequest] = useState(
@@ -487,19 +483,7 @@ const LibraryShareDialog = ({
 
   const columns = useMemo<ColumnDef<SharedLibrary>[]>(() => {
     let columnDefs = [];
-    if (option === "Share With") {
-      columnDefs.push({
-        header: "Library",
-        cell: (info) => (
-          <TruncateText
-            text={info.row.original.cqlLibraryName}
-            maxLength={120}
-            dataTestId={`library-name-${info.row.original.cqlLibraryName}_${info.row.original.libraryId}`}
-          />
-        ),
-        accessorKey: "cqlLibraryName",
-      });
-    } else if (option === "Unshare") {
+    if (option === "Share With" || option === "Unshare") {
       columnDefs.push({
         header: "Library",
         cell: (info) =>
@@ -579,7 +563,7 @@ const LibraryShareDialog = ({
   }, [libraries, option]);
 
   const table = useReactTable({
-    data: option === "Unshare" ? sharedLibraries : flattenedSharedLibraries,
+    data: sharedLibraries,
     getRowId: (row) => `${row.libraryId}${row.userId ? ` ${row.userId}` : ""}`,
     columns,
     defaultColumn: {
