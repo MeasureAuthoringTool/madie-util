@@ -147,12 +147,19 @@ export class UserServiceApi {
 
   /**
    * Requests the full user export report from the user service.
-   * The backend is responsible for generating the workbook and returning it as an `.xlsx` binary payload.
+   * Calls PUT /users/export, which generates the workbook and returns it as an
+   * `.xlsx` binary payload. The request body maps to the backend's
+   * UserExportRequestDto (optional); it is empty for now and will carry
+   * filters/selection in a later story.
    */
-  async exportFullUserList(signal?: AbortSignal): Promise<Blob> {
+  async exportUserList(
+    exportRequest: Record<string, unknown> = {},
+    signal?: AbortSignal
+  ): Promise<Blob> {
     try {
-      const response = await axios.get<Blob>(
+      const response = await axios.put<Blob>(
         `${this.baseUrl}/admin/users/export`,
+        exportRequest,
         {
           headers: {
             Authorization: `Bearer ${this.getAccessToken()}`,
