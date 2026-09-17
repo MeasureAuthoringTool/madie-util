@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import * as React from "react";
 import LibraryShareDialog, {
   convertDate,
@@ -435,7 +441,7 @@ describe("LibraryShareDialog", () => {
       });
     });
 
-    it("displays library name in new row when user is added", async () => {
+    it("displays the added user under its library row", async () => {
       renderShareDialog({ libraries: [mockCqlLibrary1] });
       await waitForDialog();
       await addHarpIdChip("newUserId");
@@ -445,15 +451,26 @@ describe("LibraryShareDialog", () => {
       );
       await clickAddUserButton();
 
-      await waitFor(() => {
-        const newRowCell = screen.getByTestId(
-          "TestLibraryId1 newUserId_cqlLibraryName"
-        );
-        expect(newRowCell).toHaveTextContent("mockCqlLibrary1");
-      });
+      await waitFor(() =>
+        expect(
+          screen.getByTestId("TestLibraryId1 newUserId_userId")
+        ).toHaveTextContent("newUserId")
+      );
+      expect(
+        screen.getByTestId("TestLibraryId1_cqlLibraryName")
+      ).toHaveTextContent("mockCqlLibrary1");
+      expect(
+        screen.getByTestId("TestLibraryId1 newUserId_cqlLibraryName")
+      ).toBeEmptyDOMElement();
+
+      const rows = screen.getAllByTestId("row-item");
+      const libraryRowIndex = rows.indexOf(
+        screen.getByTestId("TestLibraryId1_cqlLibraryName").closest("tr")
+      );
+      expect(rows[libraryRowIndex + 1]).toHaveTextContent("newUserId");
     });
 
-    it("displays library name for each library when adding user to multiple libraries", async () => {
+    it("displays the added user under each library when sharing multiple libraries", async () => {
       renderShareDialog({ libraries: [mockCqlLibrary1, mockCqlLibrary2] });
       await waitForDialog();
       await addHarpIdChip("multiLibUser");
@@ -463,14 +480,23 @@ describe("LibraryShareDialog", () => {
       );
       await clickAddUserButton();
 
-      await waitFor(() => {
+      await waitFor(() =>
         expect(
-          screen.getByTestId("TestLibraryId1 multiLibUser_cqlLibraryName")
-        ).toHaveTextContent("mockCqlLibrary1");
-        expect(
-          screen.getByTestId("TestLibraryId2 multiLibUser_cqlLibraryName")
-        ).toHaveTextContent("mockCqlLibrary2");
-      });
+          screen.getByTestId("TestLibraryId2 multiLibUser_userId")
+        ).toHaveTextContent("multiLibUser")
+      );
+
+      const rows = screen.getAllByTestId("row-item");
+      expect(rows.map((row) => row.textContent)).toEqual([
+        "mockCqlLibrary1",
+        expect.stringContaining("multiLibUser"),
+        expect.stringContaining("userId1"),
+        expect.stringContaining("userId2"),
+        "mockCqlLibrary2",
+        expect.stringContaining("multiLibUser"),
+        expect.stringContaining("userId1"),
+        expect.stringContaining("userId2"),
+      ]);
     });
 
     it("processes both chips and trailing input value together", async () => {
@@ -770,6 +796,57 @@ describe("LibraryShareDialog", () => {
       userEvent.click(acceptBtn);
 
       await waitFor(() => expect(mockApi.unshareLibraries).toHaveBeenCalled());
+    });
+
+    it("nests the shared users under their library row", async () => {
+      renderShareDialog({ option: "Unshare" });
+      await waitForDialog();
+
+      const rows = await screen.findAllByTestId("row-item");
+      expect(rows).toHaveLength(6);
+
+      const [libraryRow, ...userRows] = rows.slice(0, 3);
+      expect(libraryRow).toHaveTextContent("mockCqlLibrary1");
+      expect(within(libraryRow).queryByRole("checkbox")).toBeNull();
+
+      expect(userRows[0]).toHaveTextContent("userId1");
+      expect(userRows[0]).not.toHaveTextContent("mockCqlLibrary1");
+      expect(within(userRows[0]).getByRole("checkbox")).toBeChecked();
+      expect(userRows[1]).toHaveTextContent("userId2");
+      expect(within(userRows[1]).getByRole("checkbox")).toBeChecked();
+
+      expect(rows[3]).toHaveTextContent("mockCqlLibrary2");
+      expect(within(rows[3]).queryByRole("checkbox")).toBeNull();
+    });
+
+    it("unshares only the users that were unchecked", async () => {
+      const mockApi = createMockLibraryServiceApi();
+      (useCqlLibraryServiceApi as jest.Mock).mockReturnValue(mockApi);
+
+      renderShareDialog({ option: "Unshare" });
+      await waitForDialog();
+
+      const rows = await screen.findAllByTestId("row-item");
+      const userId1Checkbox = within(rows[1]).getByRole("checkbox");
+
+      expect(await screen.findByTestId("share-save-button")).toBeDisabled();
+
+      userEvent.click(userId1Checkbox);
+      await waitFor(() => expect(userId1Checkbox).not.toBeChecked());
+      expect(within(rows[2]).getByRole("checkbox")).toBeChecked();
+
+      const saveBtn = await screen.findByTestId("share-save-button");
+      await waitFor(() => expect(saveBtn).toBeEnabled());
+      userEvent.click(saveBtn);
+
+      const acceptBtn = await screen.findByTestId(
+        "share-confirmation-dialog-accept-button"
+      );
+      userEvent.click(acceptBtn);
+
+      await waitFor(() => expect(mockApi.unshareLibraries).toHaveBeenCalled());
+      const request = (mockApi.unshareLibraries as jest.Mock).mock.calls[0][0];
+      expect(Array.from(request)).toEqual([["TestLibraryId1", ["userId1"]]]);
     });
 
     it("shows confirmation dialog for UnshareFromMe option", () => {

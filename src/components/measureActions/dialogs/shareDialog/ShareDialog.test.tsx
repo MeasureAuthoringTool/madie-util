@@ -1303,6 +1303,46 @@ describe("Create Share Dialog component", () => {
     });
   });
 
+  it("should let an admin uncheck users to unshare from the Unshare dialog", async () => {
+    const mockOnSave = jest.fn();
+
+    render(
+      <ShareDialog
+        measures={[mockMeasure2]}
+        open={true}
+        option={"Unshare"}
+        onClose={jest.fn()}
+        onSave={mockOnSave}
+        unshareFromUser="userId1"
+        isAdmin
+      />
+    );
+
+    expect(await screen.findByText("Unshare From...")).toBeInTheDocument();
+    expect(screen.queryByText("Are you sure?")).not.toBeInTheDocument();
+
+    const saveBtn = await screen.findByTestId("share-save-button");
+    const userId2Checkbox = (
+      await screen.findByTestId("unshare-checkbox-userId2_TestMeasureId2")
+    ).querySelector("input");
+    expect(userId2Checkbox).toBeChecked();
+    expect(saveBtn).toBeDisabled();
+
+    await userEvent.click(userId2Checkbox);
+    await waitFor(() => expect(userId2Checkbox).not.toBeChecked());
+    expect(saveBtn).toBeEnabled();
+
+    await userEvent.click(saveBtn);
+    await userEvent.click(
+      await screen.findByTestId("share-confirmation-dialog-accept-button")
+    );
+
+    await waitFor(() => expect(mockUnshareMeasures).toBeCalled());
+    expect(Array.from(mockUnshareMeasures.mock.calls[0][0])).toEqual([
+      ["TestMeasureId2", ["userId2"]],
+    ]);
+  });
+
   it("should show display name in confirmation dialog when unsharing", async () => {
     mockMeasureServiceApi.getSharedMeasures = jest.fn().mockResolvedValue({
       [mockMeasure1.id]: [],
