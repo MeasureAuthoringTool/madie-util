@@ -330,40 +330,57 @@ describe("UserServiceApi", () => {
     await expect(userServiceApi.getUser("unknown")).rejects.toEqual(apiError);
   });
 
-  it("exportFullUserList returns the workbook blob on success", async () => {
+  it("exportUserList returns the workbook blob on success", async () => {
     const blob = new Blob(["excel"], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    axios.get.mockResolvedValue({ status: 200, data: blob });
+    axios.put.mockResolvedValue({ status: 200, data: blob });
 
-    const result = await userServiceApi.exportFullUserList();
-    expect(axios.get).toBeCalledWith("test.url/admin/users/export", {
-      headers: {
-        Authorization: "Bearer test.jwt",
-        Accept:
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      },
-      responseType: "blob",
-      signal: undefined,
-    });
+    const result = await userServiceApi.exportUserList();
+    expect(axios.put).toBeCalledWith(
+      "test.url/admin/users/export",
+      {},
+      {
+        headers: {
+          Authorization: "Bearer test.jwt",
+          Accept:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+        responseType: "blob",
+        signal: undefined,
+      }
+    );
     expect(result).toBe(blob);
   });
 
-  it("exportFullUserList forwards the abort signal when provided", async () => {
-    const controller = new AbortController();
-    axios.get.mockResolvedValue({ status: 200, data: new Blob() });
+  it("exportUserList sends the provided export request body", async () => {
+    axios.put.mockResolvedValue({ status: 200, data: new Blob() });
+    const exportRequest = { statuses: ["ACTIVE"] };
 
-    await userServiceApi.exportFullUserList(controller.signal);
-    expect(axios.get).toBeCalledWith(
+    await userServiceApi.exportUserList(exportRequest);
+    expect(axios.put).toBeCalledWith(
       "test.url/admin/users/export",
+      exportRequest,
+      expect.objectContaining({ responseType: "blob" })
+    );
+  });
+
+  it("exportUserList forwards the abort signal when provided", async () => {
+    const controller = new AbortController();
+    axios.put.mockResolvedValue({ status: 200, data: new Blob() });
+
+    await userServiceApi.exportUserList({}, controller.signal);
+    expect(axios.put).toBeCalledWith(
+      "test.url/admin/users/export",
+      {},
       expect.objectContaining({ signal: controller.signal })
     );
   });
 
-  it("exportFullUserList throws a friendly error when the request fails", async () => {
-    axios.get.mockRejectedValue(new Error("Network error"));
+  it("exportUserList throws a friendly error when the request fails", async () => {
+    axios.put.mockRejectedValue(new Error("Network error"));
 
-    await expect(userServiceApi.exportFullUserList()).rejects.toThrow(
+    await expect(userServiceApi.exportUserList()).rejects.toThrow(
       "Unable to export the full user list."
     );
   });
