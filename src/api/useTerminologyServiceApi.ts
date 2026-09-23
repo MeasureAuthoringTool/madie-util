@@ -437,6 +437,31 @@ export class TerminologyServiceApi {
     }
   }
 
+  async exportCodeSystems(
+    exportRequest: Record<string, unknown> = {},
+    signal?: AbortSignal
+  ): Promise<Blob> {
+    try {
+      const response = await axios.put<Blob>(
+        `${this.baseUrl}/terminology/admin/codesystems/export`,
+        exportRequest,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+            Accept:
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          },
+          responseType: "blob",
+          signal,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      console.error("Unable to export the code systems", err);
+      throw new Error("Unable to export the code systems.");
+    }
+  }
+
   async getCodeSystems(
     page = 0,
     limit = 10,
