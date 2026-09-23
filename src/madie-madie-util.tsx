@@ -89,6 +89,7 @@ import {
   LibraryChangeVersionAction,
   LibraryChangeVersionDialog,
 } from "./components/libraryActions";
+import { default as HowItWorks } from "./components/howItWorks/HowItWorks";
 import {
   ManageReviewDialog,
   REVIEW_STATUS_OPTIONS,
@@ -174,4 +175,5 @@ export {
   TransferAction,
   TransferDialog,
   ChangeVersionDialog,
+  HowItWorks,
 };
