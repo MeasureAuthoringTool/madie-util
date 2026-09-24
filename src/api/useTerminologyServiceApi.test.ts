@@ -3,7 +3,7 @@ import useTerminologyServiceApi, {
 } from "./useTerminologyServiceApi";
 import { ServiceConfig, ServiceContext } from "./ServiceContext";
 import axios from "../api/axios-instance";
-import React from "react";
+import * as React from "react";
 import { renderHook } from "@testing-library/react-hooks";
 
 jest.mock("../api/axios-instance");
@@ -775,6 +775,50 @@ describe("useTerminologyServiceApi", () => {
             },
           })
         );
+      });
+
+      describe("exportCodeSystems", () => {
+        it("requests the export workbook as a blob and forwards the abort signal", async () => {
+          const signal = new AbortController().signal;
+          const blob = new Blob(["code systems"]);
+
+          (axios.put as jest.Mock).mockResolvedValueOnce({ data: blob });
+
+          const result = await api.exportCodeSystems({}, signal);
+
+          expect(axios.put).toHaveBeenCalledWith(
+            "url/terminology/admin/codesystems/export",
+            {},
+            {
+              headers: {
+                Authorization: "Bearer test.jwt",
+                Accept:
+                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              },
+              responseType: "blob",
+              signal,
+            }
+          );
+          expect(result).toBe(blob);
+        });
+
+        it("throws a friendly error when export fails", async () => {
+          const consoleSpy = jest
+            .spyOn(console, "error")
+            .mockImplementation(() => {});
+
+          (axios.put as jest.Mock).mockRejectedValueOnce(new Error("fail"));
+
+          await expect(api.exportCodeSystems()).rejects.toThrow(
+            "Unable to export the code systems."
+          );
+          expect(consoleSpy).toHaveBeenCalledWith(
+            "Unable to export the code systems",
+            expect.any(Error)
+          );
+
+          consoleSpy.mockRestore();
+        });
       });
     });
   });
