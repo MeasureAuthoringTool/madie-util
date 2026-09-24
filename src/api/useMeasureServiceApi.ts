@@ -674,6 +674,31 @@ export class MeasureServiceApi {
     );
   }
 
+  async correctMeasureVersion(
+    id: string,
+    inCorrectVersion: string,
+    correctVersion: string,
+    draftVersion: string,
+    ownerHarpId: string
+  ): Promise<Measure> {
+    const response = await axios.put<Measure>(
+      `${this.baseUrl}/admin/measures/${id}/correct-version`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+          harpId: ownerHarpId,
+        },
+        params: {
+          inCorrectVersion,
+          correctVersion,
+          draftVersion,
+        },
+      }
+    );
+    return response.data;
+  }
+
   async checkNextVersionNumber(id: string, versionType: string): Promise<any> {
     try {
       const response = await axios.get<any>(
