@@ -288,7 +288,6 @@ describe("ChangeVersionDialog", () => {
     expect(onSubmit).toHaveBeenCalledWith({
       measure: selectedMeasure,
       inCorrectVersion: "3.2.003",
-      correctVersion: "3.1.1000",
       draftVersion: "3.1.999",
     });
   });

@@ -677,7 +677,6 @@ export class MeasureServiceApi {
   async correctMeasureVersion(
     id: string,
     inCorrectVersion: string,
-    correctVersion: string,
     draftVersion: string,
     ownerHarpId: string
   ): Promise<Measure> {
@@ -691,7 +690,6 @@ export class MeasureServiceApi {
         },
         params: {
           inCorrectVersion,
-          correctVersion,
           draftVersion,
         },
       }

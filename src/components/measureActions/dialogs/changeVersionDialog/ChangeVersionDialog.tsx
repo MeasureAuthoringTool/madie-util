@@ -15,7 +15,7 @@ interface ChangeVersionDialogProps {
   onSubmit?: (payload: {
     measure: Measure;
     inCorrectVersion: string;
-    correctVersion: string;
+    correctVersion?: string;
     draftVersion: string;
   }) => Promise<void>;
   isSubmitting?: boolean;
@@ -38,11 +38,6 @@ export const VERSION_DUPLICATE_ERROR =
   "New version # must not be one that has been used previously for this measure";
 
 const VERSION_FORMAT = /^\d+\.\d+\.\d{3}$/;
-
-const getNextPatchVersion = (version: string): string => {
-  const [major, minor, patch] = version.split(".").map((part) => Number(part));
-  return `${major}.${minor}.${String((patch ?? 0) + 1).padStart(3, "0")}`;
-};
 
 export const formatVersionDate = (date: string): string =>
   date ? new Date(date).toLocaleDateString("en-US") : "";
@@ -129,8 +124,6 @@ export default function ChangeVersionDialog({
     await onSubmit({
       measure: selectedMeasure,
       inCorrectVersion: selectedMeasure.version,
-      // The current backend contract requires both a draft and a higher target version.
-      correctVersion: getNextPatchVersion(newVersion),
       draftVersion: newVersion,
     });
   };
