@@ -3,7 +3,6 @@ import { useFeatureFlags } from "./useFeatureFlags";
 export enum FeatureFlagsEnum {
   QDM_HIDE_JSON = "qdmHideJson",
   ENABLE_QDM_REPEAT_TRANSFER = "enableQdmRepeatTransfer",
-  QI_CORE_7 = "qiCore7",
   QI_CORE_COMPOSITE_MEASURE = "QICoreCompositeMeasure",
 }
 
@@ -18,8 +17,6 @@ export function useIsRoleOrFeatureEnabled(feature: string): boolean {
     return featureFlags?.qdmHideJson;
   } else if (feature === FeatureFlagsEnum.ENABLE_QDM_REPEAT_TRANSFER) {
     return featureFlags?.enableQdmRepeatTransfer;
-  } else if (feature === FeatureFlagsEnum.QI_CORE_7) {
-    return featureFlags?.qiCore7;
   } else if (feature === FeatureFlagsEnum.QI_CORE_COMPOSITE_MEASURE) {
     return featureFlags?.QICoreCompositeMeasure;
   }

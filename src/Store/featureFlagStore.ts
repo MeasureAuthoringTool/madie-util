@@ -6,7 +6,6 @@ const subject = new BehaviorSubject<FeatureFlags | null>(null);
 export interface FeatureFlags {
   qdmHideJson: boolean;
   enableQdmRepeatTransfer: boolean;
-  qiCore7: boolean;
   QICoreCompositeMeasure: boolean;
   MeasureReviewStatus?: boolean;
   LibraryReviewStatus?: boolean;
@@ -15,7 +14,6 @@ export interface FeatureFlags {
 const initialState: FeatureFlags = {
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
-  qiCore7: false,
   QICoreCompositeMeasure: false,
   MeasureReviewStatus: false,
   LibraryReviewStatus: false,
