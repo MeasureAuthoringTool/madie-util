@@ -5,7 +5,13 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { MadieDialog, TextField } from "@madie/madie-design-system/dist/react";
 import { Measure } from "@madie/madie-models";
 import useMeasureServiceApi from "../../../../api/useMeasureServiceApi";
-import { compareVersions } from "../../../../util/versionUtils";
+import {
+  compareVersions,
+  VERSION_FORMAT,
+  VERSION_FORMAT_ERROR,
+  VERSION_LOWER_ERROR,
+  VERSION_REQUIRED_ERROR,
+} from "../../../../util/versionUtils";
 import "./ChangeVersionDialog.scss";
 
 interface ChangeVersionDialogProps {
@@ -30,14 +36,8 @@ export const VERSION_CHANGE_CRITERIA = [
 export const NEW_VERSION_TOOLTIP =
   "Enter the version number you wish to change this measure to.";
 
-export const VERSION_LOWER_ERROR =
-  "New version # must be lower than the intended final version number";
-export const VERSION_REQUIRED_ERROR = "New version # is required.";
-export const VERSION_FORMAT_ERROR = "New version must be in the format #.#.###";
 export const VERSION_DUPLICATE_ERROR =
   "New version # must not be one that has been used previously for this measure";
-
-const VERSION_FORMAT = /^\d+\.\d+\.\d{3}$/;
 
 export const formatVersionDate = (date: string): string =>
   date ? new Date(date).toLocaleDateString("en-US") : "";

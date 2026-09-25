@@ -5,13 +5,25 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { MadieDialog, TextField } from "@madie/madie-design-system/dist/react";
 import { CqlLibrary } from "@madie/madie-models";
 import useCqlLibraryServiceApi from "../../../../api/useCqlLibraryServiceApi";
-import { compareVersions } from "../../../../util/versionUtils";
+import {
+  compareVersions,
+  VERSION_FORMAT,
+  VERSION_FORMAT_ERROR,
+  VERSION_LOWER_ERROR,
+  VERSION_REQUIRED_ERROR,
+} from "../../../../util/versionUtils";
 import "./ChangeVersionDialog.scss";
 
 interface ChangeVersionDialogProps {
   libraries: CqlLibrary[];
   open: boolean;
   onClose: () => void;
+  onSubmit?: (payload: {
+    library: CqlLibrary;
+    inCorrectVersion: string;
+    draftVersion: string;
+  }) => Promise<void>;
+  isSubmitting?: boolean;
 }
 
 export const VERSION_CHANGE_CRITERIA = [
@@ -23,6 +35,9 @@ export const VERSION_CHANGE_CRITERIA = [
 export const NEW_VERSION_TOOLTIP =
   "Enter the version number you wish to change this library to.";
 
+export const VERSION_DUPLICATE_ERROR =
+  "New version # must not be one that has been used previously for this library";
+
 export const formatVersionDate = (date: string): string =>
   date ? new Date(date).toLocaleDateString("en-US") : "";
 
@@ -30,11 +45,14 @@ export default function ChangeVersionDialog({
   libraries,
   open,
   onClose,
+  onSubmit,
+  isSubmitting = false,
 }: ChangeVersionDialogProps) {
   const cqlLibraryServiceApi = useRef(useCqlLibraryServiceApi()).current;
   const selectedLibrary = libraries?.length === 1 ? libraries[0] : null;
 
   const [newVersion, setNewVersion] = useState("");
+  const [versionError, setVersionError] = useState("");
   const [versionsExpanded, setVersionsExpanded] = useState(false);
   const [librarySetVersions, setLibrarySetVersions] = useState<CqlLibrary[]>(
     []
@@ -43,6 +61,7 @@ export default function ChangeVersionDialog({
   useEffect(() => {
     if (!open || !selectedLibrary?.librarySetId) {
       setNewVersion("");
+      setVersionError("");
       setVersionsExpanded(false);
       setLibrarySetVersions([]);
       return;
@@ -72,6 +91,44 @@ export default function ChangeVersionDialog({
     [librarySetVersions]
   );
 
+  const validateVersion = (value: string): string => {
+    if (!value) {
+      return VERSION_REQUIRED_ERROR;
+    }
+    if (!selectedLibrary || !VERSION_FORMAT.test(value)) {
+      return VERSION_FORMAT_ERROR;
+    }
+    if (compareVersions(value, selectedLibrary.version) >= 0) {
+      return VERSION_LOWER_ERROR;
+    }
+    const hasDuplicate = librarySetVersions.some(
+      (library) =>
+        library?.id !== selectedLibrary.id && library?.version === value
+    );
+    if (hasDuplicate) {
+      return VERSION_DUPLICATE_ERROR;
+    }
+
+    return "";
+  };
+
+  const currentValidationError = validateVersion(newVersion);
+  const isSaveDisabled =
+    isSubmitting || !newVersion || !!currentValidationError || !!versionError;
+
+  const handleInputBlur = () => {
+    setVersionError(validateVersion(newVersion));
+  };
+
+  const handleSave = async () => {
+    if (!selectedLibrary || !onSubmit || isSaveDisabled) return;
+    await onSubmit({
+      library: selectedLibrary,
+      inCorrectVersion: selectedLibrary.version,
+      draftVersion: newVersion,
+    });
+  };
+
   if (!open || !selectedLibrary) return null;
 
   return (
@@ -95,6 +152,8 @@ export default function ChangeVersionDialog({
         type: "button",
         continueText: "Save",
         "data-testid": "change-version-save-button",
+        disabled: isSaveDisabled,
+        onClick: handleSave,
       }}
       maxWidth="sm"
     >
@@ -138,6 +197,9 @@ export default function ChangeVersionDialog({
               tooltipText={NEW_VERSION_TOOLTIP}
               value={newVersion}
               onChange={(event) => setNewVersion(event.target.value)}
+              onBlur={handleInputBlur}
+              error={Boolean(versionError)}
+              helperText={versionError}
               inputProps={{ "data-testid": "new-version-number-input" }}
             />
           </div>

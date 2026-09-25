@@ -1,3 +1,10 @@
+export const VERSION_LOWER_ERROR =
+  "New version # must be lower than the intended final version number";
+export const VERSION_REQUIRED_ERROR = "New version # is required.";
+export const VERSION_FORMAT_ERROR = "New version must be in the format #.#.###";
+
+export const VERSION_FORMAT = /^\d+\.\d+\.\d{3}$/;
+
 export const compareVersions = (a: string = "", b: string = ""): number => {
   const left = a.split(".").map(Number);
   const right = b.split(".").map(Number);

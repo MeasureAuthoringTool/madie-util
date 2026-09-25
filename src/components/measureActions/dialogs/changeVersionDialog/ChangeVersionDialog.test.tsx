@@ -4,9 +4,9 @@ import userEvent from "@testing-library/user-event";
 import { Measure } from "@madie/madie-models";
 import ChangeVersionDialog, {
   VERSION_DUPLICATE_ERROR,
-  VERSION_LOWER_ERROR,
   VERSION_CHANGE_CRITERIA,
 } from "./ChangeVersionDialog";
+import { VERSION_LOWER_ERROR } from "../../../../util/versionUtils";
 
 const mockGetMeasuresByMeasureSetId = jest.fn();
 jest.mock("../../../../api/useMeasureServiceApi", () => ({
