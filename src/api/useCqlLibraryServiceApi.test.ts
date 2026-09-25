@@ -579,6 +579,46 @@ describe("useCqlLibraryServiceApi", () => {
     ).rejects.toThrow();
   });
 
+  it("test correctLibraryVersion", async () => {
+    const reverted = { id: "lib1", version: "1.0.000", draft: true };
+    mockedAxios.put.mockResolvedValueOnce({ data: reverted });
+
+    const result = await cqlLibraryServiceApi.correctLibraryVersion(
+      "lib1",
+      "1.0.001",
+      "1.0.000",
+      "owner.harp"
+    );
+
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/cql-libraries/admin/lib1/correct-version`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${mockToken}`,
+          harpId: "owner.harp",
+        },
+        params: {
+          inCorrectVersion: "1.0.001",
+          draftVersion: "1.0.000",
+        },
+      }
+    );
+    expect(result).toEqual(reverted);
+  });
+
+  it("test correctLibraryVersion propagates errors", async () => {
+    mockedAxios.put.mockRejectedValueOnce(new Error("fail"));
+    await expect(
+      cqlLibraryServiceApi.correctLibraryVersion(
+        "lib1",
+        "1.0.001",
+        "1.0.000",
+        "owner.harp"
+      )
+    ).rejects.toThrow("fail");
+  });
+
   it("test getLibraryHistory", async () => {
     const cqlLibrary: CqlLibrary = {
       id: "lib1",
