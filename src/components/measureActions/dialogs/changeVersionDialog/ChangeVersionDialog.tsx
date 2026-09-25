@@ -15,7 +15,6 @@ interface ChangeVersionDialogProps {
   onSubmit?: (payload: {
     measure: Measure;
     inCorrectVersion: string;
-    correctVersion?: string;
     draftVersion: string;
   }) => Promise<void>;
   isSubmitting?: boolean;
