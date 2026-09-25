@@ -25,3 +25,28 @@ export const getLatestVersion = <T extends { version?: string }>(
         : latest,
     null
   );
+
+export const validateNewVersion = <T extends { id?: string; version?: string }>(
+  value: string,
+  selected: T | null | undefined,
+  setVersions: T[],
+  duplicateError: string
+): string => {
+  if (!value) {
+    return VERSION_REQUIRED_ERROR;
+  }
+  if (!selected || !VERSION_FORMAT.test(value)) {
+    return VERSION_FORMAT_ERROR;
+  }
+  if (compareVersions(value, selected.version) >= 0) {
+    return VERSION_LOWER_ERROR;
+  }
+  const hasDuplicate = (setVersions ?? []).some(
+    (item) => item?.id !== selected.id && item?.version === value
+  );
+  if (hasDuplicate) {
+    return duplicateError;
+  }
+
+  return "";
+};

@@ -7,10 +7,7 @@ import { Measure } from "@madie/madie-models";
 import useMeasureServiceApi from "../../../../api/useMeasureServiceApi";
 import {
   compareVersions,
-  VERSION_FORMAT,
-  VERSION_FORMAT_ERROR,
-  VERSION_LOWER_ERROR,
-  VERSION_REQUIRED_ERROR,
+  validateNewVersion,
 } from "../../../../util/versionUtils";
 import "./ChangeVersionDialog.scss";
 
@@ -90,26 +87,13 @@ export default function ChangeVersionDialog({
     [measureSetVersions]
   );
 
-  const validateVersion = (value: string): string => {
-    if (!value) {
-      return VERSION_REQUIRED_ERROR;
-    }
-    if (!selectedMeasure || !VERSION_FORMAT.test(value)) {
-      return VERSION_FORMAT_ERROR;
-    }
-    if (compareVersions(value, selectedMeasure.version) >= 0) {
-      return VERSION_LOWER_ERROR;
-    }
-    const hasDuplicate = measureSetVersions.some(
-      (measure) =>
-        measure?.id !== selectedMeasure.id && measure?.version === value
+  const validateVersion = (value: string): string =>
+    validateNewVersion(
+      value,
+      selectedMeasure,
+      measureSetVersions,
+      VERSION_DUPLICATE_ERROR
     );
-    if (hasDuplicate) {
-      return VERSION_DUPLICATE_ERROR;
-    }
-
-    return "";
-  };
 
   const currentValidationError = validateVersion(newVersion);
   const isSaveDisabled =
