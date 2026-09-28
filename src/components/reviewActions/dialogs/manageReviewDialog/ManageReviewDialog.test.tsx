@@ -5,7 +5,6 @@ import { UserDetails } from "@madie/madie-models";
 import ManageReviewDialog, {
   REVIEW_STATUS_OPTIONS,
   formatReviewerName,
-  toPlainText,
 } from "./ManageReviewDialog";
 
 jest.mock("../../../../api/useMeasureReviewServiceApi", () => ({
@@ -90,7 +89,7 @@ describe("ManageReviewDialog", () => {
     expect(screen.getByTestId("close-button")).toBeInTheDocument();
     expect(screen.getByText("Reviewer")).toBeInTheDocument();
     expect(screen.getByText("Status")).toBeInTheDocument();
-    expect(screen.getByText("Comment")).toBeInTheDocument();
+    expect(screen.queryByText("Comment")).not.toBeInTheDocument();
     expect(
       screen.getByTestId("manage-review-dialog-cancel-button")
     ).toBeInTheDocument();
@@ -170,26 +169,29 @@ describe("ManageReviewDialog", () => {
         "In Progress"
       );
     });
-    expect(screen.getByTestId("manage-review-comment")).toHaveValue(
-      "Please take a look"
-    );
     expect(
       screen.getByTestId("manage-review-dialog-save-button")
     ).toBeDisabled();
   });
 
-  it("displays a dash when the review has no comment", async () => {
+  it("does not render a comment field", async () => {
     mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue({
       id: "review-1",
-      status: "READY_FOR_REVIEW",
-      comment: "<p></p>",
+      status: "IN_PROGRESS",
+      comment: "<p>Please take a look</p>",
     });
 
     renderDialog();
 
     await waitFor(() => {
-      expect(screen.getByTestId("manage-review-comment")).toHaveValue("-");
+      expect(screen.getByTestId("manage-review-status")).toHaveTextContent(
+        "In Progress"
+      );
     });
+    expect(
+      screen.queryByTestId("manage-review-comment")
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Comment")).not.toBeInTheDocument();
   });
 
   it("disables Save until the status is changed", async () => {
@@ -262,9 +264,9 @@ describe("ManageReviewDialog", () => {
       ).toHaveBeenCalledWith("library-1");
     });
     expect(mockMeasureReviewServiceApi.getMeasureReview).not.toHaveBeenCalled();
-    expect(screen.getByTestId("manage-review-comment")).toHaveValue(
-      "Library comment"
-    );
+    expect(
+      screen.queryByTestId("manage-review-comment")
+    ).not.toBeInTheDocument();
   });
 
   it("leaves the reviewer list empty when users cannot be retrieved", async () => {
@@ -525,12 +527,6 @@ describe("ManageReviewDialog", () => {
   });
 
   describe("helpers", () => {
-    it("strips markup from rich text comments", () => {
-      expect(toPlainText("<p>Looks&nbsp;good</p>")).toEqual("Looks good");
-      expect(toPlainText("<p></p>")).toEqual("");
-      expect(toPlainText(undefined)).toEqual("");
-    });
-
     it("falls back to the harp id when a name is missing", () => {
       expect(formatReviewerName({ harpId: "abc" } as UserDetails)).toEqual(
         "abc"

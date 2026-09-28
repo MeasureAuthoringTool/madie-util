@@ -4,7 +4,13 @@ import userEvent from "@testing-library/user-event";
 import { CqlLibrary } from "@madie/madie-models";
 import ChangeVersionDialog, {
   VERSION_CHANGE_CRITERIA,
+  VERSION_DUPLICATE_ERROR,
 } from "./ChangeVersionDialog";
+import {
+  VERSION_FORMAT_ERROR,
+  VERSION_LOWER_ERROR,
+  VERSION_REQUIRED_ERROR,
+} from "../../../../util/versionUtils";
 
 const mockGetLibrariesByLibrarySetId = jest.fn();
 jest.mock("../../../../api/useCqlLibraryServiceApi", () => ({
@@ -41,6 +47,23 @@ const waitForVersionsLoaded = async (count: number) =>
   );
 
 describe("Library ChangeVersionDialog", () => {
+  const renderDialog = (
+    overrides: Partial<React.ComponentProps<typeof ChangeVersionDialog>> = {}
+  ) => {
+    const onClose = jest.fn();
+    const onSubmit = jest.fn().mockResolvedValue(undefined);
+    render(
+      <ChangeVersionDialog
+        libraries={[selectedLibrary]}
+        open
+        onClose={onClose}
+        onSubmit={onSubmit}
+        {...overrides}
+      />
+    );
+    return { onClose, onSubmit };
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetLibrariesByLibrarySetId.mockResolvedValue(librarySet);
@@ -195,20 +218,148 @@ describe("Library ChangeVersionDialog", () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
-  it("does nothing when Save is clicked - out of scope for this story", async () => {
-    const onClose = jest.fn();
-    render(
-      <ChangeVersionDialog
-        libraries={[selectedLibrary]}
-        open
-        onClose={onClose}
-      />
+  it("keeps Save disabled on initial render", async () => {
+    renderDialog();
+    await waitForVersionsLoaded(3);
+
+    expect(screen.getByTestId("change-version-save-button")).toBeDisabled();
+  });
+
+  it("shows the required error when the field is blurred while empty", async () => {
+    renderDialog();
+    await waitForVersionsLoaded(3);
+
+    const input = screen.getByTestId("new-version-number-input");
+    input.focus();
+    input.blur();
+
+    expect(await screen.findByText(VERSION_REQUIRED_ERROR)).toBeInTheDocument();
+    expect(screen.getByTestId("change-version-save-button")).toBeDisabled();
+  });
+
+  it("shows the format error when the entered version is malformed", async () => {
+    renderDialog();
+    await waitForVersionsLoaded(3);
+
+    const input = screen.getByTestId("new-version-number-input");
+    await userEvent.type(input, "3.2.03");
+    input.blur();
+
+    expect(await screen.findByText(VERSION_FORMAT_ERROR)).toBeInTheDocument();
+    expect(screen.getByTestId("change-version-save-button")).toBeDisabled();
+  });
+
+  it("shows lower version error when entered version is equal to current on blur", async () => {
+    renderDialog();
+    await waitForVersionsLoaded(3);
+
+    const input = screen.getByTestId("new-version-number-input");
+    await userEvent.type(input, "3.2.003");
+    input.blur();
+
+    expect(await screen.findByText(VERSION_LOWER_ERROR)).toBeInTheDocument();
+    expect(screen.getByTestId("change-version-save-button")).toBeDisabled();
+  });
+
+  it("shows lower version error when entered version is higher than current", async () => {
+    renderDialog();
+    await waitForVersionsLoaded(3);
+
+    const input = screen.getByTestId("new-version-number-input");
+    await userEvent.type(input, "3.2.004");
+    input.blur();
+
+    expect(await screen.findByText(VERSION_LOWER_ERROR)).toBeInTheDocument();
+    expect(screen.getByTestId("change-version-save-button")).toBeDisabled();
+  });
+
+  it("shows duplicate version error when entered version already exists in the library set", async () => {
+    renderDialog();
+    await waitForVersionsLoaded(3);
+
+    const input = screen.getByTestId("new-version-number-input");
+    await userEvent.type(input, "3.2.002");
+    input.blur();
+
+    expect(
+      await screen.findByText(VERSION_DUPLICATE_ERROR)
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("change-version-save-button")).toBeDisabled();
+  });
+
+  it("enables Save for a lower and unique version and clears stale errors", async () => {
+    renderDialog();
+    await waitForVersionsLoaded(3);
+
+    const input = screen.getByTestId("new-version-number-input");
+    await userEvent.type(input, "3.2.002");
+    input.blur();
+    expect(
+      await screen.findByText(VERSION_DUPLICATE_ERROR)
+    ).toBeInTheDocument();
+
+    await userEvent.clear(input);
+    await userEvent.type(input, "3.1.999");
+    input.blur();
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText(VERSION_DUPLICATE_ERROR)
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.getByTestId("change-version-save-button")).toBeEnabled();
+  });
+
+  it("does not treat the selected current library row as a duplicate", async () => {
+    mockGetLibrariesByLibrarySetId.mockResolvedValue([
+      { ...selectedLibrary, version: "3.1.999" },
+      library({ id: "l-2", version: "3.1.998" }),
+    ]);
+    renderDialog({
+      libraries: [{ ...selectedLibrary, version: "3.2.003" } as CqlLibrary],
+    });
+    await waitForVersionsLoaded(2);
+
+    const input = screen.getByTestId("new-version-number-input");
+    await userEvent.type(input, "3.1.999");
+    input.blur();
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText(VERSION_DUPLICATE_ERROR)
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.getByTestId("change-version-save-button")).toBeEnabled();
+  });
+
+  it("calls submit with expected payload when Save is clicked", async () => {
+    const { onSubmit } = renderDialog();
+    await waitForVersionsLoaded(3);
+
+    const input = screen.getByTestId("new-version-number-input");
+    await userEvent.type(input, "3.1.999");
+    input.blur();
+    await waitFor(() =>
+      expect(screen.getByTestId("change-version-save-button")).toBeEnabled()
     );
 
-    await waitForVersionsLoaded(3);
-    userEvent.click(screen.getByTestId("change-version-save-button"));
+    await userEvent.click(screen.getByTestId("change-version-save-button"));
 
-    expect(onClose).not.toHaveBeenCalled();
-    expect(screen.getByTestId("change-version-dialog")).toBeInTheDocument();
+    expect(onSubmit).toHaveBeenCalledWith({
+      library: selectedLibrary,
+      inCorrectVersion: "3.2.003",
+      draftVersion: "3.1.999",
+    });
+  });
+
+  it("disables Save while submit is in flight to prevent duplicate clicks", async () => {
+    renderDialog({ isSubmitting: true });
+    await waitForVersionsLoaded(3);
+
+    const input = screen.getByTestId("new-version-number-input");
+    await userEvent.type(input, "3.1.999");
+    input.blur();
+
+    expect(screen.getByTestId("change-version-save-button")).toBeDisabled();
   });
 });

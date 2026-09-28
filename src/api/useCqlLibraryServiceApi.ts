@@ -366,6 +366,29 @@ export class CqlLibraryServiceApi {
     }
   }
 
+  async correctLibraryVersion(
+    id: string,
+    inCorrectVersion: string,
+    draftVersion: string,
+    ownerHarpId: string
+  ): Promise<CqlLibrary> {
+    const response = await axios.put<CqlLibrary>(
+      `${this.baseUrl}/cql-libraries/admin/${id}/correct-version`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+          harpId: ownerHarpId,
+        },
+        params: {
+          inCorrectVersion,
+          draftVersion,
+        },
+      }
+    );
+    return response.data;
+  }
+
   async getLibraryHistory(selectedLibrary: CqlLibrary): Promise<AuditRow[]> {
     const { id } = selectedLibrary;
     try {

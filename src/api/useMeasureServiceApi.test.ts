@@ -914,6 +914,37 @@ describe("MeasureServiceApi admin coverage", () => {
     }
   });
 
+  it("correctMeasureVersion sends expected headers and params", async () => {
+    const expectedMeasure = {
+      id: "measure-1",
+      version: "2.0.0",
+    } as Measure;
+    mockedAxios.put.mockResolvedValue({ data: expectedMeasure });
+
+    const result = await api.correctMeasureVersion(
+      "measure-1",
+      "1.0.0",
+      "2.0.1",
+      "harp-123"
+    );
+
+    expect(result).toEqual(expectedMeasure);
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${mockBaseUrl}/admin/measures/measure-1/correct-version`,
+      {},
+      {
+        headers: {
+          Authorization: "Bearer mock-token",
+          harpId: "harp-123",
+        },
+        params: {
+          inCorrectVersion: "1.0.0",
+          draftVersion: "2.0.1",
+        },
+      }
+    );
+  });
+
   it("unlockMeasures unlocks measures successfully", async () => {
     const resp = { status: 200, data: "success" };
     mockedAxios.delete.mockResolvedValue(resp);

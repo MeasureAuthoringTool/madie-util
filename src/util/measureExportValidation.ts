@@ -68,8 +68,10 @@ export const getMeasureExportErrors = (
   if (_.isEmpty(measureMetaData?.description)) {
     missing.push("Missing Description");
   }
+  // measure type is optional for composites
   if (
     isFhirModel(model) &&
+    !measureMetaData?.composite &&
     groups &&
     groups.filter(
       (group) =>

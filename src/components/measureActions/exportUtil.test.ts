@@ -216,73 +216,77 @@ describe("exportUtil", () => {
       ]);
     });
 
-    it("should export a valid composite measure", async () => {
-      const validComposite = {
-        ...mockMeasure,
-        cqlLibraryName: "ValidLibraryName",
-        measureMetaData: {
-          composite: true,
-          developers: [{ name: "dev" }],
-          steward: { name: "steward" },
-          description: "a description",
-        },
-        groups: [
+    it.each([{ measureGroupTypes: ["Outcome"] }, { measureGroupTypes: [] }])(
+      "should export a valid composite measure with measure types $measureGroupTypes",
+      async ({ measureGroupTypes }) => {
+        const validComposite = {
+          ...mockMeasure,
+          cqlLibraryName: "ValidLibraryName",
+          measureMetaData: {
+            composite: true,
+            developers: [{ name: "dev" }],
+            steward: { name: "steward" },
+            description: "a description",
+          },
+          groups: [
+            {
+              id: "cg1",
+              scoring: GroupScoring.COMPOSITE,
+              compositeScoring: "Opportunity",
+              populationBasis: "boolean",
+              measureGroupTypes,
+              // no improvementNotation: optional for COMPOSITE scoring
+              components: [
+                { measureId: "m1", groupId: "g1" },
+                { measureId: "m2", groupId: "g2" },
+              ],
+            },
+          ],
+        };
+        mockMeasureServiceApi.fetchMeasuresByIds.mockResolvedValue([
           {
-            id: "cg1",
-            scoring: GroupScoring.COMPOSITE,
-            compositeScoring: "Opportunity",
-            populationBasis: "boolean",
-            measureGroupTypes: ["Outcome"],
-            // no improvementNotation: optional for COMPOSITE scoring
-            components: [
-              { measureId: "m1", groupId: "g1" },
-              { measureId: "m2", groupId: "g2" },
+            id: "m1",
+            groups: [
+              {
+                id: "g1",
+                scoring: MeasureScoring.PROPORTION,
+                populationBasis: "boolean",
+              },
             ],
           },
-        ],
-      };
-      mockMeasureServiceApi.fetchMeasuresByIds.mockResolvedValue([
-        {
-          id: "m1",
-          groups: [
-            {
-              id: "g1",
-              scoring: MeasureScoring.PROPORTION,
-              populationBasis: "boolean",
-            },
-          ],
-        },
-        {
-          id: "m2",
-          groups: [
-            {
-              id: "g2",
-              scoring: MeasureScoring.RATIO,
-              populationBasis: "boolean",
-            },
-          ],
-        },
-      ]);
-      mockMeasureServiceApi.getMeasureExport.mockResolvedValue({
-        status: 200,
-        data: new Blob(["test data"], { type: "application/zip" }),
-      });
+          {
+            id: "m2",
+            groups: [
+              {
+                id: "g2",
+                scoring: MeasureScoring.RATIO,
+                populationBasis: "boolean",
+              },
+            ],
+          },
+        ]);
+        mockMeasureServiceApi.getMeasureExport.mockResolvedValue({
+          status: 200,
+          data: new Blob(["test data"], { type: "application/zip" }),
+        });
 
-      await exportMeasure(
-        setFailureMessage,
-        setDownloadState,
-        abortController,
-        validComposite,
-        mockMeasureServiceApi,
-        setToastOpen,
-        setToastType,
-        setToastMessage,
-        elmErrorSeverity
-      );
+        await exportMeasure(
+          setFailureMessage,
+          setDownloadState,
+          abortController,
+          validComposite,
+          mockMeasureServiceApi,
+          setToastOpen,
+          setToastType,
+          setToastMessage,
+          elmErrorSeverity
+        );
 
-      expect(mockMeasureServiceApi.getMeasureExport).toHaveBeenCalled();
-      expect(setDownloadState).toHaveBeenCalledWith("success");
-    });
+        expect(mockMeasureServiceApi.getMeasureExport).toHaveBeenCalled();
+        expect(setFailureMessage).not.toHaveBeenCalledWith(expect.any(Array));
+        expect(setDownloadState).toHaveBeenCalledWith("success");
+      }
+    );
 
     it("should handle cancellation", async () => {
       mockMeasureServiceApi.getMeasureExport.mockRejectedValue({

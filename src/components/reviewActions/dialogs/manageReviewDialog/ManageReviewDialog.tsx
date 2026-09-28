@@ -11,7 +11,6 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import {
   MadieDialog,
-  ReadOnlyTextField,
   Select,
   TextField,
   Toast,
@@ -84,13 +83,6 @@ const autoCompleteStyles = {
   },
   width: "100%",
 };
-
-export const toPlainText = (comment?: string): string =>
-  comment
-    ?.replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim() ?? "";
 
 export const formatReviewerName = (user: UserDetails): string =>
   [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
@@ -420,14 +412,6 @@ const ManageReviewDialog = ({
                 ))}
               />
             </div>
-          </div>
-          <div style={{ marginTop: 24 }}>
-            <ReadOnlyTextField
-              id="manage-review-comment"
-              label="Comment"
-              data-testid="manage-review-comment"
-              value={toPlainText(comment)}
-            />
           </div>
         </div>
       </MadieDialog>

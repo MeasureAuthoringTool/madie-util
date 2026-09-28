@@ -155,6 +155,20 @@ describe("getMeasureExportErrors", () => {
         )
       ).toEqual(["At least one Population Criteria is missing Type"]);
     });
+
+    it("does not require group measure types for a composite measure", () => {
+      const composite = baseMeasure({
+        groups: [
+          {
+            id: "cg1",
+            scoring: GroupScoring.COMPOSITE,
+            measureGroupTypes: [],
+          },
+        ],
+      });
+      composite.measureMetaData.composite = true;
+      expect(getMeasureExportErrors(composite)).toEqual([]);
+    });
   });
 
   it("maps every recognized response error code and ignores unknown ones", () => {

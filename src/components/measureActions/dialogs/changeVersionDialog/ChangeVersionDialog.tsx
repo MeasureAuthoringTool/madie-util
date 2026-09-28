@@ -5,13 +5,23 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { MadieDialog, TextField } from "@madie/madie-design-system/dist/react";
 import { Measure } from "@madie/madie-models";
 import useMeasureServiceApi from "../../../../api/useMeasureServiceApi";
-import { compareVersions } from "../../../../util/versionUtils";
+import {
+  compareVersions,
+  validateNewVersion,
+} from "../../../../util/versionUtils";
 import "./ChangeVersionDialog.scss";
 
 interface ChangeVersionDialogProps {
   measures: Measure[];
   open: boolean;
   onClose: () => void;
+  onSubmit?: (payload: {
+    measure: Measure;
+    inCorrectVersion: string;
+    correctVersion?: string;
+    draftVersion: string;
+  }) => Promise<void>;
+  isSubmitting?: boolean;
 }
 
 export const VERSION_CHANGE_CRITERIA = [
@@ -23,6 +33,9 @@ export const VERSION_CHANGE_CRITERIA = [
 export const NEW_VERSION_TOOLTIP =
   "Enter the version number you wish to change this measure to.";
 
+export const VERSION_DUPLICATE_ERROR =
+  "New version # must not be one that has been used previously for this measure";
+
 export const formatVersionDate = (date: string): string =>
   date ? new Date(date).toLocaleDateString("en-US") : "";
 
@@ -30,17 +43,21 @@ export default function ChangeVersionDialog({
   measures,
   open,
   onClose,
+  onSubmit,
+  isSubmitting = false,
 }: ChangeVersionDialogProps) {
   const measureServiceApi = useRef(useMeasureServiceApi()).current;
   const selectedMeasure = measures?.length === 1 ? measures[0] : null;
 
   const [newVersion, setNewVersion] = useState("");
+  const [versionError, setVersionError] = useState("");
   const [versionsExpanded, setVersionsExpanded] = useState(false);
   const [measureSetVersions, setMeasureSetVersions] = useState<Measure[]>([]);
 
   useEffect(() => {
     if (!open || !selectedMeasure?.measureSetId) {
       setNewVersion("");
+      setVersionError("");
       setVersionsExpanded(false);
       setMeasureSetVersions([]);
       return;
@@ -70,6 +87,31 @@ export default function ChangeVersionDialog({
     [measureSetVersions]
   );
 
+  const validateVersion = (value: string): string =>
+    validateNewVersion(
+      value,
+      selectedMeasure,
+      measureSetVersions,
+      VERSION_DUPLICATE_ERROR
+    );
+
+  const currentValidationError = validateVersion(newVersion);
+  const isSaveDisabled =
+    isSubmitting || !newVersion || !!currentValidationError || !!versionError;
+
+  const handleInputBlur = () => {
+    setVersionError(validateVersion(newVersion));
+  };
+
+  const handleSave = async () => {
+    if (!selectedMeasure || !onSubmit || isSaveDisabled) return;
+    await onSubmit({
+      measure: selectedMeasure,
+      inCorrectVersion: selectedMeasure.version,
+      draftVersion: newVersion,
+    });
+  };
+
   if (!open || !selectedMeasure) return null;
 
   return (
@@ -93,6 +135,8 @@ export default function ChangeVersionDialog({
         type: "button",
         continueText: "Save",
         "data-testid": "change-version-save-button",
+        disabled: isSaveDisabled,
+        onClick: handleSave,
       }}
       maxWidth="sm"
     >
@@ -136,6 +180,9 @@ export default function ChangeVersionDialog({
               tooltipText={NEW_VERSION_TOOLTIP}
               value={newVersion}
               onChange={(event) => setNewVersion(event.target.value)}
+              onBlur={handleInputBlur}
+              error={Boolean(versionError)}
+              helperText={versionError}
               inputProps={{ "data-testid": "new-version-number-input" }}
             />
           </div>
