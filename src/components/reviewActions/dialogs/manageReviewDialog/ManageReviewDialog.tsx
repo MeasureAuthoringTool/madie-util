@@ -6,7 +6,13 @@ import React, {
   useState,
 } from "react";
 import { useFormik } from "formik";
-import { Autocomplete, Checkbox, FormControl, MenuItem } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Checkbox,
+  FormControl,
+  MenuItem,
+} from "@mui/material";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import {
@@ -82,6 +88,34 @@ const autoCompleteStyles = {
     color: "#757575 !important",
   },
   width: "100%",
+};
+
+const reviewerFieldStyles = {
+  flex: 1,
+  "& .MuiAutocomplete-listbox": {
+    maxHeight: "200px",
+    overflowY: "auto",
+    "&::-webkit-scrollbar": {
+      width: "10px",
+      WebkitAppearance: "none",
+    },
+    "&::-webkit-scrollbar-track": {
+      backgroundColor: "#f1f1f1",
+      borderRadius: "5px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "#757575",
+      borderRadius: "5px",
+      border: "2px solid #f1f1f1",
+    },
+    "&::-webkit-scrollbar-thumb:hover": {
+      backgroundColor: "#515151",
+    },
+    "@supports not selector(::-webkit-scrollbar)": {
+      scrollbarWidth: "thin",
+      scrollbarColor: "#757575 #f1f1f1",
+    },
+  },
 };
 
 export const formatReviewerName = (user: UserDetails): string =>
@@ -306,6 +340,16 @@ const ManageReviewDialog = ({
           maxWidth: "md",
           fullWidth: true,
           "data-testid": "manage-review-dialog",
+          sx: {
+            "& .MuiDialog-paper": {
+              position: "relative",
+              overflow: "visible",
+              marginTop: "-20px",
+            },
+            "& .MuiDialogContent-root": {
+              overflowY: "visible",
+            },
+          },
         }}
         cancelButtonProps={{
           variant: "outline",
@@ -322,8 +366,8 @@ const ManageReviewDialog = ({
         }}
       >
         <div data-testid="manage-review-dialog-content">
-          <div style={{ display: "flex", gap: 32 }}>
-            <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", gap: 32, minHeight: 150 }}>
+            <Box sx={reviewerFieldStyles}>
               <FormControl fullWidth>
                 <Autocomplete
                   multiple
@@ -383,7 +427,7 @@ const ManageReviewDialog = ({
                   )}
                 />
               </FormControl>
-            </div>
+            </Box>
             <div style={{ flex: 1 }}>
               <Select
                 id="manage-review-status"
