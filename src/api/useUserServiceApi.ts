@@ -4,6 +4,21 @@ import useOktaTokens from "../hooks/useOktaTokens";
 import { UserDetails, UserLogin } from "@madie/madie-models";
 import { userRolesStore } from "../Store/userRolesStore";
 
+/**
+ * Shape of the request body sent to the user export endpoint. All properties are
+ * optional so an empty object ({}) still requests the full, unfiltered report.
+ * `userIds` scopes the export to a selected subset of users, while the boolean
+ * flags choose which pieces of each user's data are included.
+ */
+export interface UserExportRequest {
+  /** HARP ids of the users to include. Omit/empty for the full user list. */
+  userIds?: string[];
+  ownedMeasures?: boolean;
+  sharedMeasures?: boolean;
+  ownedLibraries?: boolean;
+  sharedLibraries?: boolean;
+}
+
 export class UserServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
 
@@ -146,14 +161,15 @@ export class UserServiceApi {
   }
 
   /**
-   * Requests the full user export report from the user service.
-   * Calls PUT /users/export, which generates the workbook and returns it as an
-   * `.xlsx` binary payload. The request body maps to the backend's
-   * UserExportRequestDto (optional); it is empty for now and will carry
-   * filters/selection in a later story.
+   * Requests a user export report from the user service.
+   * Calls PUT /admin/users/export, which generates the workbook and returns it
+   * as an `.xlsx` binary payload. The request body maps to the backend's
+   * UserExportRequestDto: an empty object exports the full user list, while
+   * `userIds` plus the boolean flags scope the export to selected users and the
+   * chosen pieces of their data.
    */
   async exportUserList(
-    exportRequest: Record<string, unknown> = {},
+    exportRequest: UserExportRequest = {},
     signal?: AbortSignal
   ): Promise<Blob> {
     try {

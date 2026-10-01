@@ -355,7 +355,13 @@ describe("UserServiceApi", () => {
 
   it("exportUserList sends the provided export request body", async () => {
     axios.put.mockResolvedValue({ status: 200, data: new Blob() });
-    const exportRequest = { statuses: ["ACTIVE"] };
+    const exportRequest = {
+      userIds: ["harp1", "harp2"],
+      ownedMeasures: true,
+      sharedMeasures: false,
+      ownedLibraries: true,
+      sharedLibraries: false,
+    };
 
     await userServiceApi.exportUserList(exportRequest);
     expect(axios.put).toBeCalledWith(
