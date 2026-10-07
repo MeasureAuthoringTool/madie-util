@@ -86,9 +86,43 @@ describe("UserServiceApi", () => {
     expect(result).toEqual(userLoginResponse);
   });
 
+  it("successfully logs out user with valid access token", async () => {
+    const accessTokenObj = {
+      claims: {
+        sub: "testuser123",
+      },
+      accessToken: "valid.access.token",
+    };
+    const userLogoutResponse = {
+      id: "testuser123",
+      status: "LOGGED_OUT",
+      logoutDate: "2026-02-04T10:00:00Z",
+    };
+    const resp = { status: 200, data: userLogoutResponse };
+    axios.post.mockResolvedValue(resp);
+
+    const result = await userServiceApi.logoutLog(accessTokenObj);
+    expect(axios.post).toBeCalledWith(
+      "test.url/users/logout/testuser123",
+      {},
+      {
+        headers: {
+          Authorization: "Bearer valid.access.token",
+        },
+      }
+    );
+    expect(result).toEqual(userLogoutResponse);
+  });
+
   it("throws an error when access token object is null", async () => {
     await expect(userServiceApi.loginUser(null)).rejects.toThrow(
       "No access token available for user login."
+    );
+  });
+
+  it("throws an error when logout access token object is null", async () => {
+    await expect(userServiceApi.logoutLog(null)).rejects.toThrow(
+      "No access token available for user logout."
     );
   });
 
@@ -98,6 +132,15 @@ describe("UserServiceApi", () => {
     };
     await expect(userServiceApi.loginUser(accessTokenObj)).rejects.toThrow(
       "No access token available for user login."
+    );
+  });
+
+  it("throws an error when logout access token object has no claims", async () => {
+    const accessTokenObj = {
+      accessToken: "valid.access.token",
+    };
+    await expect(userServiceApi.logoutLog(accessTokenObj)).rejects.toThrow(
+      "No access token available for user logout."
     );
   });
 
@@ -111,6 +154,19 @@ describe("UserServiceApi", () => {
     axios.put.mockRejectedValue(new Error("Network error"));
     await expect(userServiceApi.loginUser(accessTokenObj)).rejects.toThrow(
       "Unable to login user, please try later."
+    );
+  });
+
+  it("throws an error when unable to logout user", async () => {
+    const accessTokenObj = {
+      claims: {
+        sub: "testuser123",
+      },
+      accessToken: "valid.access.token",
+    };
+    axios.post.mockRejectedValue(new Error("Network error"));
+    await expect(userServiceApi.logoutLog(accessTokenObj)).rejects.toThrow(
+      "Unable to logout user, please try later."
     );
   });
 
