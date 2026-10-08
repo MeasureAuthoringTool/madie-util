@@ -75,6 +75,28 @@ export class UserServiceApi {
     }
   }
 
+  async logoutLog(accessTokenObj: any): Promise<UserLogin> {
+    if (!accessTokenObj || !accessTokenObj.claims) {
+      throw new Error("No access token available for user logout.");
+    }
+    try {
+      const userName = accessTokenObj.claims.sub;
+      const response = await axios.post<any>(
+        `${this.baseUrl}/users/logout/${userName}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessTokenObj.accessToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (err) {
+      const message = "Unable to logout user, please try later.";
+      throw new Error(message);
+    }
+  }
+
   // Todo This is never called and should be removed. The user roles are now being set during login and stored in the userRolesStore.
   //  If we need to fetch user roles separately in the future, we can implement a new API method for that.
   async fetchUserRoles(): Promise<string[]> {
