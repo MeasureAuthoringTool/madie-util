@@ -93,6 +93,9 @@ import {
   ManageReviewDialog,
   REVIEW_STATUS_OPTIONS,
   ReviewCommentLink,
+  formatReviewCommentDate,
+  getReadyForReviewMessage,
+  ReviewSubSection,
 } from "./components/reviewActions";
 
 export {
@@ -163,6 +166,9 @@ export {
   ManageReviewDialog,
   REVIEW_STATUS_OPTIONS,
   ReviewCommentLink,
+  formatReviewCommentDate,
+  getReadyForReviewMessage,
+  ReviewSubSection,
   getNewestMeasureInstance,
   exportMeasure,
   downloadZipFile,
