@@ -6,7 +6,6 @@ import {
 
 describe("formatReviewCommentDate", () => {
   it("formats an ISO timestamp the way the comment meta line shows it", () => {
-    // Built from parts so the expectation does not depend on the test runner's zone.
     const date = new Date(2026, 7, 12, 9, 0);
     expect(formatReviewCommentDate(date.toISOString())).toEqual(
       "Aug 12, 2026, 9:00 AM"
