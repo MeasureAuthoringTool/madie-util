@@ -6,7 +6,7 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-import { ChevronDown } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import "./ReviewSubSection.scss";
 import {
   formatReviewCommentDate,
@@ -36,7 +36,7 @@ const ReviewSubSection = ({
       data-testid="comments-review-subsection"
     >
       <AccordionSummary
-        expandIcon={<ChevronDown size={18} />}
+        expandIcon={<ChevronRight size={18} />}
         className="comments-flyout-panel-subsection-summary"
       >
         <Typography className="comments-flyout-panel-subsection-title">
