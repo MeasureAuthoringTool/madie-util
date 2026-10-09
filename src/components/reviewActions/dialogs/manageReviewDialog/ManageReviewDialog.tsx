@@ -143,7 +143,7 @@ const ManageReviewDialog = ({
   const [reviewId, setReviewId] = useState<string>("");
   const [persistedStatus, setPersistedStatus] = useState<string>("");
   const [persistedReviewers, setPersistedReviewers] = useState<string[]>([]);
-  const [comment, setComment] = useState<string>("");
+  const [comment, setComment] = useState<string[]>([]);
   const [reviewerOptions, setReviewerOptions] = useState<ReviewerOption[]>([]);
   const [toast, setToast] = useState<{
     toastOpen: boolean;
@@ -168,7 +168,7 @@ const ManageReviewDialog = ({
       setReviewId(review?.id ?? "");
       setPersistedStatus(review?.status ?? "");
       setPersistedReviewers(review?.reviewers ?? []);
-      setComment(review?.comment ?? "");
+      setComment(review?.comment ?? []);
     };
 
     const fetchReview = async () => {
