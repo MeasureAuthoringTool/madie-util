@@ -221,7 +221,7 @@ describe("MeasureServiceApi admin coverage", () => {
   });
 
   it("fetchMeasureDraftStatuses returns draft statuses for admin", async () => {
-    const statuses = { m1: "draft", m2: "published" };
+    const statuses = { m1: true, m2: false };
     mockedAxios.post.mockResolvedValue({ data: statuses });
     const result = await api.fetchMeasureDraftStatuses(["m1", "m2"]);
     expect(result).toEqual(statuses);
@@ -294,8 +294,15 @@ describe("MeasureServiceApi admin coverage", () => {
   });
 
   it("fetchMeasures returns measures for admin", async () => {
-    const measures = [{ id: "m1", name: "Admin Measure" }];
-    mockedAxios.get.mockResolvedValue({ data: measures });
+    const measures = [{ id: "m1", measureName: "Admin Measure" }];
+    const page = {
+      content: measures,
+      totalElements: 1,
+      totalPages: 1,
+      numberOfElements: 1,
+      pageable: { offset: 0, pageNumber: 0, pageSize: 25 },
+    };
+    mockedAxios.get.mockResolvedValue({ data: page });
     const result = await api.fetchMeasures(
       OwnershipType.OWNED,
       25,
@@ -304,7 +311,7 @@ describe("MeasureServiceApi admin coverage", () => {
       "DESC",
       undefined
     );
-    expect(result).toEqual(measures);
+    expect(result).toEqual(page);
     expect(mockedAxios.get).toHaveBeenCalledWith(
       `${mockBaseUrl}/measures`,
       expect.objectContaining({ headers: expect.any(Object) })
@@ -739,7 +746,14 @@ describe("MeasureServiceApi admin coverage", () => {
         measureName: "measure - C",
       } as Measure,
     ];
-    const resp: any = { status: 200, data: measures };
+    const page = {
+      content: measures,
+      totalElements: 3,
+      totalPages: 1,
+      numberOfElements: 3,
+      pageable: { offset: 0, pageNumber: 0, pageSize: 25 },
+    };
+    const resp: any = { status: 200, data: page };
     mockedAxios.put.mockResolvedValue(resp);
 
     const measuresList = await api.searchMeasuresByCriteria(
@@ -752,7 +766,7 @@ describe("MeasureServiceApi admin coverage", () => {
       new AbortController()
     );
     expect(mockedAxios.put).toBeCalledTimes(1);
-    expect(measuresList).toEqual(measures);
+    expect(measuresList).toEqual(page);
   });
 
   it("searchMeasuresInReview returns the page of measures under review", async () => {
