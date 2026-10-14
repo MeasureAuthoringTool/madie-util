@@ -39,7 +39,14 @@ describe("MeasureServiceApi Tests", () => {
   ];
 
   it("test fetchMeasures success", async () => {
-    const resp: any = { status: 200, data: measures };
+    const page = {
+      content: measures,
+      totalElements: 3,
+      totalPages: 1,
+      numberOfElements: 3,
+      pageable: { offset: 0, pageNumber: 0, pageSize: 25 },
+    };
+    const resp: any = { status: 200, data: page };
     mockedAxios.get.mockResolvedValue(resp);
 
     const measuresList = await measureServiceApi.fetchMeasures(
@@ -51,7 +58,7 @@ describe("MeasureServiceApi Tests", () => {
       new AbortController().signal
     );
     expect(mockedAxios.get).toBeCalledTimes(1);
-    expect(measuresList).toEqual(measures);
+    expect(measuresList).toEqual(page);
   });
 
   it("test fetchMeasures fail", async () => {
@@ -148,7 +155,7 @@ describe("MeasureServiceApi Tests", () => {
 
   it("handles fetch measure draft status rejection", async () => {
     const resp = { status: 500, data: "failure", error: { message: "error" } };
-    mockedAxios.get.mockRejectedValueOnce(resp);
+    mockedAxios.post.mockRejectedValueOnce(resp);
 
     try {
       await measureServiceApi.fetchMeasureDraftStatuses([
@@ -171,18 +178,14 @@ describe("MeasureServiceApi Tests", () => {
         ccccc: false,
       },
     };
-    mockedAxios.get.mockResolvedValueOnce(resp);
+    mockedAxios.post.mockResolvedValueOnce(resp);
 
-    try {
-      const statuses = await measureServiceApi.fetchMeasureDraftStatuses([
-        "aaaaa",
-        "bbbbb",
-        "ccccc",
-      ]);
-      expect(statuses).toEqual(resp.data);
-    } catch (error) {
-      expect(error.message).toBe("Unable to fetch measure draft statuses");
-    }
+    const statuses = await measureServiceApi.fetchMeasureDraftStatuses([
+      "aaaaa",
+      "bbbbb",
+      "ccccc",
+    ]);
+    expect(statuses).toEqual(resp.data);
   });
 
   it("get return types for all cql definitions when no definition is found", () => {
@@ -638,21 +641,14 @@ describe("MeasureServiceApi Tests", () => {
   it("Successfully returns for getMeasuresByMeasureSetId", async () => {
     const resp: any = {
       status: 200,
-      data: {
-        aaaaa: true,
-        bbbbb: true,
-        ccccc: false,
-      },
+      data: [
+        { id: "m1", measureSetId: "test", measureName: "Measure 1" },
+        { id: "m2", measureSetId: "test", measureName: "Measure 2" },
+      ],
     };
     mockedAxios.put.mockResolvedValueOnce(resp);
-    try {
-      const measures = await measureServiceApi.getMeasuresByMeasureSetId(
-        "test"
-      );
-      expect(measures).toEqual(resp.data);
-    } catch (error) {
-      expect(error.message).toBe("Unable to fetch measure draft statuses");
-    }
+    const result = await measureServiceApi.getMeasuresByMeasureSetId("test");
+    expect(result).toEqual(resp.data);
   });
   it("Throws Error For for getMeasuresByMeasureSetId", async () => {
     const errorMessage = "Unable to fetch measures by measureSetId";
