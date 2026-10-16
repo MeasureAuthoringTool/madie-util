@@ -1,7 +1,10 @@
 import _ from "lodash";
 import { format } from "date-fns";
 import { getModelFamily } from "@madie/madie-models";
-import { validateCompositeMeasure } from "../../util/compositeMeasureValidation";
+import {
+  getCompositeValidationErrors,
+  validateCompositeMeasure,
+} from "../../util/compositeMeasureValidation";
 import { getMeasureExportErrors } from "../../util/measureExportValidation";
 
 export const generateTimestampedFileName = (
@@ -122,7 +125,12 @@ export const exportMeasure = async (
         }
       }
 
-      if (errorStatus === 409) {
+      // the server re-runs the composite validations, so list its failures the
+      // same way the client side check does
+      const compositeErrors = getCompositeValidationErrors(responseMessage);
+      if (errorStatus === 409 && compositeErrors.length > 0) {
+        setFailureMessage(compositeErrors);
+      } else if (errorStatus === 409) {
         let responseErrors = [];
         if (err.response?.data instanceof Blob) {
           const errorMessage = await parseErrorMessageFromBlob(
