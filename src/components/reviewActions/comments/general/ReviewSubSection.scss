@@ -1,9 +1,39 @@
-/*
-  Scoped under the panel class so these rules keep the same specificity they had
-  when they lived in each app's CommentsFlyoutPanel.scss. The sub-section shell
-  itself is styled by CommentSubSection.scss; these are the review comment rules.
-*/
 .comments-flyout-panel {
+  .comments-flyout-panel-subsection {
+    box-shadow: none;
+    border-left: 3px solid #0073c4;
+    background-color: #fff;
+    margin: 12px 16px;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .comments-flyout-panel-subsection-summary {
+    padding: 0 12px;
+    min-height: 40px;
+
+    .MuiAccordionSummary-content {
+      margin: 8px 0;
+    }
+
+    .MuiAccordionSummary-expandIconWrapper.Mui-expanded {
+      transform: rotate(90deg);
+    }
+
+    .comments-flyout-panel-subsection-title {
+      font-family: Rubik, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #0073c4;
+    }
+  }
+
+  .comments-flyout-panel-subsection-details {
+    padding: 0 12px 12px 12px;
+  }
+
   .comments-flyout-panel-comment {
     display: flex;
     flex-direction: column;

@@ -7,4 +7,3 @@ export {
   getReadyForReviewMessage,
 } from "../../util/reviewReadiness";
 export { default as ReviewSubSection } from "./comments/general/ReviewSubSection";
-export { default as CommentSubSection } from "./comments/CommentSubSection";
