@@ -454,6 +454,86 @@ describe("exportUtil", () => {
       );
     });
 
+    it("should list the composite failures when the server rejects a composite the client check passed", async () => {
+      const validComposite = {
+        ...mockMeasure,
+        cqlLibraryName: "ValidLibraryName",
+        measureMetaData: {
+          composite: true,
+          developers: [{ name: "dev" }],
+          steward: { name: "steward" },
+          description: "a description",
+        },
+        groups: [
+          {
+            id: "cg1",
+            scoring: GroupScoring.COMPOSITE,
+            compositeScoring: "Opportunity",
+            populationBasis: "boolean",
+            components: [
+              { measureId: "m1", groupId: "g1" },
+              { measureId: "m2", groupId: "g2" },
+            ],
+          },
+        ],
+      };
+      mockMeasureServiceApi.fetchMeasuresByIds.mockResolvedValue([
+        {
+          id: "m1",
+          groups: [
+            {
+              id: "g1",
+              scoring: MeasureScoring.PROPORTION,
+              populationBasis: "boolean",
+            },
+          ],
+        },
+        {
+          id: "m2",
+          groups: [
+            {
+              id: "g2",
+              scoring: MeasureScoring.RATIO,
+              populationBasis: "boolean",
+            },
+          ],
+        },
+      ]);
+
+      const errorPayload = {
+        message: `Response could not be completed for Measure with ID 1, ${COMPOSITE_VALIDATION_MESSAGES.COMPONENT_MEASURE_TYPES_INVALID}, ${COMPOSITE_VALIDATION_MESSAGES.COMPONENT_POPULATION_BASIS_INVALID}`,
+      };
+      const errorBlob = new Blob([JSON.stringify(errorPayload)], {
+        type: "application/json",
+      });
+      if (!errorBlob.text) {
+        errorBlob.text = async () => JSON.stringify(errorPayload);
+      }
+      mockMeasureServiceApi.getMeasureExport.mockRejectedValue({
+        response: { data: errorBlob, status: 409 },
+      });
+
+      await exportMeasure(
+        setFailureMessage,
+        setDownloadState,
+        abortController,
+        validComposite,
+        mockMeasureServiceApi,
+        setToastOpen,
+        setToastType,
+        setToastMessage,
+        elmErrorSeverity
+      );
+
+      expect(mockMeasureServiceApi.getMeasureExport).toHaveBeenCalled();
+      expect(setDownloadState).toHaveBeenCalledWith("failure");
+      expect(setToastType).toHaveBeenCalledWith("danger");
+      expect(setFailureMessage).toHaveBeenLastCalledWith([
+        COMPOSITE_VALIDATION_MESSAGES.COMPONENT_MEASURE_TYPES_INVALID,
+        COMPOSITE_VALIDATION_MESSAGES.COMPONENT_POPULATION_BASIS_INVALID,
+      ]);
+    });
+
     it("should display error message to the user when export is not available status 404", async () => {
       const errorPayload = {
         message:

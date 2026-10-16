@@ -3,6 +3,7 @@ import {
   COMPOSITE_VALIDATION_MESSAGES,
   compositeScoringValues,
   getAllowedScoringTypes,
+  getCompositeValidationErrors,
   validateCompositeMeasure,
 } from "./compositeMeasureValidation";
 import { GroupScoring, MeasureScoring, Measure } from "@madie/madie-models";
@@ -347,5 +348,28 @@ describe("validateCompositeMeasure", () => {
       COMPOSITE_VALIDATION_MESSAGES.TWO_COMPONENTS_REQUIRED,
     ]);
     expect(mockMeasureServiceApi.fetchMeasuresByIds).not.toHaveBeenCalled();
+  });
+});
+
+describe("getCompositeValidationErrors", () => {
+  it("returns the composite failures in the order the server reported them", () => {
+    const message = `User test cannot version Measure with ID 1. ${COMPOSITE_VALIDATION_MESSAGES.TWO_COMPONENTS_REQUIRED}, ${COMPOSITE_VALIDATION_MESSAGES.SCORING_MUST_BE_COMPOSITE}`;
+    expect(getCompositeValidationErrors(message)).toEqual([
+      COMPOSITE_VALIDATION_MESSAGES.TWO_COMPONENTS_REQUIRED,
+      COMPOSITE_VALIDATION_MESSAGES.SCORING_MUST_BE_COMPOSITE,
+    ]);
+  });
+
+  it("returns an empty list for a non composite failure", () => {
+    expect(
+      getCompositeValidationErrors(
+        "Response could not be completed for Measure with ID 1, since there is no associated steward in metadata."
+      )
+    ).toEqual([]);
+  });
+
+  it("returns an empty list when there is no message", () => {
+    expect(getCompositeValidationErrors(undefined)).toEqual([]);
+    expect(getCompositeValidationErrors("")).toEqual([]);
   });
 });

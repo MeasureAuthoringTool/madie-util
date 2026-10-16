@@ -130,3 +130,17 @@ export const validateCompositeMeasure = async (
 
   return errors;
 };
+
+/**
+ * Returns the composite failure messages carried in a server error message, in
+ * the order the server reported them. Empty when the server rejected the
+ * measure for another reason.
+ */
+export const getCompositeValidationErrors = (message: string): string[] => {
+  if (!message) {
+    return [];
+  }
+  return Object.values(COMPOSITE_VALIDATION_MESSAGES)
+    .filter((error) => message.includes(error))
+    .sort((a, b) => message.indexOf(a) - message.indexOf(b));
+};
