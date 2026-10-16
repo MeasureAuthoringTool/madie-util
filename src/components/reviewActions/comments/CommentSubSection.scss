@@ -1,0 +1,73 @@
+/*
+  Scoped under the panel class so these rules keep the same specificity they had
+  when they lived in each app's CommentsFlyoutPanel.scss. The panel markup still
+  belongs to the consuming app; only the sub-section shell is shared.
+*/
+.comments-flyout-panel {
+  .comments-flyout-panel-subsection {
+    position: relative;
+    box-shadow: none;
+    /* transparent so rows stay aligned whether or not they carry the bar */
+    border-left: 3px solid transparent;
+    background-color: #fff;
+    margin: 0;
+
+    &::before {
+      display: none;
+    }
+
+    /*
+      Separator inset from both edges, so it sits under the row's text rather
+      than running the full width of the panel.
+    */
+    &::after {
+      content: "";
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 0;
+      border-bottom: 1px solid #ededed;
+    }
+  }
+
+  /* the sub-section the user currently has selected */
+  .comments-flyout-panel-subsection--current {
+    border-left-color: #0073c4;
+  }
+
+  .comments-flyout-panel-subsection-summary {
+    padding: 0 16px 0 20px;
+    min-height: 52px;
+
+    .MuiAccordionSummary-content {
+      margin: 8px 0;
+    }
+
+    .MuiAccordionSummary-expandIconWrapper.Mui-expanded {
+      transform: rotate(90deg);
+    }
+
+    .comments-flyout-panel-subsection-title {
+      font-family: Rubik, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #212121;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .comments-flyout-panel-subsection-details {
+    padding: 0 20px 16px 20px;
+
+    &:empty {
+      padding: 0;
+    }
+  }
+
+  /* outranks the title colour set on the summary above */
+  .comments-flyout-panel-subsection--current
+    .comments-flyout-panel-subsection-summary
+    .comments-flyout-panel-subsection-title {
+    color: #0073c4;
+  }
+}

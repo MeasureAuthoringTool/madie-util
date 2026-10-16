@@ -1,13 +1,7 @@
 import React from "react";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Typography,
-} from "@mui/material";
-import { ChevronRight } from "lucide-react";
+import { Box, Typography } from "@mui/material";
 import "./ReviewSubSection.scss";
+import CommentSubSection from "../CommentSubSection";
 import {
   formatReviewCommentDate,
   getReadyForReviewMessage,
@@ -18,70 +12,67 @@ export interface ReviewSubSectionProps {
   entityType: ReviewEntityType;
   readyForReviewBy?: string;
   readyForReviewAt?: string;
+  // forwarded so a panel can fold Review into its own selection handling
+  expanded?: boolean;
+  onToggle?: (expanded: boolean) => void;
+  highlighted?: boolean;
 }
 
 const ReviewSubSection = ({
   entityType,
   readyForReviewBy,
   readyForReviewAt,
+  expanded,
+  onToggle,
+  highlighted,
 }: ReviewSubSectionProps) => {
   const performedAt = formatReviewCommentDate(readyForReviewAt);
 
   return (
-    <Accordion
-      disableGutters
-      elevation={0}
-      defaultExpanded
-      className="comments-flyout-panel-subsection"
+    <CommentSubSection
+      title="Review"
+      expanded={expanded}
+      onToggle={onToggle}
+      highlighted={highlighted}
       data-testid="comments-review-subsection"
     >
-      <AccordionSummary
-        expandIcon={<ChevronRight size={18} />}
-        className="comments-flyout-panel-subsection-summary"
-      >
-        <Typography className="comments-flyout-panel-subsection-title">
-          Review
-        </Typography>
-      </AccordionSummary>
-      <AccordionDetails className="comments-flyout-panel-subsection-details">
-        {readyForReviewAt && (
-          <Box
-            className="comments-flyout-panel-comment"
-            data-testid="ready-for-review-comment"
-          >
-            <Box className="comments-flyout-panel-comment-meta">
-              <Typography
-                component="span"
-                className="comments-flyout-panel-comment-author"
-                data-testid="ready-for-review-comment-author"
-              >
-                {readyForReviewBy}
-              </Typography>
-              <Typography
-                component="span"
-                className="comments-flyout-panel-comment-separator"
-                aria-hidden="true"
-              >
-                &middot;
-              </Typography>
-              <Typography
-                component="span"
-                className="comments-flyout-panel-comment-date"
-                data-testid="ready-for-review-comment-date"
-              >
-                {performedAt}
-              </Typography>
-            </Box>
+      {readyForReviewAt && (
+        <Box
+          className="comments-flyout-panel-comment"
+          data-testid="ready-for-review-comment"
+        >
+          <Box className="comments-flyout-panel-comment-meta">
             <Typography
-              className="comments-flyout-panel-comment-body"
-              data-testid="ready-for-review-comment-body"
+              component="span"
+              className="comments-flyout-panel-comment-author"
+              data-testid="ready-for-review-comment-author"
             >
-              {getReadyForReviewMessage(entityType)}
+              {readyForReviewBy}
+            </Typography>
+            <Typography
+              component="span"
+              className="comments-flyout-panel-comment-separator"
+              aria-hidden="true"
+            >
+              &middot;
+            </Typography>
+            <Typography
+              component="span"
+              className="comments-flyout-panel-comment-date"
+              data-testid="ready-for-review-comment-date"
+            >
+              {performedAt}
             </Typography>
           </Box>
-        )}
-      </AccordionDetails>
-    </Accordion>
+          <Typography
+            className="comments-flyout-panel-comment-body"
+            data-testid="ready-for-review-comment-body"
+          >
+            {getReadyForReviewMessage(entityType)}
+          </Typography>
+        </Box>
+      )}
+    </CommentSubSection>
   );
 };
 
