@@ -11,23 +11,20 @@ import {
   TestCaseConfiguration,
   MeasureSearchCriteria,
   MeasureHistoryActions,
+  Acl,
+  MeasureListDTO,
+  MeasureSearchResult,
+  CqlDiffResultDTO,
+  LockInfo,
+  HtmlDiffResponse,
+  SharedUser,
+  MeasureCounts,
 } from "@madie/madie-models";
+import { AxiosResponse } from "axios";
 import useOktaTokens from "../hooks/useOktaTokens";
 import _ from "lodash";
 import qs from "qs";
 import { Bundle } from "fhir/r4";
-
-export interface MeasureSearchResult {
-  content: Measure[];
-  totalElements: number;
-  totalPages: number;
-  numberOfElements: number;
-  pageable: {
-    offset: number;
-    pageNumber: number;
-    pageSize: number;
-  };
-}
 
 export class MeasureServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
@@ -51,9 +48,11 @@ export class MeasureServiceApi {
     }
   }
 
-  async fetchMeasureDraftStatuses(measureSetIds: string[]): Promise<any> {
+  async fetchMeasureDraftStatuses(
+    measureSetIds: string[]
+  ): Promise<Record<string, boolean>> {
     try {
-      const response = await axios.post<any>(
+      const response = await axios.post<Record<string, boolean>>(
         `${this.baseUrl}/measures/draftstatus`,
         measureSetIds,
         {
@@ -74,9 +73,9 @@ export class MeasureServiceApi {
     measureSetId: string,
     sortByLatestVersion?: boolean,
     searchCriteria?: MeasureSearchCriteria
-  ): Promise<any> {
+  ): Promise<MeasureListDTO[] | undefined> {
     try {
-      const response = await axios.put(
+      const response = await axios.put<MeasureListDTO[]>(
         `${this.baseUrl}/measures/byMeasureSetId`,
         searchCriteria,
         {
@@ -97,10 +96,12 @@ export class MeasureServiceApi {
       throw err;
     }
   }
-  async getRecentMeasuresByMeasureSetId(measureSetIds: string[]): Promise<any> {
+  async getRecentMeasuresByMeasureSetId(
+    measureSetIds: string[]
+  ): Promise<Measure[] | undefined> {
     const idsParam = measureSetIds.join(",");
     try {
-      const response = await axios.get(
+      const response = await axios.get<Measure[]>(
         `${this.baseUrl}/measures/recentsByMeasureSetId`,
         {
           headers: {
@@ -130,22 +131,25 @@ export class MeasureServiceApi {
     sort: string = "lastModifiedAt",
     direction: string = "DESC",
     signal
-  ): Promise<any> {
+  ): Promise<MeasureSearchResult> {
     try {
       limit = limit === "All" ? 1000 : limit; // if limit is "All", set it to a high number to fetch all results
-      const response = await axios.get<any>(`${this.baseUrl}/measures`, {
-        headers: {
-          Authorization: `Bearer ${this.getAccessToken()}`,
-        },
-        params: {
-          ownershipType,
-          limit,
-          page,
-          sort,
-          direction,
-        },
-        signal,
-      });
+      const response = await axios.get<MeasureSearchResult>(
+        `${this.baseUrl}/measures`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+          params: {
+            ownershipType,
+            limit,
+            page,
+            sort,
+            direction,
+          },
+          signal,
+        }
+      );
       return response.data;
     } catch (err) {
       if (err.message === "canceled") {
@@ -159,9 +163,9 @@ export class MeasureServiceApi {
     }
   }
 
-  async fetchMeasuresByIds(measureIds: string[]): Promise<any[]> {
+  async fetchMeasuresByIds(measureIds: string[]): Promise<MeasureListDTO[]> {
     try {
-      const response = await axios.post<any[]>(
+      const response = await axios.post<MeasureListDTO[]>(
         `${this.baseUrl}/measures/by-ids`,
         measureIds,
         {
@@ -179,16 +183,22 @@ export class MeasureServiceApi {
     }
   }
 
-  async deleteMeasure(id: string): Promise<Response> {
-    return await axios.delete(`${this.baseUrl}/measures/${id}/delete`, {
-      headers: {
-        Authorization: `Bearer ${this.getAccessToken()}`,
-      },
-    });
+  async deleteMeasure(id: string): Promise<AxiosResponse<Measure>> {
+    return await axios.delete<Measure>(
+      `${this.baseUrl}/measures/${id}/delete`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+      }
+    );
   }
 
-  async adminDeleteMeasure(id: string, ownerHarpId: string): Promise<Response> {
-    return await axios.delete(`${this.baseUrl}/admin/measures/${id}`, {
+  async adminDeleteMeasure(
+    id: string,
+    ownerHarpId: string
+  ): Promise<AxiosResponse<Measure>> {
+    return await axios.delete<Measure>(`${this.baseUrl}/admin/measures/${id}`, {
       headers: {
         Authorization: `Bearer ${this.getAccessToken()}`,
         harpId: ownerHarpId,
@@ -260,7 +270,7 @@ export class MeasureServiceApi {
     qdmMeasureId: string,
     copyMetaData: boolean
   ): Promise<MeasureSet> {
-    const response = await axios.put<any>(
+    const response = await axios.put<MeasureSet>(
       `${this.baseUrl}/measures/cms-id-association`,
       {},
       {
@@ -481,10 +491,10 @@ export class MeasureServiceApi {
     direction: string = "DESC",
     searchCriteria: MeasureSearchCriteria,
     abortController: AbortController
-  ): Promise<any> {
+  ): Promise<MeasureSearchResult> {
     try {
       limit = limit === "All" ? 1000 : limit; // if limit is "All", set it to a high number to fetch all results
-      const response = await axios.put<any>(
+      const response = await axios.put<MeasureSearchResult>(
         `${this.baseUrl}/measures/searches`,
         searchCriteria,
         {
@@ -526,10 +536,10 @@ export class MeasureServiceApi {
     direction: string = "DESC",
     searchCriteria?: MeasureSearchCriteria,
     abortController?: AbortController
-  ): Promise<any> {
+  ): Promise<MeasureSearchResult> {
     try {
       limit = limit === "All" ? 1000 : limit; // if limit is "All", set it to a high number to fetch all results
-      const response = await axios.put<any>(
+      const response = await axios.put<MeasureSearchResult>(
         `${this.baseUrl}/measures/reviews/searches`,
         searchCriteria ?? {},
         {
@@ -561,9 +571,12 @@ export class MeasureServiceApi {
     }
   }
 
-  async getCqlDiff(oldMeasureId: string, newMeasureId: string): Promise<any> {
+  async getCqlDiff(
+    oldMeasureId: string,
+    newMeasureId: string
+  ): Promise<CqlDiffResultDTO> {
     try {
-      const response = await axios.get(
+      const response = await axios.get<CqlDiffResultDTO>(
         `${this.baseUrl}/measures/${oldMeasureId}/compare/${newMeasureId}`,
         {
           headers: {
@@ -578,9 +591,11 @@ export class MeasureServiceApi {
     }
   }
 
-  async getSharedMeasures(measureIds: string[]): Promise<any> {
+  async getSharedMeasures(
+    measureIds: string[]
+  ): Promise<Record<string, SharedUser[]>> {
     try {
-      const response = await axios.get(
+      const response = await axios.get<Record<string, SharedUser[]>>(
         `${this.baseUrl}/measures/shared?measureIds=${measureIds}`,
         {
           headers: {
@@ -595,9 +610,11 @@ export class MeasureServiceApi {
     }
   }
 
-  async shareMeasures(measureUserIdMap: Map<string, string[]>): Promise<any> {
+  async shareMeasures(
+    measureUserIdMap: Map<string, string[]>
+  ): Promise<Record<string, Acl[]>> {
     try {
-      const response = await axios.put(
+      const response = await axios.put<Record<string, Acl[]>>(
         `${this.baseUrl}/measures/shared`,
         Object.fromEntries(measureUserIdMap),
         {
@@ -613,9 +630,11 @@ export class MeasureServiceApi {
     }
   }
 
-  async unshareMeasures(measureUserIdMap: Map<string, string[]>): Promise<any> {
+  async unshareMeasures(
+    measureUserIdMap: Map<string, string[]>
+  ): Promise<Record<string, Acl[]>> {
     try {
-      const response = await axios.put(
+      const response = await axios.put<Record<string, Acl[]>>(
         `${this.baseUrl}/measures/unshared`,
         Object.fromEntries(measureUserIdMap),
         {
@@ -651,8 +670,11 @@ export class MeasureServiceApi {
   }
 
   // this expects endpoint should return a success or error message, no content
-  async checkValidVersion(id: string, versionType: string): Promise<any> {
-    return await axios.get<any>(
+  async checkValidVersion(
+    id: string,
+    versionType: string
+  ): Promise<AxiosResponse<void>> {
+    return await axios.get<void>(
       `${this.baseUrl}/measures/${id}/version?versionType=${versionType}`,
       {
         headers: {
@@ -662,8 +684,11 @@ export class MeasureServiceApi {
     );
   }
 
-  async createVersion(id: string, versionType: string): Promise<any> {
-    return await axios.put(
+  async createVersion(
+    id: string,
+    versionType: string
+  ): Promise<AxiosResponse<Measure>> {
+    return await axios.put<Measure>(
       `${this.baseUrl}/measures/${id}/version?versionType=${versionType}`,
       {},
       {
@@ -697,9 +722,12 @@ export class MeasureServiceApi {
     return response.data;
   }
 
-  async checkNextVersionNumber(id: string, versionType: string): Promise<any> {
+  async checkNextVersionNumber(
+    id: string,
+    versionType: string
+  ): Promise<string | undefined> {
     try {
-      const response = await axios.get<any>(
+      const response = await axios.get<string>(
         `${this.baseUrl}/measures/${id}/next-version?versionType=${versionType}`,
         {
           headers: {
@@ -715,9 +743,9 @@ export class MeasureServiceApi {
     }
   }
 
-  async createCmsId(measureSetId: string): Promise<any> {
+  async createCmsId(measureSetId: string): Promise<MeasureSet> {
     try {
-      const response = await axios.put(
+      const response = await axios.put<MeasureSet>(
         `${this.baseUrl}/measures/${measureSetId}/create-cms-id`,
         {},
         {
@@ -739,26 +767,29 @@ export class MeasureServiceApi {
     elmErrorSeverity: string,
     signal,
     bundleType = "export"
-  ): Promise<any> {
-    return await axios.get(`${this.baseUrl}/measures/${measureId}/exports`, {
-      params: {
-        elmErrorSeverity,
-        bundleType,
-      },
-      headers: {
-        Authorization: `Bearer ${this.getAccessToken()}`,
-      },
-      responseType: "blob",
-      signal,
-    });
+  ): Promise<AxiosResponse<Blob>> {
+    return await axios.get<Blob>(
+      `${this.baseUrl}/measures/${measureId}/exports`,
+      {
+        params: {
+          elmErrorSeverity,
+          bundleType,
+        },
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+        responseType: "blob",
+        signal,
+      }
+    );
   }
 
   async draftMeasure(
     measureId: string,
     model: string,
     measureName: string
-  ): Promise<any> {
-    return await axios.post(
+  ): Promise<AxiosResponse<Measure>> {
+    return await axios.post<Measure>(
       `${this.baseUrl}/measures/${measureId}/draft`,
       { measureName: measureName, model: model },
       {
@@ -769,9 +800,9 @@ export class MeasureServiceApi {
     );
   }
 
-  async fetchHumanReadable(id: string): Promise<any> {
+  async fetchHumanReadable(id: string): Promise<string> {
     try {
-      const response = await axios.get<String>(
+      const response = await axios.get<string>(
         `${this.baseUrl}/humanreadable/${id}`,
         {
           headers: {
@@ -787,9 +818,9 @@ export class MeasureServiceApi {
     }
   }
 
-  async getMeasureCounts(): Promise<any> {
+  async getMeasureCounts(): Promise<MeasureCounts> {
     try {
-      const response = await axios.get<String>(
+      const response = await axios.get<MeasureCounts>(
         `${this.baseUrl}/measures/count`,
         {
           headers: {
@@ -870,8 +901,8 @@ export class MeasureServiceApi {
   async updateMeasureTestCaseConfiguration(
     testCaseConfig: TestCaseConfiguration,
     measureId: String
-  ): Promise<Response> {
-    return await axios.put(
+  ): Promise<AxiosResponse<Measure>> {
+    return await axios.put<Measure>(
       `${this.baseUrl}/measures/${measureId}/test-case-config`,
       testCaseConfig,
       {
@@ -882,12 +913,16 @@ export class MeasureServiceApi {
     );
   }
 
-  async updateMeasure(measure: Measure): Promise<Response> {
-    return await axios.put(`${this.baseUrl}/measures/${measure.id}`, measure, {
-      headers: {
-        Authorization: `Bearer ${this.getAccessToken()}`,
-      },
-    });
+  async updateMeasure(measure: Measure): Promise<AxiosResponse<Measure>> {
+    return await axios.put<Measure>(
+      `${this.baseUrl}/measures/${measure.id}`,
+      measure,
+      {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+      }
+    );
   }
 
   async getCqmMeasure(
@@ -911,9 +946,9 @@ export class MeasureServiceApi {
       throw err;
     }
   }
-  async updateMeasureLock(measureId: string): Promise<any> {
+  async updateMeasureLock(measureId: string): Promise<LockInfo> {
     try {
-      const response = await axios.put<String>(
+      const response = await axios.put<LockInfo>(
         `${this.baseUrl}/measures/${measureId}/measure-lock`,
         {},
         {
@@ -928,9 +963,9 @@ export class MeasureServiceApi {
     }
   }
 
-  async unlockMeasure(measureId: string): Promise<any> {
+  async unlockMeasure(measureId: string): Promise<LockInfo> {
     try {
-      const response = await axios.delete<String>(
+      const response = await axios.delete<LockInfo>(
         `${this.baseUrl}/measures/${measureId}/measure-lock`,
         {
           headers: {
@@ -943,9 +978,9 @@ export class MeasureServiceApi {
       throw new Error(error);
     }
   }
-  async unlockMeasures(): Promise<String> {
+  async unlockMeasures(): Promise<string[]> {
     try {
-      const response = await axios.delete<String>(
+      const response = await axios.delete<string[]>(
         `${this.baseUrl}/measures/unlock`,
         {
           headers: {
@@ -962,9 +997,9 @@ export class MeasureServiceApi {
     measureIds: Array<string>,
     harpId: string,
     retainShareAccess: boolean
-  ): Promise<any> {
+  ): Promise<AxiosResponse<string[]>> {
     try {
-      const response = await axios.put(
+      const response = await axios.put<string[]>(
         `${this.baseUrl}/measures/transfer`,
         measureIds,
         {
@@ -1024,17 +1059,20 @@ export class MeasureServiceApi {
   async getHumanReadableDiff(
     oldMeasureId: string,
     newMeasureId: string
-  ): Promise<any> {
+  ): Promise<HtmlDiffResponse> {
     try {
-      const response = await axios.get(`${this.baseUrl}/html-diff`, {
-        headers: {
-          Authorization: `Bearer ${this.getAccessToken()}`,
-        },
-        params: {
-          oldMeasureId: oldMeasureId,
-          newMeasureId: newMeasureId,
-        },
-      });
+      const response = await axios.get<HtmlDiffResponse>(
+        `${this.baseUrl}/html-diff`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.getAccessToken()}`,
+          },
+          params: {
+            oldMeasureId: oldMeasureId,
+            newMeasureId: newMeasureId,
+          },
+        }
+      );
       return response.data;
     } catch (err) {
       console.error("Failed to get Human Readable diff", err);

@@ -3,7 +3,7 @@ import { Divider } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { MadieDialog, TextField } from "@madie/madie-design-system/dist/react";
-import { Measure } from "@madie/madie-models";
+import { MeasureListDTO } from "@madie/madie-models";
 import useMeasureServiceApi from "../../../../api/useMeasureServiceApi";
 import {
   compareVersions,
@@ -12,11 +12,11 @@ import {
 import "./ChangeVersionDialog.scss";
 
 interface ChangeVersionDialogProps {
-  measures: Measure[];
+  measures: MeasureListDTO[];
   open: boolean;
   onClose: () => void;
   onSubmit?: (payload: {
-    measure: Measure;
+    measure: MeasureListDTO;
     inCorrectVersion: string;
     correctVersion?: string;
     draftVersion: string;
@@ -52,7 +52,9 @@ export default function ChangeVersionDialog({
   const [newVersion, setNewVersion] = useState("");
   const [versionError, setVersionError] = useState("");
   const [versionsExpanded, setVersionsExpanded] = useState(false);
-  const [measureSetVersions, setMeasureSetVersions] = useState<Measure[]>([]);
+  const [measureSetVersions, setMeasureSetVersions] = useState<
+    MeasureListDTO[]
+  >([]);
 
   useEffect(() => {
     if (!open || !selectedMeasure?.measureSetId) {
@@ -65,7 +67,7 @@ export default function ChangeVersionDialog({
     let cancelled = false;
     measureServiceApi
       .getMeasuresByMeasureSetId(selectedMeasure.measureSetId, true)
-      .then((results: Measure[]) => {
+      .then((results: MeasureListDTO[]) => {
         if (!cancelled) setMeasureSetVersions(results ?? []);
       })
       .catch((error) => {
