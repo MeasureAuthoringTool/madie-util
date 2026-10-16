@@ -1,3 +1,8 @@
+/*
+  Scoped under the panel class so these rules keep the same specificity they had
+  when they lived in each app's CommentsFlyoutPanel.scss. The panel markup still
+  belongs to the consuming app; only this sub-section is shared.
+*/
 .comments-flyout-panel {
   .comments-flyout-panel-subsection {
     box-shadow: none;
