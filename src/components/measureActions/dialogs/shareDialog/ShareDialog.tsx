@@ -24,7 +24,12 @@ import {
   getExpandedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Measure, UserDetails, UserStatus } from "@madie/madie-models";
+import {
+  Measure,
+  SharedUser,
+  UserDetails,
+  UserStatus,
+} from "@madie/madie-models";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import "./MeasureLanding.scss";
@@ -63,17 +68,11 @@ interface ShareDialogProps {
 
 interface SharedMeasure {
   measureId: string;
-  measureName: string;
+  measureName?: string;
   userId: string;
   displayName?: string;
   dateShared: string;
-  subRows: SharedMeasure[];
-}
-
-export interface SharedUser {
-  userId: string;
-  displayName: string;
-  performedAt: Date;
+  subRows?: SharedMeasure[];
 }
 
 const TH = tw.th`p-3 text-left text-sm font-bold capitalize`;

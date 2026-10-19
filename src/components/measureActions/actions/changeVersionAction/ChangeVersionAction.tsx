@@ -1,15 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IconButton } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
-import { Measure } from "@madie/madie-models";
+import { MeasureListDTO } from "@madie/madie-models";
 import { Hash } from "lucide-react";
 import useMeasureServiceApi from "../../../../api/useMeasureServiceApi";
 import { getLatestVersion } from "../../../../util/versionUtils";
 
-type MeasureListItem = Measure & { component?: boolean };
-
 interface PropTypes {
-  measures: MeasureListItem[];
+  measures: MeasureListDTO[];
   onClick: () => void;
 }
 
@@ -39,11 +37,10 @@ export default function ChangeVersionAction(props: PropTypes) {
     }
 
     try {
-      const measureList: MeasureListItem[] =
-        await measureServiceApi.getMeasuresByMeasureSetId(
-          selectedMeasure?.measureSetId,
-          true
-        );
+      const measureList = await measureServiceApi.getMeasuresByMeasureSetId(
+        selectedMeasure?.measureSetId,
+        true
+      );
       if (requestId !== lookupId.current) return;
 
       const hasDraft = (measureList ?? []).some(
