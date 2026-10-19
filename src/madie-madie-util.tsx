@@ -96,6 +96,7 @@ import {
   formatReviewCommentDate,
   getReadyForReviewMessage,
   ReviewSubSection,
+  CommentsFlyoutPanel,
 } from "./components/reviewActions";
 
 export {
@@ -169,6 +170,7 @@ export {
   formatReviewCommentDate,
   getReadyForReviewMessage,
   ReviewSubSection,
+  CommentsFlyoutPanel,
   getNewestMeasureInstance,
   exportMeasure,
   downloadZipFile,
