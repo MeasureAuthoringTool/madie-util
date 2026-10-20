@@ -1,4 +1,4 @@
-import useUserServiceApi from "./useUserServiceApi";
+import useUserServiceApi, { type UserExportRequest } from "./useUserServiceApi";
 import * as React from "react";
 import { renderHook } from "@testing-library/react-hooks";
 import { ServiceContext } from "./ServiceContext";
@@ -411,7 +411,13 @@ describe("UserServiceApi", () => {
 
   it("exportUserList sends the provided export request body", async () => {
     axios.put.mockResolvedValue({ status: 200, data: new Blob() });
-    const exportRequest = { statuses: ["ACTIVE"] };
+    const exportRequest: UserExportRequest = {
+      userIds: ["user-1", "user-2"],
+      ownedMeasures: true,
+      sharedMeasures: false,
+      ownedLibraries: true,
+      sharedLibraries: false,
+    };
 
     await userServiceApi.exportUserList(exportRequest);
     expect(axios.put).toBeCalledWith(
