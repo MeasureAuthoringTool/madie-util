@@ -4,6 +4,14 @@ import useOktaTokens from "../hooks/useOktaTokens";
 import { UserDetails, UserLogin } from "@madie/madie-models";
 import { userRolesStore } from "../Store/userRolesStore";
 
+export interface UserExportRequest {
+  userIds?: string[];
+  ownedMeasures?: boolean;
+  sharedMeasures?: boolean;
+  ownedLibraries?: boolean;
+  sharedLibraries?: boolean;
+}
+
 export class UserServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
 
@@ -168,14 +176,15 @@ export class UserServiceApi {
   }
 
   /**
-   * Requests the full user export report from the user service.
+   * Requests the user export report from the user service.
    * Calls PUT /users/export, which generates the workbook and returns it as an
    * `.xlsx` binary payload. The request body maps to the backend's
-   * UserExportRequestDto (optional); it is empty for now and will carry
-   * filters/selection in a later story.
+   * UserExportRequestDto (optional). When omitted or empty, the backend can
+   * export all users. When provided, it can export the selected user ids with
+   * the requested measure/library options.
    */
   async exportUserList(
-    exportRequest: Record<string, unknown> = {},
+    exportRequest: UserExportRequest = {},
     signal?: AbortSignal
   ): Promise<Blob> {
     try {

@@ -33,7 +33,10 @@ import {
 } from "./api/useTerminologyServiceApi";
 import { default as useMeasureServiceApi } from "./api/useMeasureServiceApi";
 import { default as useMeasureReviewServiceApi } from "./api/useMeasureReviewServiceApi";
-import { default as useUserServiceApi } from "./api/useUserServiceApi";
+import {
+  default as useUserServiceApi,
+  type UserExportRequest,
+} from "./api/useUserServiceApi";
 import { default as useCqlLibraryServiceApi } from "./api/useCqlLibraryServiceApi";
 import { default as useCqlLibraryReviewServiceApi } from "./api/useCqlLibraryReviewServiceApi";
 import { default as useOrganizationApi } from "./api/useOrganizationApi";
@@ -121,6 +124,7 @@ export {
   useMeasureServiceApi,
   useMeasureReviewServiceApi,
   useUserServiceApi,
+  UserExportRequest,
   useCqlLibraryServiceApi,
   useCqlLibraryReviewServiceApi,
   useOrganizationApi,
