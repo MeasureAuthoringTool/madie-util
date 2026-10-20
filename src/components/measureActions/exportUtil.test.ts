@@ -501,7 +501,7 @@ describe("exportUtil", () => {
       ]);
 
       const errorPayload = {
-        message: `Response could not be completed for Measure with ID 1, ${COMPOSITE_VALIDATION_MESSAGES.COMPONENT_MEASURE_TYPES_INVALID}, ${COMPOSITE_VALIDATION_MESSAGES.COMPONENT_POPULATION_BASIS_INVALID}`,
+        message: `Composite measure with ID 1 is invalid: ${COMPOSITE_VALIDATION_MESSAGES.COMPONENT_MEASURE_TYPES_INVALID}, ${COMPOSITE_VALIDATION_MESSAGES.COMPONENT_POPULATION_BASIS_INVALID}`,
       };
       const errorBlob = new Blob([JSON.stringify(errorPayload)], {
         type: "application/json",
@@ -510,7 +510,7 @@ describe("exportUtil", () => {
         errorBlob.text = async () => JSON.stringify(errorPayload);
       }
       mockMeasureServiceApi.getMeasureExport.mockRejectedValue({
-        response: { data: errorBlob, status: 409 },
+        response: { data: errorBlob, status: 422 },
       });
 
       await exportMeasure(
