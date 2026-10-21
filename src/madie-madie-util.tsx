@@ -51,6 +51,7 @@ import { shouldShowReviewCommentLink } from "./util/reviewCommentVisibility";
 import { formatCmsId, padCmsId } from "./util/cmsIdFormatter";
 import {
   validateCompositeMeasure,
+  getCompositeValidationErrors,
   getAllowedScoringTypes,
   compositeScoringValues,
   COMPOSITE_VALIDATION_MESSAGES,
@@ -139,6 +140,7 @@ export {
   padCmsId,
   wafIntercept,
   validateCompositeMeasure,
+  getCompositeValidationErrors,
   getAllowedScoringTypes,
   compositeScoringValues,
   COMPOSITE_VALIDATION_MESSAGES,
