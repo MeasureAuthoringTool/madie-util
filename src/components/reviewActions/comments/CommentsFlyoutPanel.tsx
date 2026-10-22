@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -11,8 +11,18 @@ import {
 } from "@mui/material";
 import { MessageSquare, X, ChevronRight } from "lucide-react";
 import { Button, RichTextEditor } from "@madie/madie-design-system/dist/react";
+// Comment ships in madie-models but is not re-exported from its index yet,
+// so it is imported by path. Switch to the package root once it is.
+import { Comment } from "@madie/madie-models/dist/Comment";
 import ReviewSubSection from "./general/ReviewSubSection";
 import CommentSubSection from "./CommentSubSection";
+import CommentEntry from "./CommentEntry";
+import { richTextHasContent, sanitizeRichText } from "../../../util/richText";
+import { normalizeUserId } from "../../../util/accessControl";
+
+// authorId is in the madie-models source but not in the installed package yet;
+// drop this alias and use Comment directly once madie-models is published.
+type AuthoredComment = Comment & { authorId?: string };
 import { ReviewEntityType } from "../../../util/reviewReadiness";
 import "./CommentsFlyoutPanel.scss";
 
@@ -30,7 +40,24 @@ export interface CommentsFlyoutPanelProps {
   sections: CommentSection[];
   sectionName: string;
   mainSection?: string;
-  commentedSubSections?: string[];
+  /*
+    The entity's stored comments - MeasureReview.comment /
+    CqlLibraryReview.comment, one flat array tagged with section names.
+  */
+  comments?: Comment[];
+  // HARP id, so a comment this user wrote can be told from everyone else's
+  currentUserId?: string;
+  // the app owns persistence; the panel reports what the user did
+  onAddComment?: (comment: Comment) => void;
+  onUpdateComment?: (comment: Comment) => void;
+  onDeleteComment?: (comment: Comment) => void;
+  /*
+    Display name for the signed-in user, used as the author of a new comment.
+    Resolving a HARP id to "First Last" needs the user service, so that belongs
+    in the app's data layer (useOwnerName), not in this presentational panel.
+    Falls back to the HARP id, which is what the AC asks for anyway.
+  */
+  currentUserName?: string;
   readyForReviewBy?: string;
   readyForReviewAt?: string;
 }
@@ -62,7 +89,12 @@ const CommentsFlyoutPanel = ({
   sections,
   sectionName,
   mainSection,
-  commentedSubSections = [],
+  comments = [],
+  currentUserName,
+  currentUserId,
+  onAddComment,
+  onUpdateComment,
+  onDeleteComment,
   readyForReviewBy,
   readyForReviewAt,
 }: CommentsFlyoutPanelProps) => {
@@ -70,14 +102,40 @@ const CommentsFlyoutPanel = ({
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [expandedSubSections, setExpandedSubSections] = useState<string[]>([]);
   const [selectedSubSection, setSelectedSubSection] = useState<string>(null);
+
+  const authorName = currentUserName || currentUserId || "Unknown user";
+
   const currentKey = mainSection
     ? subSectionKey(mainSection, sectionName)
     : null;
-  const hasComment =
-    comment
-      .replace(/<[^>]*>/g, "")
-      .replace(/&nbsp;/g, " ")
-      .trim().length > 0;
+  const hasComment = richTextHasContent(comment);
+
+  /*
+    The stored array is flat, so the panel buckets it by the section tags each
+    comment carries. This grouping is the whole of "parsing" - the nested
+    sections -> sub-sections -> comments shape only ever exists here, built
+    from the live section catalogue rather than from stored structure.
+  */
+  const commentsByKey = useMemo(() => {
+    const buckets = comments.reduce<Record<string, Comment[]>>(
+      (grouped, entry) => {
+        const key = subSectionKey(entry.mainSection, entry.subSection);
+        if (!grouped[key]) {
+          grouped[key] = [];
+        }
+        grouped[key].push(entry);
+        return grouped;
+      },
+      {}
+    );
+    // the AC asks for oldest first
+    Object.values(buckets).forEach((bucket) =>
+      bucket.sort((a, b) =>
+        (a.createdAt ?? "").localeCompare(b.createdAt ?? "")
+      )
+    );
+    return buckets;
+  }, [comments]);
 
   useEffect(() => {
     setExpandedSections(mainSection ? [mainSection] : []);
@@ -98,6 +156,53 @@ const CommentsFlyoutPanel = ({
       expanded
         ? [...keys, key]
         : keys.filter((expandedKey) => expandedKey !== key)
+    );
+  };
+
+  /*
+    A new comment is tagged with the section the user is on, which is what puts
+    it back under this row the next time the panel opens. The app persists it
+    and hands back a refreshed list.
+  */
+  const handleAddComment = () => {
+    const newComment: AuthoredComment = {
+      // the service assigns the real id
+      id: undefined,
+      mainSection,
+      subSection: sectionName,
+      authorId: currentUserId,
+      authorName,
+      createdAt: new Date().toISOString(),
+      edited: false,
+      content: sanitizeRichText(comment),
+    };
+
+    onAddComment?.(newComment);
+    // the AC: clearing the field also returns both buttons to disabled
+    setComment("");
+  };
+
+  const handleUpdateComment = (edited: Comment, content: string) => {
+    // createdAt is deliberately untouched: it stays as first posted
+    onUpdateComment?.({ ...edited, content, edited: true });
+  };
+
+  /*
+    Only the author gets the action center. authorId is the HARP id stored with
+    the comment; comments saved before it existed fall back to matching the
+    stored display name against the user's name or HARP id.
+  */
+  const isAuthor = (entry: AuthoredComment) => {
+    const authorId = normalizeUserId(entry.authorId);
+    if (authorId) {
+      return authorId === normalizeUserId(currentUserId);
+    }
+    const author = normalizeUserId(entry.authorName);
+    return (
+      author.length > 0 &&
+      [currentUserName, currentUserId].some(
+        (candidate) => normalizeUserId(candidate) === author
+      )
     );
   };
 
@@ -164,11 +269,10 @@ const CommentsFlyoutPanel = ({
 
           {sections.map((section) => {
             const isCurrentSection = section.name === mainSection;
+            // a row is shown when it has comments or is the one the user is on
             const subSections = section.subSections.filter(
               (subSection) =>
-                commentedSubSections.includes(
-                  subSectionKey(section.name, subSection)
-                ) ||
+                subSectionKey(section.name, subSection) in commentsByKey ||
                 (isCurrentSection && subSection === sectionName)
             );
             if (isCurrentSection && !subSections.includes(sectionName)) {
@@ -210,7 +314,17 @@ const CommentsFlyoutPanel = ({
                             ? "comments-current-subsection"
                             : undefined
                         }
-                      />
+                      >
+                        {(commentsByKey[key] ?? []).map((entry) => (
+                          <CommentEntry
+                            key={entry.id}
+                            comment={entry}
+                            canManage={isAuthor(entry)}
+                            onSave={handleUpdateComment}
+                            onDelete={(deleted) => onDeleteComment?.(deleted)}
+                          />
+                        ))}
+                      </CommentSubSection>
                     );
                   })}
                 </AccordionDetails>
@@ -240,6 +354,7 @@ const CommentsFlyoutPanel = ({
             <Button
               variant="outline-cyan"
               disabled={!hasComment}
+              onClick={handleAddComment}
               data-testid="comments-flyout-add"
             >
               Add Comment

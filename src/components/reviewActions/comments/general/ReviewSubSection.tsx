@@ -7,7 +7,6 @@ import {
   Typography,
 } from "@mui/material";
 import { ChevronRight } from "lucide-react";
-import "./ReviewSubSection.scss";
 import {
   formatReviewCommentDate,
   getReadyForReviewMessage,

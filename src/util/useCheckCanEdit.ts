@@ -1,5 +1,6 @@
 import useOktaTokens from "../hooks/useOktaTokens";
 import { Acl } from "@madie/madie-models/dist/Measure";
+import { hasEditAccess } from "./accessControl";
 
 const useCheckUserCanEdit = (
   createdBy: string,
@@ -7,19 +8,11 @@ const useCheckUserCanEdit = (
   draft: boolean = true
 ): boolean => {
   const { getUserName } = useOktaTokens();
-  const userName = getUserName();
 
   if (!draft) {
     return false;
   }
-  return (
-    createdBy?.toLowerCase() === userName?.toLowerCase() ||
-    acls?.some(
-      (acl) =>
-        acl.userId?.toLowerCase() === userName?.toLowerCase() &&
-        acl.roles?.indexOf("SHARED_WITH") >= 0
-    )
-  );
+  return hasEditAccess(getUserName(), createdBy, acls);
 };
 
 export default useCheckUserCanEdit;

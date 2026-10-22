@@ -31,6 +31,17 @@ const sections = [
   { name: "Test Cases", subSections: ["Population Criteria 1", "SDE"] },
 ];
 
+// a stored comment tagged for the given header / sub-section
+const commentOn = (mainSection: string, subSection: string) => ({
+  id: `${mainSection}-${subSection}`,
+  mainSection,
+  subSection,
+  authorName: "Sarah Mitchell",
+  createdAt: "2025-06-18T10:42:00.000Z",
+  edited: false,
+  content: "<p>A stored comment</p>",
+});
+
 const titlesIn = (container: Element) =>
   Array.from(
     container.querySelectorAll(".comments-flyout-panel-subsection-title")
@@ -218,9 +229,9 @@ describe("CommentsFlyoutPanel", () => {
         onClose={jest.fn()}
         sectionName="CQL Editor"
         mainSection="CQL Editor"
-        commentedSubSections={[
-          "Details::Model & Measurement Period",
-          "Population Criteria::Criteria 2",
+        comments={[
+          commentOn("Details", "Model & Measurement Period"),
+          commentOn("Population Criteria", "Criteria 2"),
         ]}
       />
     );
@@ -322,7 +333,7 @@ describe("CommentsFlyoutPanel", () => {
         onClose={jest.fn()}
         sectionName="Criteria 1"
         mainSection="Population Criteria"
-        commentedSubSections={["Population Criteria::Supplemental Data"]}
+        comments={[commentOn("Population Criteria", "Supplemental Data")]}
       />
     );
 
@@ -363,7 +374,7 @@ describe("CommentsFlyoutPanel", () => {
         onClose={jest.fn()}
         sectionName="CQL Editor"
         mainSection="CQL Editor"
-        commentedSubSections={["Details::Name, Version & ID"]}
+        comments={[commentOn("Details", "Name, Version & ID")]}
       />
     );
 
@@ -432,5 +443,206 @@ describe("CommentsFlyoutPanel", () => {
     expect(
       screen.getByTestId("ready-for-review-comment-date")
     ).toHaveTextContent("Aug 12, 2026");
+  });
+
+  describe("adding a comment", () => {
+    const renderPanel = (props: any = {}) =>
+      render(
+        <CommentsFlyoutPanel
+          entityType="measure"
+          sections={sections}
+          open
+          onClose={jest.fn()}
+          sectionName="Criteria 1"
+          mainSection="Population Criteria"
+          currentUserName="Jonathan Jones"
+          currentUserId="jjones"
+          {...props}
+        />
+      );
+
+    it("tags the new comment with the section the user is on", () => {
+      const onAddComment = jest.fn();
+      renderPanel({ onAddComment });
+
+      userEvent.type(
+        screen.getByTestId("comments-flyout-input"),
+        "<p>Needs a look</p>"
+      );
+      userEvent.click(screen.getByTestId("comments-flyout-add"));
+
+      expect(onAddComment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mainSection: "Population Criteria",
+          subSection: "Criteria 1",
+          authorName: "Jonathan Jones",
+          content: "<p>Needs a look</p>",
+          edited: false,
+        })
+      );
+    });
+
+    it("clears the field and disables both buttons afterwards", () => {
+      renderPanel({ onAddComment: jest.fn() });
+
+      const input = screen.getByTestId("comments-flyout-input");
+      userEvent.type(input, "<p>Needs a look</p>");
+      expect(screen.getByTestId("comments-flyout-add")).toBeEnabled();
+
+      userEvent.click(screen.getByTestId("comments-flyout-add"));
+
+      expect(input).toHaveValue("");
+      expect(screen.getByTestId("comments-flyout-add")).toBeDisabled();
+      expect(screen.getByTestId("comments-flyout-cancel")).toBeDisabled();
+    });
+
+    it("lists stored comments oldest first", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "newer",
+            createdAt: "2025-06-20T09:00:00.000Z",
+            content: "<p>Second</p>",
+          },
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "older",
+            createdAt: "2025-06-18T09:00:00.000Z",
+            content: "<p>First</p>",
+          },
+        ],
+      });
+
+      const rendered = Array.from(
+        document.querySelectorAll(".comments-flyout-panel-comment-body")
+      ).map((node) => node.textContent);
+      expect(rendered).toEqual(["First", "Second"]);
+    });
+
+    it("only offers the action center on the signed-in user's comments", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "theirs",
+            authorName: "David Park",
+          },
+        ],
+      });
+
+      expect(screen.getByTestId("comment-actions-mine")).toBeInTheDocument();
+      expect(
+        screen.queryByTestId("comment-actions-theirs")
+      ).not.toBeInTheDocument();
+    });
+
+    it("stamps the new comment with the signed-in user's HARP id", () => {
+      const onAddComment = jest.fn();
+      renderPanel({ onAddComment });
+
+      userEvent.type(
+        screen.getByTestId("comments-flyout-input"),
+        "<p>Needs a look</p>"
+      );
+      userEvent.click(screen.getByTestId("comments-flyout-add"));
+
+      expect(onAddComment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          authorId: "jjones",
+          authorName: "Jonathan Jones",
+        })
+      );
+    });
+
+    it("decides the action center by authorId when the comment has one", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "same-name-other-user",
+            authorId: "jjones2",
+            authorName: "Jonathan Jones",
+          },
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "renamed-me",
+            authorId: "JJones",
+            authorName: "Jon Jones",
+          },
+        ],
+      });
+
+      expect(
+        screen.queryByTestId("comment-actions-same-name-other-user")
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByTestId("comment-actions-renamed-me")
+      ).toBeInTheDocument();
+    });
+
+    it("recognises the author by HARP id when no name was resolved", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "harp",
+            authorName: "jjones",
+          },
+        ],
+      });
+
+      expect(screen.getByTestId("comment-actions-harp")).toBeInTheDocument();
+    });
+
+    it("marks an edited comment without moving its timestamp", () => {
+      const onUpdateComment = jest.fn();
+      const stored = {
+        ...commentOn("Population Criteria", "Criteria 1"),
+        id: "mine",
+        authorName: "Jonathan Jones",
+      };
+      renderPanel({ comments: [stored], onUpdateComment });
+
+      userEvent.click(screen.getByTestId("comment-edit-mine"));
+      userEvent.clear(screen.getByTestId("comment-editor-mine"));
+      userEvent.type(screen.getByTestId("comment-editor-mine"), "<p>New</p>");
+      userEvent.click(screen.getByTestId("comment-edit-save-mine"));
+
+      expect(onUpdateComment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "mine",
+          content: "<p>New</p>",
+          edited: true,
+          createdAt: stored.createdAt,
+        })
+      );
+    });
+
+    it("reports a confirmed delete", () => {
+      const onDeleteComment = jest.fn();
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+        ],
+        onDeleteComment,
+      });
+
+      userEvent.click(screen.getByTestId("comment-delete-mine"));
+      userEvent.click(screen.getByTestId("delete-comment-confirm"));
+
+      expect(onDeleteComment).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "mine" })
+      );
+    });
   });
 });

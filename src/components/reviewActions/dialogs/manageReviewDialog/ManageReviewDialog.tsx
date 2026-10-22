@@ -25,8 +25,10 @@ import { UserDetails } from "@madie/madie-models";
 import useMeasureReviewServiceApi from "../../../../api/useMeasureReviewServiceApi";
 import useCqlLibraryReviewServiceApi from "../../../../api/useCqlLibraryReviewServiceApi";
 import useUserServiceApi from "../../../../api/useUserServiceApi";
-
-export type ReviewEntityType = "measure" | "library";
+import {
+  REVIEW_SAVED_EVENTS,
+  ReviewEntityType,
+} from "../../../../util/reviewReadiness";
 
 interface ManageReviewDialogProps {
   open: boolean;
@@ -49,11 +51,6 @@ const REVIEW_STATUS_LABELS: Record<string, string> = {
 const REVIEW_STATUS_VALUES: Record<string, string> = Object.entries(
   REVIEW_STATUS_LABELS
 ).reduce((acc, [value, label]) => ({ ...acc, [label]: value }), {});
-
-const SAVED_EVENTS: Record<ReviewEntityType, string> = {
-  measure: "review-measure-saved",
-  library: "review-library-saved",
-};
 
 export interface ReviewerOption {
   harpId: string;
@@ -297,7 +294,7 @@ const ManageReviewDialog = ({
           toastMessage: "Review information has been saved successfully.",
         });
         window.dispatchEvent(
-          new CustomEvent(SAVED_EVENTS[entityType], { detail: saved })
+          new CustomEvent(REVIEW_SAVED_EVENTS[entityType], { detail: saved })
         );
         await onSuccess?.();
         onClose();

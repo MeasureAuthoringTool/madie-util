@@ -1,42 +1,21 @@
-import { ReviewStatus } from "@madie/madie-models";
-
-type MinimalAcl = {
-  userId?: string;
-  roles?: string[];
-};
+import { Acl } from "@madie/madie-models/dist/Measure";
+import { hasEditAccess, normalizeUserId } from "./accessControl";
+import { isReviewActive } from "./reviewReadiness";
 
 interface ReviewCommentVisibilityArgs {
   commentingEnabled?: boolean;
   currentUser?: string | null;
   owner?: string | null;
-  acls?: MinimalAcl[] | null;
+  acls?: Acl[] | null;
   reviewStatus?: string | null;
   hasReviewerRole?: boolean;
   assignedReviewers?: string[] | null;
 }
 
-const REVIEW_STATUSES_IN_PROCESS = new Set<string>([
-  ReviewStatus.READY_FOR_REVIEW,
-  ReviewStatus.IN_PROGRESS,
-  ReviewStatus.COMPLETE,
-]);
-
-const normalize = (value?: string | null): string =>
-  (value ?? "").trim().toLowerCase();
-
-const isSharedWithUser = (
-  acls: MinimalAcl[] | null | undefined,
-  currentUser: string
-): boolean => {
-  return (
-    acls?.some(
-      (acl) =>
-        normalize(acl?.userId) === currentUser &&
-        acl?.roles?.includes("SHARED_WITH")
-    ) ?? false
-  );
-};
-
+/*
+  The Comments link is shown to the owner and shared users while the entity is
+  in the review process, and to an assigned reviewer at any time.
+*/
 export const shouldShowReviewCommentLink = ({
   commentingEnabled,
   currentUser,
@@ -50,23 +29,19 @@ export const shouldShowReviewCommentLink = ({
     return false;
   }
 
-  const normalizedCurrentUser = normalize(currentUser);
-  if (!normalizedCurrentUser) {
+  const user = normalizeUserId(currentUser);
+  if (!user) {
     return false;
   }
 
-  const isReviewState = REVIEW_STATUSES_IN_PROCESS.has(reviewStatus ?? "");
-  const isOwner = normalize(owner) === normalizedCurrentUser;
-  const hasShareAccess = isSharedWithUser(acls, normalizedCurrentUser);
   const isOwnerOrSharedUserInReview =
-    (isOwner || hasShareAccess) && isReviewState;
+    hasEditAccess(user, owner, acls) && isReviewActive(reviewStatus);
 
   const isAssignedReviewer =
     Boolean(hasReviewerRole) &&
-    (assignedReviewers?.some(
-      (reviewer) => normalize(reviewer) === normalizedCurrentUser
-    ) ??
-      false);
+    (assignedReviewers ?? []).some(
+      (reviewer) => normalizeUserId(reviewer) === user
+    );
 
   return isOwnerOrSharedUserInReview || isAssignedReviewer;
 };
