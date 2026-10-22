@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import HistoryAction, {
   NOTHING_SELECTED,
   VALID_HISTORY_LIBRARY,
+  EXTERNAL_LIBRARY_SELECTED,
 } from "./HistoryAction";
 import { CqlLibrary } from "@madie/madie-models";
 
@@ -42,5 +43,20 @@ describe("HistoryAction", () => {
     expect(
       screen.getByTestId("library-history-action-tooltip")
     ).toHaveAttribute("aria-label", NOTHING_SELECTED);
+  });
+
+  it("disables button and shows external library tooltip when external library is selected", () => {
+    render(
+      <HistoryAction
+        libraries={[baseLibrary]}
+        onClick={() => {}}
+        checkExternal={true}
+      />
+    );
+
+    expect(screen.getByTestId("library-history-action-btn")).toBeDisabled();
+    expect(
+      screen.getByTestId("library-history-action-tooltip")
+    ).toHaveAttribute("aria-label", EXTERNAL_LIBRARY_SELECTED);
   });
 });

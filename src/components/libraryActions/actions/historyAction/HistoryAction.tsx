@@ -7,25 +7,30 @@ import { History } from "lucide-react";
 interface PropTypes {
   libraries: CqlLibrary[];
   onClick: () => void;
+  checkExternal?: boolean;
 }
 
 export const NOTHING_SELECTED = "Select a library to view history";
 export const VALID_HISTORY_LIBRARY = "View History";
+export const EXTERNAL_LIBRARY_SELECTED =
+  "External Libraries have no history in MADiE";
 
 export default function HistoryAction(props: PropTypes) {
-  const { libraries } = props;
+  const { libraries, checkExternal } = props;
   const [disableHistoryBtn, setDisableHistoryBtn] = useState(true);
   const [tooltipMessage, setTooltipMessage] = useState(NOTHING_SELECTED);
 
   const validateHistoryActionState = useCallback(() => {
     setDisableHistoryBtn(true);
-    if (libraries?.length === 1) {
+    if (checkExternal) {
+      setTooltipMessage(EXTERNAL_LIBRARY_SELECTED);
+    } else if (libraries?.length === 1) {
       setTooltipMessage(VALID_HISTORY_LIBRARY);
       setDisableHistoryBtn(false);
     } else {
       setTooltipMessage(NOTHING_SELECTED);
     }
-  }, [libraries]);
+  }, [libraries, checkExternal]);
 
   useEffect(() => {
     validateHistoryActionState();
