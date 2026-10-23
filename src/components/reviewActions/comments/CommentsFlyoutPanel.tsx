@@ -28,16 +28,16 @@ export interface CommentsFlyoutPanelProps {
   onClose: () => void;
   entityType: ReviewEntityType;
   sections: CommentSection[];
-  sectionName: string;
   mainSection?: string;
+  subSection: string;
   commentedSubSections?: string[];
   readyForReviewBy?: string;
   readyForReviewAt?: string;
 }
 
 const MAX_LABEL_LENGTH = 50;
-const getAddCommentLabel = (sectionName: string) => {
-  const fullLabel = `Add a comment to ${sectionName}`;
+const getAddCommentLabel = (subSection: string) => {
+  const fullLabel = `Add a comment to ${subSection}`;
   const isLabelTruncated = fullLabel.length > MAX_LABEL_LENGTH;
 
   if (!isLabelTruncated) {
@@ -60,8 +60,8 @@ const CommentsFlyoutPanel = ({
   onClose,
   entityType,
   sections,
-  sectionName,
   mainSection,
+  subSection,
   commentedSubSections = [],
   readyForReviewBy,
   readyForReviewAt,
@@ -71,7 +71,7 @@ const CommentsFlyoutPanel = ({
   const [expandedSubSections, setExpandedSubSections] = useState<string[]>([]);
   const [selectedSubSection, setSelectedSubSection] = useState<string>(null);
   const currentKey = mainSection
-    ? subSectionKey(mainSection, sectionName)
+    ? subSectionKey(mainSection, subSection)
     : null;
   const hasComment =
     comment
@@ -83,7 +83,7 @@ const CommentsFlyoutPanel = ({
     setExpandedSections(mainSection ? [mainSection] : []);
     setExpandedSubSections(currentKey ? [currentKey] : []);
     setSelectedSubSection(currentKey);
-  }, [mainSection, sectionName, open]);
+  }, [mainSection, subSection, open]);
 
   const toggleSection = (section: string, expanded: boolean) =>
     setExpandedSections((sections) =>
@@ -165,14 +165,14 @@ const CommentsFlyoutPanel = ({
           {sections.map((section) => {
             const isCurrentSection = section.name === mainSection;
             const subSections = section.subSections.filter(
-              (subSection) =>
+              (name) =>
                 commentedSubSections.includes(
-                  subSectionKey(section.name, subSection)
+                  subSectionKey(section.name, name)
                 ) ||
-                (isCurrentSection && subSection === sectionName)
+                (isCurrentSection && name === subSection)
             );
-            if (isCurrentSection && !subSections.includes(sectionName)) {
-              subSections.push(sectionName);
+            if (isCurrentSection && !subSections.includes(subSection)) {
+              subSections.push(subSection);
             }
 
             return (
@@ -195,13 +195,13 @@ const CommentsFlyoutPanel = ({
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails className="comments-flyout-panel-section-details">
-                  {subSections.map((subSection) => {
-                    const key = subSectionKey(section.name, subSection);
+                  {subSections.map((name) => {
+                    const key = subSectionKey(section.name, name);
 
                     return (
                       <CommentSubSection
                         key={key}
-                        title={subSection}
+                        title={name}
                         highlighted={selectedSubSection === key}
                         expanded={expandedSubSections.includes(key)}
                         onToggle={(expanded) => toggleSubSection(key, expanded)}
@@ -224,7 +224,7 @@ const CommentsFlyoutPanel = ({
             id="comments-flyout-input"
             name="comments-flyout-input"
             data-testid="comments-flyout-input"
-            label={getAddCommentLabel(sectionName)}
+            label={getAddCommentLabel(subSection)}
             content={comment}
             onChange={(value: string) => setComment(value)}
           />
