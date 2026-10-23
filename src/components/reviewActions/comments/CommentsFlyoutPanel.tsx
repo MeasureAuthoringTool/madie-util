@@ -33,7 +33,7 @@ export interface CommentsFlyoutPanelProps {
   onClose: () => void;
   entityType: ReviewEntityType;
   sections: CommentSection[];
-  activeSections: CommentSectionLocation;
+  activeSection: CommentSectionLocation;
   commentedSubSections?: string[];
   readyForReviewBy?: string;
   readyForReviewAt?: string;
@@ -64,13 +64,13 @@ const CommentsFlyoutPanel = ({
   onClose,
   entityType,
   sections,
-  activeSections,
+  activeSection,
   commentedSubSections = [],
   readyForReviewBy,
   readyForReviewAt,
 }: CommentsFlyoutPanelProps) => {
   const { activeMainSection: mainSection, activeSubSection: subSection } =
-    activeSections;
+    activeSection;
   const [comment, setComment] = useState("");
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [expandedSubSections, setExpandedSubSections] = useState<string[]>([]);
