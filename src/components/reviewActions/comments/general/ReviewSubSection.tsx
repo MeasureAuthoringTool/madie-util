@@ -30,6 +30,7 @@ const ReviewSubSection = ({
   return (
     <Accordion
       disableGutters
+      square
       elevation={0}
       defaultExpanded
       className="comments-flyout-panel-subsection comments-flyout-panel-subsection--current"
