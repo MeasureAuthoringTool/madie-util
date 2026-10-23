@@ -10,5 +10,6 @@ export { default as ReviewSubSection } from "./comments/general/ReviewSubSection
 export { default as CommentsFlyoutPanel } from "./comments/CommentsFlyoutPanel";
 export type {
   CommentSection,
+  CommentSectionLocation,
   CommentsFlyoutPanelProps,
 } from "./comments/CommentsFlyoutPanel";
