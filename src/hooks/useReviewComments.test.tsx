@@ -157,7 +157,9 @@ describe("useReviewComments", () => {
     const { result, waitFor } = renderHook(() =>
       useReviewComments("measure", "m1", onError)
     );
-    await waitFor(() => expect(onError).toHaveBeenCalledWith(REVIEW_LOAD_ERROR));
+    await waitFor(() =>
+      expect(onError).toHaveBeenCalledWith(REVIEW_LOAD_ERROR)
+    );
 
     expect(result.current.review).toBeNull();
   });
