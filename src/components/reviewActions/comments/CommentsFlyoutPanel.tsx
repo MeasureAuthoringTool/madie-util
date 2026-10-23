@@ -38,8 +38,9 @@ export interface CommentsFlyoutPanelProps {
   onClose: () => void;
   entityType: ReviewEntityType;
   sections: CommentSection[];
-  sectionName: string;
+  // where the user is: the main header and the sub-section label under it
   mainSection?: string;
+  subSection: string;
   /*
     The entity's stored comments - MeasureReview.comment /
     CqlLibraryReview.comment, one flat array tagged with section names.
@@ -63,8 +64,8 @@ export interface CommentsFlyoutPanelProps {
 }
 
 const MAX_LABEL_LENGTH = 50;
-const getAddCommentLabel = (sectionName: string) => {
-  const fullLabel = `Add a comment to ${sectionName}`;
+const getAddCommentLabel = (subSection: string) => {
+  const fullLabel = `Add a comment to ${subSection}`;
   const isLabelTruncated = fullLabel.length > MAX_LABEL_LENGTH;
 
   if (!isLabelTruncated) {
@@ -87,8 +88,8 @@ const CommentsFlyoutPanel = ({
   onClose,
   entityType,
   sections,
-  sectionName,
   mainSection,
+  subSection,
   comments = [],
   currentUserName,
   currentUserId,
@@ -106,7 +107,7 @@ const CommentsFlyoutPanel = ({
   const authorName = currentUserName || currentUserId || "Unknown user";
 
   const currentKey = mainSection
-    ? subSectionKey(mainSection, sectionName)
+    ? subSectionKey(mainSection, subSection)
     : null;
   const hasComment = richTextHasContent(comment);
 
@@ -141,7 +142,7 @@ const CommentsFlyoutPanel = ({
     setExpandedSections(mainSection ? [mainSection] : []);
     setExpandedSubSections(currentKey ? [currentKey] : []);
     setSelectedSubSection(currentKey);
-  }, [mainSection, sectionName, open]);
+  }, [mainSection, subSection, open]);
 
   const toggleSection = (section: string, expanded: boolean) =>
     setExpandedSections((sections) =>
@@ -169,7 +170,7 @@ const CommentsFlyoutPanel = ({
       // the service assigns the real id
       id: undefined,
       mainSection,
-      subSection: sectionName,
+      subSection,
       authorId: currentUserId,
       authorName,
       createdAt: new Date().toISOString(),
@@ -271,12 +272,12 @@ const CommentsFlyoutPanel = ({
             const isCurrentSection = section.name === mainSection;
             // a row is shown when it has comments or is the one the user is on
             const subSections = section.subSections.filter(
-              (subSection) =>
-                subSectionKey(section.name, subSection) in commentsByKey ||
-                (isCurrentSection && subSection === sectionName)
+              (name) =>
+                subSectionKey(section.name, name) in commentsByKey ||
+                (isCurrentSection && name === subSection)
             );
-            if (isCurrentSection && !subSections.includes(sectionName)) {
-              subSections.push(sectionName);
+            if (isCurrentSection && !subSections.includes(subSection)) {
+              subSections.push(subSection);
             }
 
             return (
@@ -299,13 +300,13 @@ const CommentsFlyoutPanel = ({
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails className="comments-flyout-panel-section-details">
-                  {subSections.map((subSection) => {
-                    const key = subSectionKey(section.name, subSection);
+                  {subSections.map((name) => {
+                    const key = subSectionKey(section.name, name);
 
                     return (
                       <CommentSubSection
                         key={key}
-                        title={subSection}
+                        title={name}
                         highlighted={selectedSubSection === key}
                         expanded={expandedSubSections.includes(key)}
                         onToggle={(expanded) => toggleSubSection(key, expanded)}
@@ -338,7 +339,7 @@ const CommentsFlyoutPanel = ({
             id="comments-flyout-input"
             name="comments-flyout-input"
             data-testid="comments-flyout-input"
-            label={getAddCommentLabel(sectionName)}
+            label={getAddCommentLabel(subSection)}
             content={comment}
             onChange={(value: string) => setComment(value)}
           />
