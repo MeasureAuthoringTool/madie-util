@@ -7,7 +7,6 @@ import {
   Typography,
 } from "@mui/material";
 import { ChevronRight } from "lucide-react";
-import "./ReviewSubSection.scss";
 import {
   formatReviewCommentDate,
   getReadyForReviewMessage,
@@ -32,7 +31,7 @@ const ReviewSubSection = ({
       disableGutters
       elevation={0}
       defaultExpanded
-      className="comments-flyout-panel-subsection"
+      className="comments-flyout-panel-subsection comments-flyout-panel-subsection--current"
       data-testid="comments-review-subsection"
     >
       <AccordionSummary

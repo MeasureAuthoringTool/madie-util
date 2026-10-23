@@ -1,0 +1,263 @@
+.comments-flyout-panel {
+  width: min(100vw, 420px);
+  height: 100vh;
+  flex-direction: column;
+  display: flex;
+
+  @media (min-width: 600px) {
+    width: 25vw;
+    min-width: 320px;
+  }
+
+  .comments-flyout-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  .comments-flyout-panel-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .comments-flyout-panel-title {
+    font-family: Rubik, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    color: #212121;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+
+  .comments-flyout-panel-sections {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  /* main section headers (General, Details, ...) */
+  .comments-flyout-panel-accordion {
+    box-shadow: none;
+    border-bottom: 1px solid #aeb0b5;
+
+    &::before {
+      display: none;
+    }
+
+    .MuiAccordionSummary-content .comments-flyout-panel-section-title {
+      font-family: Rubik, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #212121;
+      white-space: nowrap;
+    }
+  }
+
+  .comments-flyout-panel-accordion-summary {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 16px;
+    background: rgb(241, 241, 241);
+    border-top-width: medium;
+    border-right-width: medium;
+    border-bottom: 1px solid #eeeeee;
+    border-left-width: medium;
+    border-top-style: none;
+    border-right-style: none;
+    border-left-style: none;
+    border-top-color: currentcolor;
+    border-right-color: currentcolor;
+    border-left-color: currentcolor;
+    border-image: none;
+    cursor: pointer;
+    text-align: left;
+
+    .MuiAccordionSummary-expandIconWrapper.Mui-expanded {
+      transform: rotate(90deg);
+    }
+  }
+
+  .comments-flyout-panel-section-details {
+    padding: 0;
+  }
+
+  /* sub-section rows (Review, Description, Criteria 1, ...) */
+  .comments-flyout-panel-subsection {
+    box-shadow: none;
+    border-left: 3px solid transparent;
+    background-color: #fff;
+    margin: 12px 16px;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .comments-flyout-panel-subsection--current {
+    border-left-color: #0073c4;
+  }
+
+  .comments-flyout-panel-subsection-summary {
+    padding: 0 12px;
+    min-height: 40px;
+
+    .MuiAccordionSummary-content {
+      margin: 8px 0;
+    }
+
+    .MuiAccordionSummary-expandIconWrapper.Mui-expanded {
+      transform: rotate(90deg);
+    }
+
+    .comments-flyout-panel-subsection-title {
+      font-family: Rubik, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #212121;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .comments-flyout-panel-subsection-details {
+    padding: 0 12px 12px 12px;
+
+    &:empty {
+      padding: 0;
+    }
+  }
+
+  .comments-flyout-panel-subsection--current
+    .comments-flyout-panel-subsection-summary
+    .comments-flyout-panel-subsection-title {
+    color: #0073c4;
+  }
+
+  /* one comment in a sub-section's list */
+  .comments-flyout-panel-comment {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ededed;
+  }
+
+  .comments-flyout-panel-comment + .comments-flyout-panel-comment {
+    margin-top: 12px;
+  }
+
+  .comments-flyout-panel-comment-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .comments-flyout-panel-comment-author {
+    font-family: Rubik, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #212121;
+  }
+
+  .comments-flyout-panel-comment-separator,
+  .comments-flyout-panel-comment-date {
+    font-family: Rubik, sans-serif;
+    font-size: 13px;
+    color: #717171;
+  }
+
+  .comments-flyout-panel-comment-edited {
+    font-family: Rubik, sans-serif;
+    font-size: 13px;
+    color: #717171;
+    font-style: italic;
+  }
+
+  .comments-flyout-panel-comment-body {
+    font-family: Rubik, sans-serif;
+    font-size: 14px;
+    color: #212121;
+    line-height: 1.5;
+
+    p {
+      margin: 0 0 8px 0;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  /* action center sits at the right of the author/date row */
+  .comments-flyout-panel-comment-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+
+    .MuiIconButton-root {
+      color: #0073c4;
+      padding: 4px;
+    }
+  }
+
+  .comments-flyout-panel-comment-editor {
+    margin-top: 8px;
+  }
+
+  /* the AC: Cancel and Save sit under the field, above the rule */
+  .comments-flyout-panel-comment-editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .comments-flyout-panel-composer {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    padding: 16px;
+    background-color: #fff;
+  }
+
+  .comments-flyout-panel-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
+}
+
+.comments-flyout-panel-delete-dialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 40px 24px 40px;
+  text-align: center;
+
+  .comments-flyout-panel-delete-dialog-title {
+    font-family: Rubik, sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #212121;
+  }
+
+  .comments-flyout-panel-delete-dialog-body {
+    font-family: Rubik, sans-serif;
+    font-size: 14px;
+    color: #717171;
+  }
+
+  .comments-flyout-panel-delete-dialog-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+}
