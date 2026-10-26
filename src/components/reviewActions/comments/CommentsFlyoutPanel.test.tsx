@@ -63,7 +63,7 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="CQL Editor"
+        activeSection={{ activeSubSection: "CQL Editor" }}
       />
     );
     expect(
@@ -91,7 +91,7 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={onClose}
-        subSection="Description"
+        activeSection={{ activeSubSection: "Description" }}
       />
     );
     const input = screen.getByTestId("comments-flyout-input");
@@ -108,7 +108,7 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="Details"
+        activeSection={{ activeSubSection: "Details" }}
       />
     );
     const label = screen.getByTestId("comments-flyout-label");
@@ -127,7 +127,7 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection={longSectionName}
+        activeSection={{ activeSubSection: longSectionName }}
       />
     );
     const label = screen.getByTestId("comments-flyout-label");
@@ -149,7 +149,7 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="Details"
+        activeSection={{ activeSubSection: "Details" }}
       />
     );
     expect(
@@ -168,7 +168,7 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="Details"
+        activeSection={{ activeSubSection: "Details" }}
         readyForReviewAt="2026-08-12T09:00:00"
       />
     );
@@ -182,7 +182,7 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="Details"
+        activeSection={{ activeSubSection: "Details" }}
         readyForReviewAt="2026-08-12T09:00:00"
       />
     );
@@ -198,8 +198,10 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="Criteria 1"
-        mainSection="Population Criteria"
+        activeSection={{
+          activeMainSection: "Population Criteria",
+          activeSubSection: "Criteria 1",
+        }}
       />
     );
 
@@ -227,8 +229,10 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="CQL Editor"
-        mainSection="CQL Editor"
+        activeSection={{
+          activeMainSection: "CQL Editor",
+          activeSubSection: "CQL Editor",
+        }}
         comments={[
           commentOn("Details", "Model & Measurement Period"),
           commentOn("Population Criteria", "Criteria 2"),
@@ -261,8 +265,10 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="IPP-Pass - Test Case 65"
-        mainSection="Test Cases"
+        activeSection={{
+          activeMainSection: "Test Cases",
+          activeSubSection: "IPP-Pass - Test Case 65",
+        }}
       />
     );
 
@@ -279,8 +285,10 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="Model & Measurement Period"
-        mainSection="Details"
+        activeSection={{
+          activeMainSection: "Details",
+          activeSubSection: "Model & Measurement Period",
+        }}
       />
     );
 
@@ -302,8 +310,10 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="Criteria 2"
-        mainSection="Population Criteria"
+        activeSection={{
+          activeMainSection: "Population Criteria",
+          activeSubSection: "Criteria 2",
+        }}
       />
     );
 
@@ -331,8 +341,10 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="Criteria 1"
-        mainSection="Population Criteria"
+        activeSection={{
+          activeMainSection: "Population Criteria",
+          activeSubSection: "Criteria 1",
+        }}
         comments={[commentOn("Population Criteria", "Supplemental Data")]}
       />
     );
@@ -355,8 +367,10 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="Criteria 1"
-        mainSection="Population Criteria"
+        activeSection={{
+          activeMainSection: "Population Criteria",
+          activeSubSection: "Criteria 1",
+        }}
       />
     );
 
@@ -372,8 +386,10 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="CQL Editor"
-        mainSection="CQL Editor"
+        activeSection={{
+          activeMainSection: "CQL Editor",
+          activeSubSection: "CQL Editor",
+        }}
         comments={[commentOn("Details", "Name, Version & ID")]}
       />
     );
@@ -391,8 +407,10 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="CQL Editor"
-        mainSection="CQL Editor"
+        activeSection={{
+          activeMainSection: "CQL Editor",
+          activeSubSection: "CQL Editor",
+        }}
       />
     );
 
@@ -416,7 +434,7 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="Current section"
+        activeSection={{ activeSubSection: "Current section" }}
       />
     );
 
@@ -432,7 +450,7 @@ describe("CommentsFlyoutPanel", () => {
         sections={sections}
         open
         onClose={jest.fn()}
-        subSection="Details"
+        activeSection={{ activeSubSection: "Details" }}
         readyForReviewBy="jjones"
         readyForReviewAt="2026-08-12T09:00:00"
       />
@@ -453,8 +471,10 @@ describe("CommentsFlyoutPanel", () => {
           sections={sections}
           open
           onClose={jest.fn()}
-          subSection="Criteria 1"
-          mainSection="Population Criteria"
+          activeSection={{
+            activeMainSection: "Population Criteria",
+            activeSubSection: "Criteria 1",
+          }}
           currentUserName="Jonathan Jones"
           currentUserId="jjones"
           {...props}

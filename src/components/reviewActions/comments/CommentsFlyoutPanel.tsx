@@ -33,14 +33,17 @@ export interface CommentSection {
   subSections: string[];
 }
 
+export interface CommentSectionLocation {
+  activeMainSection?: string;
+  activeSubSection: string;
+}
+
 export interface CommentsFlyoutPanelProps {
   open: boolean;
   onClose: () => void;
   entityType: ReviewEntityType;
   sections: CommentSection[];
-  // where the user is: the main header and the sub-section label under it
-  mainSection?: string;
-  subSection: string;
+  activeSection: CommentSectionLocation;
   /*
     The entity's stored comments - MeasureReview.comment /
     CqlLibraryReview.comment, one flat array tagged with section names.
@@ -88,8 +91,7 @@ const CommentsFlyoutPanel = ({
   onClose,
   entityType,
   sections,
-  mainSection,
-  subSection,
+  activeSection,
   comments = [],
   currentUserName,
   currentUserId,
@@ -99,6 +101,8 @@ const CommentsFlyoutPanel = ({
   readyForReviewBy,
   readyForReviewAt,
 }: CommentsFlyoutPanelProps) => {
+  const { activeMainSection: mainSection, activeSubSection: subSection } =
+    activeSection;
   const [comment, setComment] = useState("");
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [expandedSubSections, setExpandedSubSections] = useState<string[]>([]);

@@ -32,6 +32,7 @@ const CommentSubSection = ({
   return (
     <Accordion
       disableGutters
+      square
       elevation={0}
       {...expandedProps}
       onChange={
