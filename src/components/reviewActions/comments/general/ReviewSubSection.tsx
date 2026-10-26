@@ -18,22 +18,37 @@ export interface ReviewSubSectionProps {
   entityType: ReviewEntityType;
   readyForReviewBy?: string;
   readyForReviewAt?: string;
+  expanded?: boolean;
+  onToggle?: (expanded: boolean) => void;
+  highlighted?: boolean;
 }
 
 const ReviewSubSection = ({
   entityType,
   readyForReviewBy,
   readyForReviewAt,
+  expanded,
+  onToggle,
+  highlighted = true,
 }: ReviewSubSectionProps) => {
   const performedAt = formatReviewCommentDate(readyForReviewAt);
+  const expandedProps =
+    expanded === undefined ? { defaultExpanded: true } : { expanded };
 
   return (
     <Accordion
       disableGutters
       square
       elevation={0}
-      defaultExpanded
-      className="comments-flyout-panel-subsection comments-flyout-panel-subsection--current"
+      {...expandedProps}
+      onChange={
+        onToggle
+          ? (event, isExpanded: boolean) => onToggle(isExpanded)
+          : undefined
+      }
+      className={`comments-flyout-panel-subsection${
+        highlighted ? " comments-flyout-panel-subsection--current" : ""
+      }`}
       data-testid="comments-review-subsection"
     >
       <AccordionSummary

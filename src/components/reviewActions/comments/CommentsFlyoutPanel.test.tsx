@@ -45,6 +45,94 @@ const isHighlighted = (row: Element) =>
   row.classList.contains("comments-flyout-panel-subsection--current");
 
 describe("CommentsFlyoutPanel", () => {
+  describe("temporary demo comments", () => {
+    afterEach(() => {
+      window.history.replaceState({}, "", "/");
+    });
+
+    it.each([
+      ["measure", "6ac92c5617bf84bd401c52f1", true],
+      ["measure", "another-measure", false],
+      ["library", "6ac92c5617bf84bd401c52f1", false],
+    ] as const)("scopes demo comments to %s %s", (entityType, id, visible) => {
+      window.history.replaceState({}, "", `/measures/${id}/details`);
+      render(
+        <CommentsFlyoutPanel
+          entityType={entityType}
+          sections={[
+            {
+              name: "Details",
+              subSections: [
+                "Name, Version & ID",
+                "Model & Measurement Period",
+                "Description",
+              ],
+            },
+            ...sections.slice(1),
+          ]}
+          open
+          onClose={jest.fn()}
+          activeSection={{
+            activeMainSection: "Details",
+            activeSubSection: "Name, Version & ID",
+          }}
+        />
+      );
+
+      if (!visible) {
+        expect(screen.queryByText(/Demo comment:/)).not.toBeInTheDocument();
+        expect(screen.queryByText("Description")).not.toBeInTheDocument();
+        return;
+      }
+
+      expect(screen.getAllByText(/Demo comment:/)).toHaveLength(8);
+      userEvent.click(screen.getByText("Model & Measurement Period"));
+      expect(rowFor("Name, Version & ID")).not.toHaveClass("Mui-expanded");
+      expect(rowFor("Model & Measurement Period")).toHaveClass("Mui-expanded");
+      userEvent.click(screen.getByText("Description"));
+      expect(rowFor("Model & Measurement Period")).not.toHaveClass(
+        "Mui-expanded"
+      );
+      expect(rowFor("Description")).toHaveClass("Mui-expanded");
+
+      let previousMainSection = "Details";
+      let previousSubSection = "Description";
+      for (const [mainSection, subSection] of [
+        ["CQL Editor", "CQL Editor"],
+        ["Population Criteria", "Criteria 1"],
+        ["Population Criteria", "Supplemental Data"],
+        ["Test Cases", "Population Criteria 1"],
+        ["Test Cases", "SDE"],
+      ]) {
+        if (mainSection !== previousMainSection) {
+          userEvent.click(
+            screen.getByText(mainSection, {
+              selector: ".comments-flyout-panel-section-title",
+            })
+          );
+        }
+        userEvent.click(
+          screen.getByText(subSection, {
+            selector: ".comments-flyout-panel-subsection-title",
+          })
+        );
+        expect(rowFor(previousSubSection)).not.toHaveClass("Mui-expanded");
+        expect(rowFor(subSection)).toHaveClass("Mui-expanded");
+        if (mainSection !== previousMainSection) {
+          expect(
+            screen
+              .getByText(previousMainSection, {
+                selector: ".comments-flyout-panel-section-title",
+              })
+              .closest(".MuiAccordion-root")
+          ).not.toHaveClass("Mui-expanded");
+        }
+        previousMainSection = mainSection;
+        previousSubSection = subSection;
+      }
+    });
+  });
+
   it("renders the sections and keeps actions disabled until text is entered", () => {
     render(
       <CommentsFlyoutPanel
@@ -322,6 +410,101 @@ describe("CommentsFlyoutPanel", () => {
       screen.getByText("Test Cases").closest(".MuiAccordion-root")
     ).not.toHaveClass("Mui-expanded");
   });
+
+  describe.each(["measure", "library"] as const)(
+    "%s expansion",
+    (entityType) => {
+      const renderPanel = () =>
+        render(
+          <CommentsFlyoutPanel
+            entityType={entityType}
+            sections={sections}
+            open
+            onClose={jest.fn()}
+            activeSection={{
+              activeMainSection: "Population Criteria",
+              activeSubSection: "Criteria 1",
+            }}
+            commentedSubSections={[
+              "Population Criteria::Criteria 2",
+              "Details::Name, Version & ID",
+            ]}
+          />
+        );
+
+      it("replaces the expanded sub-section within the same main section", () => {
+        renderPanel();
+
+        expect(rowFor("Review")).not.toHaveClass("Mui-expanded");
+        userEvent.click(screen.getByText("Criteria 2"));
+
+        expect(rowFor("Criteria 1")).not.toHaveClass("Mui-expanded");
+        expect(rowFor("Criteria 2")).toHaveClass("Mui-expanded");
+        expect(
+          screen.getByText("Population Criteria").closest(".MuiAccordion-root")
+        ).toHaveClass("Mui-expanded");
+      });
+
+      it("preserves the expanded sub-section when main headers are toggled", () => {
+        renderPanel();
+
+        userEvent.click(screen.getByText("Details"));
+        expect(rowFor("Criteria 1")).toHaveClass("Mui-expanded");
+        expect(
+          screen.getByText("Population Criteria").closest(".MuiAccordion-root")
+        ).toHaveClass("Mui-expanded");
+        expect(
+          screen.getByText("Details").closest(".MuiAccordion-root")
+        ).toHaveClass("Mui-expanded");
+
+        userEvent.click(screen.getByText("Population Criteria"));
+        expect(rowFor("Criteria 1")).toHaveClass("Mui-expanded");
+        userEvent.click(screen.getByText("Population Criteria"));
+        expect(rowFor("Criteria 1")).toHaveClass("Mui-expanded");
+      });
+
+      it("includes General Review in single sub-section expansion", () => {
+        renderPanel();
+
+        userEvent.click(screen.getByText("General"));
+        expect(rowFor("Criteria 1")).toHaveClass("Mui-expanded");
+        userEvent.click(screen.getByText("Review"));
+
+        expect(rowFor("Criteria 1")).not.toHaveClass("Mui-expanded");
+        expect(rowFor("Review")).toHaveClass("Mui-expanded");
+        expect(isHighlighted(rowFor("Review"))).toBe(true);
+        expect(isHighlighted(rowFor("Criteria 1"))).toBe(false);
+        expect(
+          screen.getByText("Population Criteria").closest(".MuiAccordion-root")
+        ).not.toHaveClass("Mui-expanded");
+
+        userEvent.click(screen.getByText("Population Criteria"));
+        userEvent.click(screen.getByText("Criteria 2"));
+
+        expect(rowFor("Review")).not.toHaveClass("Mui-expanded");
+        expect(rowFor("Criteria 2")).toHaveClass("Mui-expanded");
+        expect(
+          screen.getByText("General").closest(".MuiAccordion-root")
+        ).not.toHaveClass("Mui-expanded");
+      });
+
+      it("closes the previous main section when opening a sub-section elsewhere", () => {
+        renderPanel();
+
+        userEvent.click(screen.getByText("Details"));
+        userEvent.click(screen.getByText("Name, Version & ID"));
+
+        expect(rowFor("Criteria 1")).not.toHaveClass("Mui-expanded");
+        expect(rowFor("Name, Version & ID")).toHaveClass("Mui-expanded");
+        expect(
+          screen.getByText("Population Criteria").closest(".MuiAccordion-root")
+        ).not.toHaveClass("Mui-expanded");
+        expect(
+          screen.getByText("Details").closest(".MuiAccordion-root")
+        ).toHaveClass("Mui-expanded");
+      });
+    }
+  );
 
   it("moves the blue highlight to whichever sub-section is clicked", () => {
     render(
