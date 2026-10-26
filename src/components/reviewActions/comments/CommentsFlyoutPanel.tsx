@@ -81,29 +81,6 @@ const CommentsFlyoutPanel = ({
   const currentKey = mainSection
     ? subSectionKey(mainSection, subSection)
     : null;
-  const demoComments: Record<string, string> =
-    window.location.hostname === "localhost" &&
-    entityType === "measure" &&
-    window.location.pathname.split("/").includes("6ac92c5617bf84bd401c52f1")
-      ? {
-          "Details::Name, Version & ID":
-            "Demo comment: Please review the measure name and version.",
-          "Details::Model & Measurement Period":
-            "Demo comment: Please confirm the model and measurement period.",
-          "Details::Description":
-            "Demo comment: Please review the measure description for clarity.",
-          "CQL Editor::CQL Editor":
-            "Demo comment: Please review the CQL definitions and terminology.",
-          "Population Criteria::Criteria 1":
-            "Demo comment: Please confirm the population criteria logic.",
-          "Population Criteria::Supplemental Data":
-            "Demo comment: Please review the supplemental data elements.",
-          "Test Cases::Population Criteria 1":
-            "Demo comment: Please verify test coverage for this population.",
-          "Test Cases::SDE":
-            "Demo comment: Please check the expected supplemental data results.",
-        }
-      : {};
   const hasComment =
     comment
       .replace(/<[^>]*>/g, "")
@@ -224,7 +201,6 @@ const CommentsFlyoutPanel = ({
                 commentedSubSections.includes(
                   subSectionKey(section.name, name)
                 ) ||
-                Boolean(demoComments[subSectionKey(section.name, name)]) ||
                 (isCurrentSection && name === subSection)
             );
             if (isCurrentSection && !subSections.includes(subSection)) {
@@ -268,13 +244,7 @@ const CommentsFlyoutPanel = ({
                             ? "comments-current-subsection"
                             : undefined
                         }
-                      >
-                        {demoComments[key] && (
-                          <Typography className="comments-flyout-panel-comment-body">
-                            {demoComments[key]}
-                          </Typography>
-                        )}
-                      </CommentSubSection>
+                      />
                     );
                   })}
                 </AccordionDetails>
