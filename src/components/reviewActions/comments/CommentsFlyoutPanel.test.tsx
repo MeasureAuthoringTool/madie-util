@@ -292,7 +292,7 @@ describe("CommentsFlyoutPanel", () => {
     ).toContainElement(screen.getByTestId("comments-review-subsection"));
   });
 
-  it("shows the current sub-section under its main header, expanded", () => {
+  it("shows the current sub-section under its main header, expanded", async () => {
     render(
       <CommentsFlyoutPanel
         entityType="measure"
@@ -315,13 +315,108 @@ describe("CommentsFlyoutPanel", () => {
         .closest(".comments-flyout-panel-accordion")
     ).toContainElement(subSection);
     // and that header is the one expanded by default
-    expect(
+    await expect(
       screen.getByText("Population Criteria").closest(".MuiAccordion-root")
     ).toHaveClass("Mui-expanded");
-    expect(
+    await expect(
       screen.getByText("Test Cases").closest(".MuiAccordion-root")
     ).not.toHaveClass("Mui-expanded");
   });
+
+  describe.each(["measure", "library"] as const)(
+    "%s expansion",
+    (entityType) => {
+      const renderPanel = () =>
+        render(
+          <CommentsFlyoutPanel
+            entityType={entityType}
+            sections={sections}
+            open
+            onClose={jest.fn()}
+            activeSection={{
+              activeMainSection: "Population Criteria",
+              activeSubSection: "Criteria 1",
+            }}
+            commentedSubSections={[
+              "Population Criteria::Criteria 2",
+              "Details::Name, Version & ID",
+            ]}
+          />
+        );
+
+      it("replaces the expanded sub-section within the same main section", async () => {
+        renderPanel();
+
+        await expect(rowFor("Review")).not.toHaveClass("Mui-expanded");
+        userEvent.click(screen.getByText("Criteria 2"));
+
+        await expect(rowFor("Criteria 1")).not.toHaveClass("Mui-expanded");
+        await expect(rowFor("Criteria 2")).toHaveClass("Mui-expanded");
+        await expect(
+          screen.getByText("Population Criteria").closest(".MuiAccordion-root")
+        ).toHaveClass("Mui-expanded");
+      });
+
+      it("preserves the expanded sub-section when main headers are toggled", async () => {
+        renderPanel();
+
+        userEvent.click(screen.getByText("Details"));
+        await expect(rowFor("Criteria 1")).toHaveClass("Mui-expanded");
+        await expect(
+          screen.getByText("Population Criteria").closest(".MuiAccordion-root")
+        ).toHaveClass("Mui-expanded");
+        await expect(
+          screen.getByText("Details").closest(".MuiAccordion-root")
+        ).toHaveClass("Mui-expanded");
+
+        userEvent.click(screen.getByText("Population Criteria"));
+        await expect(rowFor("Criteria 1")).toHaveClass("Mui-expanded");
+        userEvent.click(screen.getByText("Population Criteria"));
+        await expect(rowFor("Criteria 1")).toHaveClass("Mui-expanded");
+      });
+
+      it("includes General Review in single sub-section expansion", async () => {
+        renderPanel();
+
+        userEvent.click(screen.getByText("General"));
+        await expect(rowFor("Criteria 1")).toHaveClass("Mui-expanded");
+        userEvent.click(screen.getByText("Review"));
+
+        await expect(rowFor("Criteria 1")).not.toHaveClass("Mui-expanded");
+        await expect(rowFor("Review")).toHaveClass("Mui-expanded");
+        expect(isHighlighted(rowFor("Review"))).toBe(true);
+        expect(isHighlighted(rowFor("Criteria 1"))).toBe(false);
+        await expect(
+          screen.getByText("Population Criteria").closest(".MuiAccordion-root")
+        ).not.toHaveClass("Mui-expanded");
+
+        userEvent.click(screen.getByText("Population Criteria"));
+        userEvent.click(screen.getByText("Criteria 2"));
+
+        await expect(rowFor("Review")).not.toHaveClass("Mui-expanded");
+        await expect(rowFor("Criteria 2")).toHaveClass("Mui-expanded");
+        await expect(
+          screen.getByText("General").closest(".MuiAccordion-root")
+        ).not.toHaveClass("Mui-expanded");
+      });
+
+      it("closes the previous main section when opening a sub-section elsewhere", async () => {
+        renderPanel();
+
+        userEvent.click(screen.getByText("Details"));
+        userEvent.click(screen.getByText("Name, Version & ID"));
+
+        await expect(rowFor("Criteria 1")).not.toHaveClass("Mui-expanded");
+        await expect(rowFor("Name, Version & ID")).toHaveClass("Mui-expanded");
+        await expect(
+          screen.getByText("Population Criteria").closest(".MuiAccordion-root")
+        ).not.toHaveClass("Mui-expanded");
+        await expect(
+          screen.getByText("Details").closest(".MuiAccordion-root")
+        ).toHaveClass("Mui-expanded");
+      });
+    }
+  );
 
   it("moves the blue highlight to whichever sub-section is clicked", () => {
     render(
@@ -389,7 +484,7 @@ describe("CommentsFlyoutPanel", () => {
     expect(isHighlighted(rowFor("CQL Editor"))).toBe(false);
   });
 
-  it("collapses and expands the main header on click", () => {
+  it("collapses and expands the main header on click", async () => {
     render(
       <CommentsFlyoutPanel
         entityType="measure"
@@ -407,13 +502,13 @@ describe("CommentsFlyoutPanel", () => {
       selector: ".comments-flyout-panel-section-title",
     });
     const accordion = header.closest(".MuiAccordion-root");
-    expect(accordion).toHaveClass("Mui-expanded");
+    await expect(accordion).toHaveClass("Mui-expanded");
 
     userEvent.click(header);
-    expect(accordion).not.toHaveClass("Mui-expanded");
+    await expect(accordion).not.toHaveClass("Mui-expanded");
 
     userEvent.click(header);
-    expect(accordion).toHaveClass("Mui-expanded");
+    await expect(accordion).toHaveClass("Mui-expanded");
   });
 
   it("renders no current sub-section for a route that cannot be commented on", () => {

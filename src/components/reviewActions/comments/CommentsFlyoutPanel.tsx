@@ -73,7 +73,10 @@ const CommentsFlyoutPanel = ({
     activeSection;
   const [comment, setComment] = useState("");
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
-  const [expandedSubSections, setExpandedSubSections] = useState<string[]>([]);
+  const [expandedSubSection, setExpandedSubSection] = useState<{
+    section: string;
+    key: string;
+  }>(null);
   const [selectedSubSection, setSelectedSubSection] = useState<string>(null);
   const currentKey = mainSection
     ? subSectionKey(mainSection, subSection)
@@ -86,7 +89,9 @@ const CommentsFlyoutPanel = ({
 
   useEffect(() => {
     setExpandedSections(mainSection ? [mainSection] : []);
-    setExpandedSubSections(currentKey ? [currentKey] : []);
+    setExpandedSubSection(
+      currentKey ? { section: mainSection, key: currentKey } : null
+    );
     setSelectedSubSection(currentKey);
   }, [mainSection, subSection, open]);
 
@@ -97,13 +102,21 @@ const CommentsFlyoutPanel = ({
         : sections.filter((expandedSection) => expandedSection !== section)
     );
 
-  const toggleSubSection = (key: string, expanded: boolean) => {
+  const toggleSubSection = (
+    section: string,
+    key: string,
+    expanded: boolean
+  ) => {
     setSelectedSubSection(key);
-    setExpandedSubSections((keys) =>
-      expanded
-        ? [...keys, key]
-        : keys.filter((expandedKey) => expandedKey !== key)
-    );
+    setExpandedSubSection(expanded ? { section, key } : null);
+    if (expanded && expandedSubSection?.section !== section) {
+      setExpandedSections((sections) => [
+        ...sections.filter(
+          (name) => name !== expandedSubSection?.section && name !== section
+        ),
+        section,
+      ]);
+    }
   };
 
   const handleClose = () => {
@@ -158,11 +171,25 @@ const CommentsFlyoutPanel = ({
               </Typography>
             </AccordionSummary>
             <AccordionDetails className="comments-flyout-panel-section-details">
-              {/* Review stands on its own: it is not part of the selection */}
               <ReviewSubSection
                 entityType={entityType}
                 readyForReviewBy={readyForReviewBy}
                 readyForReviewAt={readyForReviewAt}
+                expanded={
+                  expandedSubSection?.key ===
+                  subSectionKey(GENERAL_SECTION, "Review")
+                }
+                highlighted={
+                  selectedSubSection ===
+                  subSectionKey(GENERAL_SECTION, "Review")
+                }
+                onToggle={(expanded) =>
+                  toggleSubSection(
+                    GENERAL_SECTION,
+                    subSectionKey(GENERAL_SECTION, "Review"),
+                    expanded
+                  )
+                }
               />
             </AccordionDetails>
           </Accordion>
@@ -208,8 +235,10 @@ const CommentsFlyoutPanel = ({
                         key={key}
                         title={name}
                         highlighted={selectedSubSection === key}
-                        expanded={expandedSubSections.includes(key)}
-                        onToggle={(expanded) => toggleSubSection(key, expanded)}
+                        expanded={expandedSubSection?.key === key}
+                        onToggle={(expanded) =>
+                          toggleSubSection(section.name, key, expanded)
+                        }
                         data-testid={
                           key === currentKey
                             ? "comments-current-subsection"
