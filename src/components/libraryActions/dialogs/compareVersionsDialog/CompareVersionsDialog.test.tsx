@@ -224,6 +224,14 @@ describe("getNewestLibraryInstance", () => {
     expect(getNewestLibraryInstance(libraries)).toBe(libraries[0]);
   });
 
+  it("returns first library if both versions are null", () => {
+    const libraries = [
+      baseLibrary("1", false, null),
+      baseLibrary("2", false, null),
+    ];
+    expect(getNewestLibraryInstance(libraries)).toBe(libraries[0]);
+  });
+
   it("returns the library with higher major version", () => {
     const libraries = [
       baseLibrary("1", false, "1.0.001"),

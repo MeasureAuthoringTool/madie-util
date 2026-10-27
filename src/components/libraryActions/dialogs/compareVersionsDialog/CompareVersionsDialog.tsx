@@ -26,8 +26,12 @@ export const getNewestLibraryInstance = (
   if (isDraftB && !isDraftA) return b;
 
   // Compare versions numerically (major.minor.patch)
-  const vA = a.version.split(".").map(Number);
-  const vB = b.version.split(".").map(Number);
+  const vA = a.version?.split(".").map(Number);
+  const vB = b.version?.split(".").map(Number);
+
+  if (!vA || !vB) {
+    return a;
+  }
 
   for (let i = 0; i < 3; i++) {
     if (vA[i] > vB[i]) return a;
