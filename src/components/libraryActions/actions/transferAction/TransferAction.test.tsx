@@ -6,6 +6,7 @@ import TransferAction, {
   CANNOT_TRANSFER,
   MORE_THAN_ONE_NOT_OWNED,
   TRANSFER,
+  EXTERNAL_SELECTED,
 } from "./TransferAction";
 import { CqlLibrary, LibrarySet } from "@madie/madie-models";
 import { useUserRoles } from "../../../../hooks/useUserRoles";
@@ -145,5 +146,22 @@ describe("TransferAction Component", () => {
 
     expect(button).not.toBeDisabled();
     expect(tooltip).toHaveAttribute("aria-label", TRANSFER);
+  });
+
+  it("disables the button and shows the external library warning when external libraries are selected", () => {
+    render(
+      <TransferAction
+        libraries={[mockLibrary]}
+        onClick={() => {}}
+        activeTab={0}
+        checkExternal={true}
+      />
+    );
+
+    expect(screen.getByTestId("transfer-action-btn")).toBeDisabled();
+    expect(screen.getByTestId("transfer-action-tooltip")).toHaveAttribute(
+      "aria-label",
+      EXTERNAL_SELECTED
+    );
   });
 });
