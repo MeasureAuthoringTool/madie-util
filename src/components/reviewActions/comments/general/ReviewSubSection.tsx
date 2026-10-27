@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ChevronRight } from "lucide-react";
+import type { CommentSubSectionProps } from "../CommentSubSection";
 import "./ReviewSubSection.scss";
 import {
   formatReviewCommentDate,
@@ -19,7 +20,7 @@ export interface ReviewSubSectionProps {
   readyForReviewBy?: string;
   readyForReviewAt?: string;
   expanded?: boolean;
-  onToggle?: (expanded: boolean) => void;
+  onToggle?: CommentSubSectionProps["onToggle"];
   highlighted?: boolean;
 }
 
