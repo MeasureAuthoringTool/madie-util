@@ -44,6 +44,7 @@ import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { default as useOwnerName } from "./hooks/useOwnerName";
 import { default as checkUserCanEdit } from "./util/useCheckCanEdit";
 import { default as checkUserCanDelete } from "./util/useCheckCanDelete";
+import { default as checkExternalLibrary } from "./util/useCheckExternalLibrary";
 import { useFeatureFlags } from "./hooks/useFeatureFlags";
 import { useUserRoles } from "./hooks/useUserRoles";
 import { getOidFromString } from "./util/terminologyUtils";
@@ -132,6 +133,7 @@ export {
   useOwnerName,
   checkUserCanEdit,
   checkUserCanDelete,
+  checkExternalLibrary,
   useFeatureFlags,
   useUserRoles,
   shouldShowReviewCommentLink,

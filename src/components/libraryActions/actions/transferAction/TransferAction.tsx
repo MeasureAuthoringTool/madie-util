@@ -10,6 +10,7 @@ interface PropTypes {
   libraries: CqlLibrary[];
   onClick: () => void;
   activeTab: number;
+  checkExternal?: boolean;
 }
 
 const isOwnerOfSelectedLibrary = (libraries) => {
@@ -26,9 +27,10 @@ export const CANNOT_TRANSFER = "You cannot transfer a library you do not own";
 export const MORE_THAN_ONE_NOT_OWNED =
   "You cannot transfer a library you do not own, you have selected at least 1 library that you do not own";
 export const TRANSFER = "Transfer";
+export const EXTERNAL_SELECTED = "External Libraries cannot be Transferred";
 
 export default function TransferAction(props: PropTypes) {
-  const { libraries, activeTab } = props;
+  const { libraries, activeTab, checkExternal } = props;
   const [disableTransferBtn, setDisableTransferBtn] = useState(true);
   const [tooltipMessage, setTooltipMessage] = useState(NOTHING_SELECTED);
   const userRoles = useUserRoles();
@@ -36,6 +38,9 @@ export default function TransferAction(props: PropTypes) {
     if (libraries?.length === 0) {
       setDisableTransferBtn(true);
       setTooltipMessage(NOTHING_SELECTED);
+    } else if (checkExternal) {
+      setDisableTransferBtn(true);
+      setTooltipMessage(EXTERNAL_SELECTED);
     } else if (userRoles?.isAdmin) {
       setDisableTransferBtn(false);
       setTooltipMessage(TRANSFER);
@@ -49,11 +54,11 @@ export default function TransferAction(props: PropTypes) {
       setDisableTransferBtn(false);
       setTooltipMessage(TRANSFER);
     }
-  }, [libraries, activeTab, userRoles]);
+  }, [libraries, activeTab, userRoles, checkExternal]);
 
   useEffect(() => {
     validateTransferActionState();
-  }, [libraries, validateTransferActionState, activeTab]);
+  }, [libraries, validateTransferActionState, activeTab, checkExternal]);
 
   return (
     <Tooltip

@@ -8,14 +8,17 @@ import { GitCompare } from "lucide-react";
 interface PropTypes {
   libraries: CqlLibrary[];
   onClick: () => void;
+  checkExternal?: boolean;
 }
 
 export const NOTHING_SELECTED =
   "Select 2 instances within the same library set to compare library versions";
 export const VALID_COMPARE = "Compare Library Versions";
+export const EXTERNAL_SELECTED =
+  "External Libraries cannot be compared in MADiE";
 
 export default function CompareVersionsAction(props: PropTypes) {
-  const { libraries } = props;
+  const { libraries, checkExternal } = props;
   const [disableCompareBtn, setDisableCompareBtn] = useState(true);
   const [tooltipMessage, setTooltipMessage] = useState(NOTHING_SELECTED);
 
@@ -29,7 +32,9 @@ export default function CompareVersionsAction(props: PropTypes) {
 
     const [lib1, lib2] = libraries;
 
-    if (lib1.librarySetId === lib2.librarySetId) {
+    if (checkExternal) {
+      setTooltipMessage(EXTERNAL_SELECTED);
+    } else if (lib1.librarySetId === lib2.librarySetId) {
       setTooltipMessage(VALID_COMPARE);
       setDisableCompareBtn(false);
     } else {

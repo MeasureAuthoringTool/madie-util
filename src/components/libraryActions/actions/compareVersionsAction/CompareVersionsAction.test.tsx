@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import CompareVersionsAction, {
   NOTHING_SELECTED,
   VALID_COMPARE,
+  EXTERNAL_SELECTED,
 } from "./CompareVersionsAction";
 import { CqlLibrary, Model } from "@madie/madie-models";
 import userEvent from "@testing-library/user-event";
@@ -157,6 +158,21 @@ describe("CompareVersionsAction component", () => {
     await waitFor(() => {
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("should disable button and show external library tooltip when external selection is present", () => {
+    render(
+      <CompareVersionsAction
+        libraries={[libraryDraft, libraryVersion]}
+        onClick={() => {}}
+        checkExternal={true}
+      />
+    );
+
+    expect(screen.getByTestId("compare-versions-action-btn")).toBeDisabled();
+    expect(
+      screen.getByTestId("compare-versions-action-tooltip")
+    ).toHaveAttribute("aria-label", EXTERNAL_SELECTED);
   });
 
   it("should not call onClick when button is disabled", async () => {
