@@ -18,8 +18,8 @@ describe("ReviewSubSection", () => {
     render(
       <ReviewSubSection
         entityType="measure"
-        readyForReviewBy="Jonathan Jones"
-        readyForReviewAt="2026-08-12T09:00:00"
+        markedForReviewBy="Jonathan Jones"
+        markedForReviewAt="2026-08-12T09:00:00"
       />
     );
     expect(
@@ -38,8 +38,8 @@ describe("ReviewSubSection", () => {
     render(
       <ReviewSubSection
         entityType="library"
-        readyForReviewBy="Jonathan Jones"
-        readyForReviewAt="2026-08-12T09:00:00"
+        markedForReviewBy="Jonathan Jones"
+        markedForReviewAt="2026-08-12T09:00:00"
       />
     );
     expect(
@@ -51,8 +51,8 @@ describe("ReviewSubSection", () => {
     render(
       <ReviewSubSection
         entityType="measure"
-        readyForReviewBy="jjones"
-        readyForReviewAt="2026-08-12T09:00:00"
+        markedForReviewBy="jjones"
+        markedForReviewAt="2026-08-12T09:00:00"
       />
     );
     expect(

@@ -3,7 +3,6 @@ import { ReviewStatus } from "@madie/madie-models";
 
 export type ReviewEntityType = "measure" | "library";
 
-// statuses in which a measure or library is part of the review process
 export const REVIEW_ACTIVE_STATUSES: ReadonlySet<ReviewStatus> = new Set([
   ReviewStatus.READY_FOR_REVIEW,
   ReviewStatus.IN_PROGRESS,
@@ -13,7 +12,6 @@ export const REVIEW_ACTIVE_STATUSES: ReadonlySet<ReviewStatus> = new Set([
 export const isReviewActive = (status?: string | null): boolean =>
   REVIEW_ACTIVE_STATUSES.has(status as ReviewStatus);
 
-// the review dialogs broadcast the review they persisted on these window events
 export const REVIEW_SAVED_EVENTS: Record<ReviewEntityType, string> = {
   measure: "review-measure-saved",
   library: "review-library-saved",

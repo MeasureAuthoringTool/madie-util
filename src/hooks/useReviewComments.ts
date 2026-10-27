@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CqlLibraryReview, MeasureReview } from "@madie/madie-models";
-// Comment ships in madie-models but is not re-exported from the installed
-// package's index yet, so it is imported by path.
 import { Comment } from "@madie/madie-models/dist/Comment";
 import useMeasureReviewServiceApi from "../api/useMeasureReviewServiceApi";
 import useCqlLibraryReviewServiceApi from "../api/useCqlLibraryReviewServiceApi";
@@ -13,8 +11,6 @@ export const REVIEW_LOAD_ERROR =
   "Error loading review information. Please try again.";
 export const COMMENT_SAVE_ERROR = "Error updating comments. Please try again.";
 
-// The service assigns comment ids. A comment stored before it did has none, and
-// a missing id must never match another comment, or one edit would rewrite all.
 const isSameComment = (a: Comment, b: Comment): boolean =>
   Boolean(a.id) && a.id === b.id;
 
@@ -45,7 +41,6 @@ export default function useReviewComments(
 ): ReviewComments {
   const measureApi = useRef(useMeasureReviewServiceApi()).current;
   const libraryApi = useRef(useCqlLibraryReviewServiceApi()).current;
-  // latest callback without making it a dependency of the effects below
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
 
@@ -75,9 +70,6 @@ export default function useReviewComments(
       return;
     }
     let isMounted = true;
-
-    // a 404 (no review yet) resolves to null inside the service api; anything
-    // else is a real failure and is reported rather than shown as "no review"
     api
       .get(entityId)
       .then((loaded) => {

@@ -12,10 +12,6 @@ interface ReviewCommentVisibilityArgs {
   assignedReviewers?: string[] | null;
 }
 
-/*
-  The Comments link is shown to the owner and shared users while the entity is
-  in the review process, and to an assigned reviewer at any time.
-*/
 export const shouldShowReviewCommentLink = ({
   commentingEnabled,
   currentUser,

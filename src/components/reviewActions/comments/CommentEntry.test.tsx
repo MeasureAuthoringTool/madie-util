@@ -51,7 +51,7 @@ describe("CommentEntry", () => {
   });
 
   it("offers edit and delete on the signed-in user's own comment", async () => {
-    render(<CommentEntry comment={comment} canManage />);
+    render(<CommentEntry comment={comment} canEdit />);
 
     expect(screen.getByTestId("comment-actions-c1")).toBeInTheDocument();
 
@@ -64,7 +64,7 @@ describe("CommentEntry", () => {
   });
 
   it("shows the delete tooltip", async () => {
-    render(<CommentEntry comment={comment} canManage />);
+    render(<CommentEntry comment={comment} canEdit />);
 
     userEvent.hover(screen.getByTestId("comment-delete-c1"));
     await waitFor(() =>
@@ -76,7 +76,7 @@ describe("CommentEntry", () => {
 
   describe("editing", () => {
     it("turns the text into a field with Cancel and Save", () => {
-      render(<CommentEntry comment={comment} canManage />);
+      render(<CommentEntry comment={comment} canEdit />);
 
       userEvent.click(screen.getByTestId("comment-edit-c1"));
 
@@ -87,7 +87,7 @@ describe("CommentEntry", () => {
 
     it("discards the edit on cancel", () => {
       const onSave = jest.fn();
-      render(<CommentEntry comment={comment} canManage onSave={onSave} />);
+      render(<CommentEntry comment={comment} canEdit onSave={onSave} />);
 
       userEvent.click(screen.getByTestId("comment-edit-c1"));
       userEvent.type(screen.getByTestId("comment-editor-c1"), " and more");
@@ -101,7 +101,7 @@ describe("CommentEntry", () => {
 
     it("reports the edit on save and returns to read-only", () => {
       const onSave = jest.fn();
-      render(<CommentEntry comment={comment} canManage onSave={onSave} />);
+      render(<CommentEntry comment={comment} canEdit onSave={onSave} />);
 
       userEvent.click(screen.getByTestId("comment-edit-c1"));
       userEvent.clear(screen.getByTestId("comment-editor-c1"));
@@ -116,7 +116,7 @@ describe("CommentEntry", () => {
   describe("deleting", () => {
     it("asks to delete the comment when the trash icon is clicked", () => {
       const onDelete = jest.fn();
-      render(<CommentEntry comment={comment} canManage onDelete={onDelete} />);
+      render(<CommentEntry comment={comment} canEdit onDelete={onDelete} />);
 
       userEvent.click(screen.getByTestId("comment-delete-c1"));
 

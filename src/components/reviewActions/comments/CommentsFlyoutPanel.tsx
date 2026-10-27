@@ -15,8 +15,6 @@ import {
   RichTextEditor,
   Toast,
 } from "@madie/madie-design-system/dist/react";
-// Comment ships in madie-models but is not re-exported from its index yet,
-// so it is imported by path. Switch to the package root once it is.
 import { Comment } from "@madie/madie-models/dist/Comment";
 import ReviewSubSection from "./general/ReviewSubSection";
 import CommentSubSection from "./CommentSubSection";
@@ -25,14 +23,12 @@ import DeleteCommentDialog from "./DeleteCommentDialog";
 import { richTextHasContent, sanitizeRichText } from "../../../util/richText";
 import { normalizeUserId } from "../../../util/accessControl";
 
-// authorId is in the madie-models source but not in the installed package yet;
-// drop this alias and use Comment directly once madie-models is published.
-type AuthoredComment = Comment & { authorId?: string };
 import { ReviewEntityType } from "../../../util/reviewReadiness";
 import "./CommentsFlyoutPanel.scss";
 
 const GENERAL_SECTION = "General";
 
+type AuthoredComment = Comment & { harpId?: string };
 export interface CommentSection {
   name: string;
   subSections: string[];
@@ -49,26 +45,14 @@ export interface CommentsFlyoutPanelProps {
   entityType: ReviewEntityType;
   sections: CommentSection[];
   activeSection: CommentSectionLocation;
-  /*
-    The entity's stored comments - MeasureReview.comment /
-    CqlLibraryReview.comment, one flat array tagged with section names.
-  */
   comments?: Comment[];
-  // HARP id, so a comment this user wrote can be told from everyone else's
   currentUserId?: string;
-  // the app owns persistence; the panel reports what the user did
   onAddComment?: (comment: Comment) => void;
   onUpdateComment?: (comment: Comment) => void;
   onDeleteComment?: (comment: Comment) => void | Promise<boolean | void>;
-  /*
-    Display name for the signed-in user, used as the author of a new comment.
-    Resolving a HARP id to "First Last" needs the user service, so that belongs
-    in the app's data layer (useOwnerName), not in this presentational panel.
-    Falls back to the HARP id, which is what the AC asks for anyway.
-  */
   currentUserName?: string;
-  readyForReviewBy?: string;
-  readyForReviewAt?: string;
+  markedForReviewBy?: string;
+  markedForReviewAt?: string;
 }
 
 const MAX_LABEL_LENGTH = 50;
@@ -103,8 +87,8 @@ const CommentsFlyoutPanel = ({
   onAddComment,
   onUpdateComment,
   onDeleteComment,
-  readyForReviewBy,
-  readyForReviewAt,
+  markedForReviewBy,
+  markedForReviewAt,
 }: CommentsFlyoutPanelProps) => {
   const { activeMainSection: mainSection, activeSubSection: subSection } =
     activeSection;
@@ -123,12 +107,6 @@ const CommentsFlyoutPanel = ({
     : null;
   const hasComment = richTextHasContent(comment);
 
-  /*
-    The stored array is flat, so the panel buckets it by the section tags each
-    comment carries. This grouping is the whole of "parsing" - the nested
-    sections -> sub-sections -> comments shape only ever exists here, built
-    from the live section catalogue rather than from stored structure.
-  */
   const commentsByKey = useMemo(() => {
     const buckets = comments.reduce<Record<string, Comment[]>>(
       (grouped, entry) => {
@@ -141,7 +119,7 @@ const CommentsFlyoutPanel = ({
       },
       {}
     );
-    // the AC asks for oldest first
+
     Object.values(buckets).forEach((bucket) =>
       bucket.sort((a, b) =>
         (a.createdAt ?? "").localeCompare(b.createdAt ?? "")
@@ -172,18 +150,12 @@ const CommentsFlyoutPanel = ({
     );
   };
 
-  /*
-    A new comment is tagged with the section the user is on, which is what puts
-    it back under this row the next time the panel opens. The app persists it
-    and hands back a refreshed list.
-  */
   const handleAddComment = () => {
     const newComment: AuthoredComment = {
-      // the service assigns the real id
       id: undefined,
       mainSection,
       subSection,
-      authorId: currentUserId,
+      harpId: currentUserId,
       authorName,
       createdAt: new Date().toISOString(),
       edited: false,
@@ -191,24 +163,17 @@ const CommentsFlyoutPanel = ({
     };
 
     onAddComment?.(newComment);
-    // the AC: clearing the field also returns both buttons to disabled
     setComment("");
   };
 
   const handleUpdateComment = (edited: Comment, content: string) => {
-    // createdAt is deliberately untouched: it stays as first posted
     onUpdateComment?.({ ...edited, content, edited: true });
   };
 
-  /*
-    Only the author gets the action center. authorId is the HARP id stored with
-    the comment; comments saved before it existed fall back to matching the
-    stored display name against the user's name or HARP id.
-  */
   const isAuthor = (entry: AuthoredComment) => {
-    const authorId = normalizeUserId(entry.authorId);
-    if (authorId) {
-      return authorId === normalizeUserId(currentUserId);
+    const harpId = normalizeUserId(entry.harpId);
+    if (harpId) {
+      return harpId === normalizeUserId(currentUserId);
     }
     const author = normalizeUserId(entry.authorName);
     return (
@@ -291,8 +256,8 @@ const CommentsFlyoutPanel = ({
               {/* Review stands on its own: it is not part of the selection */}
               <ReviewSubSection
                 entityType={entityType}
-                readyForReviewBy={readyForReviewBy}
-                readyForReviewAt={readyForReviewAt}
+                markedForReviewBy={markedForReviewBy}
+                markedForReviewAt={markedForReviewAt}
               />
             </AccordionDetails>
           </Accordion>
@@ -349,7 +314,7 @@ const CommentsFlyoutPanel = ({
                           <CommentEntry
                             key={entry.id}
                             comment={entry}
-                            canManage={isAuthor(entry)}
+                            canEdit={isAuthor(entry)}
                             onSave={handleUpdateComment}
                             onDelete={setCommentToDelete}
                           />

@@ -33,7 +33,6 @@ const sections = [
   { name: "Test Cases", subSections: ["Population Criteria 1", "SDE"] },
 ];
 
-// a stored comment tagged for the given header / sub-section
 const commentOn = (mainSection: string, subSection: string) => ({
   id: `${mainSection}-${subSection}`,
   mainSection,
@@ -171,7 +170,7 @@ describe("CommentsFlyoutPanel", () => {
         open
         onClose={jest.fn()}
         activeSection={{ activeSubSection: "Details" }}
-        readyForReviewAt="2026-08-12T09:00:00"
+        markedForReviewAt="2026-08-12T09:00:00"
       />
     );
     expect(
@@ -185,7 +184,7 @@ describe("CommentsFlyoutPanel", () => {
         open
         onClose={jest.fn()}
         activeSection={{ activeSubSection: "Details" }}
-        readyForReviewAt="2026-08-12T09:00:00"
+        markedForReviewAt="2026-08-12T09:00:00"
       />
     );
     expect(
@@ -453,8 +452,8 @@ describe("CommentsFlyoutPanel", () => {
         open
         onClose={jest.fn()}
         activeSection={{ activeSubSection: "Details" }}
-        readyForReviewBy="jjones"
-        readyForReviewAt="2026-08-12T09:00:00"
+        markedForReviewBy="jjones"
+        markedForReviewAt="2026-08-12T09:00:00"
       />
     );
     expect(
@@ -576,25 +575,25 @@ describe("CommentsFlyoutPanel", () => {
 
       expect(onAddComment).toHaveBeenCalledWith(
         expect.objectContaining({
-          authorId: "jjones",
+          harpId: "jjones",
           authorName: "Jonathan Jones",
         })
       );
     });
 
-    it("decides the action center by authorId when the comment has one", () => {
+    it("decides the action center by harpId when the comment has one", () => {
       renderPanel({
         comments: [
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "same-name-other-user",
-            authorId: "jjones2",
+            harpId: "jjones2",
             authorName: "Jonathan Jones",
           },
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "renamed-me",
-            authorId: "JJones",
+            harpId: "JJones",
             authorName: "Jon Jones",
           },
         ],
