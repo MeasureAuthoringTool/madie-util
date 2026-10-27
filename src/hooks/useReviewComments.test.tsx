@@ -173,10 +173,33 @@ describe("useReviewComments", () => {
     );
     await waitForNextUpdate();
 
-    await act(() => result.current.deleteComment(existing));
+    let saved: boolean;
+    await act(async () => {
+      saved = await result.current.deleteComment(existing);
+    });
 
+    expect(saved).toBe(false);
     expect(onError).toHaveBeenCalledWith(COMMENT_SAVE_ERROR);
     expect(result.current.comments).toEqual([existing]);
+  });
+
+  it("resolves true once the comments are saved", async () => {
+    mockMeasureApi.updateMeasureReview.mockResolvedValue({
+      ...measureReview,
+      comment: [],
+    });
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useReviewComments("measure", "m1")
+    );
+    await waitForNextUpdate();
+
+    let saved: boolean;
+    await act(async () => {
+      saved = await result.current.deleteComment(existing);
+    });
+
+    expect(saved).toBe(true);
+    expect(result.current.comments).toEqual([]);
   });
 
   it("takes the review broadcast by the review dialogs", async () => {

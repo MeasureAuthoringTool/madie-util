@@ -1,4 +1,5 @@
 .comments-flyout-panel {
+  position: relative;
   width: min(100vw, 420px);
   height: 100vh;
   flex-direction: column;
@@ -274,5 +275,26 @@
     justify-content: center;
     gap: 12px;
     margin-top: 16px;
+  }
+}
+
+.comments-flyout-panel .comments-flyout-panel-delete-dialog-root {
+  position: absolute;
+  inset: 0;
+
+  .MuiBackdrop-root {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.85);
+  }
+
+  .MuiDialog-container {
+    height: 100%;
+  }
+
+  .MuiDialog-paper {
+    margin: 16px;
+    box-shadow: none;
+    background-color: transparent;
   }
 }

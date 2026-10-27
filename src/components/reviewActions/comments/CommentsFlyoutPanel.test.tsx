@@ -1,11 +1,13 @@
 import * as React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import CommentsFlyoutPanel from "./CommentsFlyoutPanel";
 import userEvent from "@testing-library/user-event";
 jest.mock("@madie/madie-design-system/dist/react", () => ({
   Button: ({ children, ...props }: any) => (
     <button {...props}>{children}</button>
   ),
+  Toast: ({ open, message, testId }: any) =>
+    open ? <div data-testid={testId}>{message}</div> : null,
   RichTextEditor: ({ label, content, onChange, ...props }: any) => (
     <div>
       <div data-testid="comments-flyout-label">{label}</div>
@@ -644,7 +646,7 @@ describe("CommentsFlyoutPanel", () => {
       );
     });
 
-    it("reports a confirmed delete", () => {
+    it("reports a confirmed delete", async () => {
       const onDeleteComment = jest.fn();
       renderPanel({
         comments: [
@@ -662,6 +664,127 @@ describe("CommentsFlyoutPanel", () => {
 
       expect(onDeleteComment).toHaveBeenCalledWith(
         expect.objectContaining({ id: "mine" })
+      );
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId("delete-comment-dialog")
+        ).not.toBeInTheDocument()
+      );
+    });
+
+    it("keeps the confirmation open until the delete has finished, then confirms it", async () => {
+      let finishDelete: (saved: boolean) => void;
+      const onDeleteComment = jest.fn(
+        () =>
+          new Promise<boolean>((resolve) => {
+            finishDelete = resolve;
+          })
+      );
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+        ],
+        onDeleteComment,
+      });
+
+      userEvent.click(screen.getByTestId("comment-delete-mine"));
+      userEvent.click(screen.getByTestId("delete-comment-confirm"));
+
+      // still in flight: dialog up, buttons locked, no toast yet
+      expect(screen.getByText("Delete this comment?")).toBeInTheDocument();
+      expect(screen.getByTestId("delete-comment-confirm")).toBeDisabled();
+      expect(screen.getByTestId("delete-comment-cancel")).toBeDisabled();
+      expect(
+        screen.queryByText("Comment has been deleted.")
+      ).not.toBeInTheDocument();
+
+      await act(async () => {
+        finishDelete(true);
+      });
+
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId("delete-comment-dialog")
+        ).not.toBeInTheDocument()
+      );
+      expect(screen.getByText("Comment has been deleted.")).toBeInTheDocument();
+    });
+
+    it("leaves the confirmation open when the delete did not save", async () => {
+      const onDeleteComment = jest.fn().mockResolvedValue(false);
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+        ],
+        onDeleteComment,
+      });
+
+      userEvent.click(screen.getByTestId("comment-delete-mine"));
+      await act(async () => {
+        userEvent.click(screen.getByTestId("delete-comment-confirm"));
+      });
+
+      expect(onDeleteComment).toHaveBeenCalledTimes(1);
+      expect(screen.getByText("Delete this comment?")).toBeInTheDocument();
+      expect(screen.getByTestId("delete-comment-confirm")).toBeEnabled();
+      expect(
+        screen.queryByText("Comment has been deleted.")
+      ).not.toBeInTheDocument();
+    });
+
+    it("keeps the comment when the delete is cancelled", async () => {
+      const onDeleteComment = jest.fn();
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+        ],
+        onDeleteComment,
+      });
+
+      userEvent.click(screen.getByTestId("comment-delete-mine"));
+      expect(screen.getByText("Delete this comment?")).toBeInTheDocument();
+
+      userEvent.click(screen.getByTestId("delete-comment-cancel"));
+
+      expect(onDeleteComment).not.toHaveBeenCalled();
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId("delete-comment-dialog")
+        ).not.toBeInTheDocument()
+      );
+    });
+
+    it("shows the delete confirmation inside the flyout, not over the page", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+        ],
+      });
+
+      userEvent.click(screen.getByTestId("comment-delete-mine"));
+
+      const panel = screen.getByRole("dialog", {
+        name: "Comments",
+        hidden: true,
+      });
+      expect(panel.contains(screen.getByTestId("delete-comment-dialog"))).toBe(
+        true
       );
     });
   });

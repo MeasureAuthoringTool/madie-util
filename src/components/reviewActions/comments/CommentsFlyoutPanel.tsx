@@ -10,13 +10,18 @@ import {
   Typography,
 } from "@mui/material";
 import { MessageSquare, X, ChevronRight } from "lucide-react";
-import { Button, RichTextEditor } from "@madie/madie-design-system/dist/react";
+import {
+  Button,
+  RichTextEditor,
+  Toast,
+} from "@madie/madie-design-system/dist/react";
 // Comment ships in madie-models but is not re-exported from its index yet,
 // so it is imported by path. Switch to the package root once it is.
 import { Comment } from "@madie/madie-models/dist/Comment";
 import ReviewSubSection from "./general/ReviewSubSection";
 import CommentSubSection from "./CommentSubSection";
 import CommentEntry from "./CommentEntry";
+import DeleteCommentDialog from "./DeleteCommentDialog";
 import { richTextHasContent, sanitizeRichText } from "../../../util/richText";
 import { normalizeUserId } from "../../../util/accessControl";
 
@@ -54,7 +59,7 @@ export interface CommentsFlyoutPanelProps {
   // the app owns persistence; the panel reports what the user did
   onAddComment?: (comment: Comment) => void;
   onUpdateComment?: (comment: Comment) => void;
-  onDeleteComment?: (comment: Comment) => void;
+  onDeleteComment?: (comment: Comment) => void | Promise<boolean | void>;
   /*
     Display name for the signed-in user, used as the author of a new comment.
     Resolving a HARP id to "First Last" needs the user service, so that belongs
@@ -107,6 +112,9 @@ const CommentsFlyoutPanel = ({
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [expandedSubSections, setExpandedSubSections] = useState<string[]>([]);
   const [selectedSubSection, setSelectedSubSection] = useState<string>(null);
+  const [commentToDelete, setCommentToDelete] = useState<Comment | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletedToastOpen, setDeletedToastOpen] = useState(false);
 
   const authorName = currentUserName || currentUserId || "Unknown user";
 
@@ -212,8 +220,25 @@ const CommentsFlyoutPanel = ({
   };
 
   const handleClose = () => {
+    setCommentToDelete(null);
     setComment("");
     onClose();
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!commentToDelete) {
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      const deleted = await onDeleteComment?.(commentToDelete);
+      if (deleted !== false) {
+        setCommentToDelete(null);
+        setDeletedToastOpen(true);
+      }
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -326,7 +351,7 @@ const CommentsFlyoutPanel = ({
                             comment={entry}
                             canManage={isAuthor(entry)}
                             onSave={handleUpdateComment}
-                            onDelete={(deleted) => onDeleteComment?.(deleted)}
+                            onDelete={setCommentToDelete}
                           />
                         ))}
                       </CommentSubSection>
@@ -366,7 +391,26 @@ const CommentsFlyoutPanel = ({
             </Button>
           </Box>
         </Box>
+
+        <DeleteCommentDialog
+          open={commentToDelete !== null}
+          deleting={isDeleting}
+          onCancel={() => setCommentToDelete(null)}
+          onDelete={handleConfirmDelete}
+        />
       </Box>
+      <Toast
+        toastKey="comments-flyout-deleted-toast"
+        toastType="success"
+        testId="comments-flyout-deleted-toast"
+        open={deletedToastOpen}
+        message="Comment has been deleted."
+        closeButtonProps={{
+          "data-testid": "comments-flyout-deleted-toast-close-button",
+        }}
+        onClose={() => setDeletedToastOpen(false)}
+        autoHideDuration={6000}
+      />
     </Drawer>
   );
 };

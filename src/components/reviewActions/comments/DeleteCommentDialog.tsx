@@ -5,18 +5,22 @@ import { Button } from "@madie/madie-design-system/dist/react";
 
 export interface DeleteCommentDialogProps {
   open: boolean;
+  deleting?: boolean;
   onCancel: () => void;
   onDelete: () => void;
 }
 
 const DeleteCommentDialog = ({
   open,
+  deleting = false,
   onCancel,
   onDelete,
 }: DeleteCommentDialogProps) => (
   <Dialog
     open={open}
-    onClose={onCancel}
+    onClose={deleting ? undefined : onCancel}
+    disablePortal
+    className="comments-flyout-panel-delete-dialog-root"
     aria-labelledby="delete-comment-dialog-title"
     data-testid="delete-comment-dialog"
   >
@@ -35,6 +39,7 @@ const DeleteCommentDialog = ({
         <Button
           variant="outline-secondary"
           onClick={onCancel}
+          disabled={deleting}
           data-testid="delete-comment-cancel"
         >
           Cancel
@@ -42,6 +47,7 @@ const DeleteCommentDialog = ({
         <Button
           variant="outline-red"
           onClick={onDelete}
+          disabled={deleting}
           data-testid="delete-comment-confirm"
         >
           Delete

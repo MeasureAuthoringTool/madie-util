@@ -7,7 +7,6 @@ import { Button, RichTextEditor } from "@madie/madie-design-system/dist/react";
 import { Comment } from "@madie/madie-models/dist/Comment";
 import { formatReviewCommentDate } from "../../../util/reviewReadiness";
 import { richTextHasContent, sanitizeRichText } from "../../../util/richText";
-import DeleteCommentDialog from "./DeleteCommentDialog";
 
 export interface CommentEntryProps {
   comment: Comment;
@@ -30,7 +29,6 @@ const CommentEntry = ({
 }: CommentEntryProps) => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(comment.content ?? "");
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const startEditing = () => {
     setDraft(comment.content ?? "");
@@ -104,7 +102,7 @@ const CommentEntry = ({
                 size="small"
                 aria-label="Delete comment"
                 data-testid={`comment-delete-${comment.id}`}
-                onClick={() => setConfirmingDelete(true)}
+                onClick={() => onDelete?.(comment)}
               >
                 <Trash2 size={16} />
               </IconButton>
@@ -151,15 +149,6 @@ const CommentEntry = ({
           }}
         />
       )}
-
-      <DeleteCommentDialog
-        open={confirmingDelete}
-        onCancel={() => setConfirmingDelete(false)}
-        onDelete={() => {
-          setConfirmingDelete(false);
-          onDelete?.(comment);
-        }}
-      />
     </Box>
   );
 };

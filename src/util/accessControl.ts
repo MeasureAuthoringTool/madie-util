@@ -1,5 +1,10 @@
 import { Acl } from "@madie/madie-models/dist/Measure";
 
+/*
+  Access helpers for the review-comment feature (comment link visibility and
+  the comment author check). useCheckCanEdit keeps its own inline check: it is
+  used across the apps and is left untouched.
+*/
 const SHARED_WITH_ROLE = "SHARED_WITH";
 
 // HARP ids are compared case-insensitively everywhere in the app

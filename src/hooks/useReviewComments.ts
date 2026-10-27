@@ -21,9 +21,9 @@ const isSameComment = (a: Comment, b: Comment): boolean =>
 export interface ReviewComments {
   review: EntityReview | null;
   comments: Comment[];
-  addComment: (comment: Comment) => Promise<void>;
-  updateComment: (comment: Comment) => Promise<void>;
-  deleteComment: (comment: Comment) => Promise<void>;
+  addComment: (comment: Comment) => Promise<boolean>;
+  updateComment: (comment: Comment) => Promise<boolean>;
+  deleteComment: (comment: Comment) => Promise<boolean>;
 }
 
 /*
@@ -109,14 +109,16 @@ export default function useReviewComments(
   }, [entityType]);
 
   const saveComments = useCallback(
-    async (comments: Comment[]) => {
+    async (comments: Comment[]): Promise<boolean> => {
       if (!review || !entityId) {
-        return;
+        return false;
       }
       try {
         setReview(await api.update(entityId, { ...review, comment: comments }));
+        return true;
       } catch {
         onErrorRef.current?.(COMMENT_SAVE_ERROR);
+        return false;
       }
     },
     [api, entityId, review]

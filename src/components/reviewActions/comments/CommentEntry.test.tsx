@@ -114,35 +114,11 @@ describe("CommentEntry", () => {
   });
 
   describe("deleting", () => {
-    it("asks for confirmation first", () => {
+    it("asks to delete the comment when the trash icon is clicked", () => {
       const onDelete = jest.fn();
       render(<CommentEntry comment={comment} canManage onDelete={onDelete} />);
 
       userEvent.click(screen.getByTestId("comment-delete-c1"));
-
-      expect(screen.getByText("Delete this comment?")).toBeInTheDocument();
-      expect(
-        screen.getByText("This action cannot be undone.")
-      ).toBeInTheDocument();
-      expect(onDelete).not.toHaveBeenCalled();
-    });
-
-    it("keeps the comment when the dialog is cancelled", () => {
-      const onDelete = jest.fn();
-      render(<CommentEntry comment={comment} canManage onDelete={onDelete} />);
-
-      userEvent.click(screen.getByTestId("comment-delete-c1"));
-      userEvent.click(screen.getByTestId("delete-comment-cancel"));
-
-      expect(onDelete).not.toHaveBeenCalled();
-    });
-
-    it("reports the delete when confirmed", () => {
-      const onDelete = jest.fn();
-      render(<CommentEntry comment={comment} canManage onDelete={onDelete} />);
-
-      userEvent.click(screen.getByTestId("comment-delete-c1"));
-      userEvent.click(screen.getByTestId("delete-comment-confirm"));
 
       expect(onDelete).toHaveBeenCalledWith(comment);
     });
