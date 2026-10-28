@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button, RichTextEditor } from "@madie/madie-design-system/dist/react";
-import { Comment } from "@madie/madie-models/dist/Comment";
+import { Comment } from "@madie/madie-models";
 import { formatReviewCommentDate } from "../../../util/reviewReadiness";
 import { richTextHasContent, sanitizeRichText } from "../../../util/richText";
 

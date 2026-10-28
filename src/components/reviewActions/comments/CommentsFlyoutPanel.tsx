@@ -15,7 +15,7 @@ import {
   RichTextEditor,
   Toast,
 } from "@madie/madie-design-system/dist/react";
-import { Comment } from "@madie/madie-models/dist/Comment";
+import { Comment } from "@madie/madie-models";
 import ReviewSubSection from "./general/ReviewSubSection";
 import CommentSubSection from "./CommentSubSection";
 import CommentEntry from "./CommentEntry";
@@ -28,7 +28,6 @@ import "./CommentsFlyoutPanel.scss";
 
 const GENERAL_SECTION = "General";
 
-type AuthoredComment = Comment & { harpId?: string };
 export interface CommentSection {
   name: string;
   subSections: string[];
@@ -151,7 +150,7 @@ const CommentsFlyoutPanel = ({
   };
 
   const handleAddComment = () => {
-    const newComment: AuthoredComment = {
+    const newComment: Comment = {
       id: undefined,
       mainSection,
       subSection,
@@ -170,7 +169,7 @@ const CommentsFlyoutPanel = ({
     onUpdateComment?.({ ...edited, content, edited: true });
   };
 
-  const isAuthor = (entry: AuthoredComment) => {
+  const isAuthor = (entry: Comment) => {
     const harpId = normalizeUserId(entry.harpId);
     if (harpId) {
       return harpId === normalizeUserId(currentUserId);

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CqlLibraryReview, MeasureReview } from "@madie/madie-models";
-import { Comment } from "@madie/madie-models/dist/Comment";
+import { Comment, CqlLibraryReview, MeasureReview } from "@madie/madie-models";
 import useMeasureReviewServiceApi from "../api/useMeasureReviewServiceApi";
 import useCqlLibraryReviewServiceApi from "../api/useCqlLibraryReviewServiceApi";
 import { REVIEW_SAVED_EVENTS, ReviewEntityType } from "../util/reviewReadiness";
