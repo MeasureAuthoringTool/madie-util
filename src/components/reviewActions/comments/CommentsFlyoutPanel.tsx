@@ -28,14 +28,20 @@ import "./CommentsFlyoutPanel.scss";
 
 const GENERAL_SECTION = "General";
 
+export interface CommentSubSectionItem {
+  id?: string;
+  name: string;
+}
+
 export interface CommentSection {
   name: string;
-  subSections: string[];
+  subSections: Array<string | CommentSubSectionItem>;
 }
 
 export interface CommentSectionLocation {
   activeMainSection?: string;
   activeSubSection: string;
+  activeSubSectionId?: string;
 }
 
 export interface CommentsFlyoutPanelProps {
@@ -71,8 +77,17 @@ const getAddCommentLabel = (subSection: string) => {
   );
 };
 
-const subSectionKey = (section: string, subSection: string) =>
-  `${section}::${subSection}`;
+const toSubSection = (
+  entry: string | CommentSubSectionItem
+): CommentSubSectionItem =>
+  typeof entry === "string" ? { name: entry } : entry;
+
+const subSectionKey = (
+  section: string,
+  subSection: string,
+  subSectionId?: string
+) =>
+  subSectionId ? `${section}::#${subSectionId}` : `${section}::${subSection}`;
 
 const CommentsFlyoutPanel = ({
   open,
@@ -89,8 +104,11 @@ const CommentsFlyoutPanel = ({
   markedForReviewBy,
   markedForReviewAt,
 }: CommentsFlyoutPanelProps) => {
-  const { activeMainSection: mainSection, activeSubSection: subSection } =
-    activeSection;
+  const {
+    activeMainSection: mainSection,
+    activeSubSection: subSection,
+    activeSubSectionId: subSectionId,
+  } = activeSection;
   const [comment, setComment] = useState("");
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [expandedSubSections, setExpandedSubSections] = useState<string[]>([]);
@@ -102,14 +120,18 @@ const CommentsFlyoutPanel = ({
   const authorName = currentUserName || currentUserId || "Unknown user";
 
   const currentKey = mainSection
-    ? subSectionKey(mainSection, subSection)
+    ? subSectionKey(mainSection, subSection, subSectionId)
     : null;
   const hasComment = richTextHasContent(comment);
 
   const commentsByKey = useMemo(() => {
     const buckets = comments.reduce<Record<string, Comment[]>>(
       (grouped, entry) => {
-        const key = subSectionKey(entry.mainSection, entry.subSection);
+        const key = subSectionKey(
+          entry.mainSection,
+          entry.subSection,
+          entry.subSectionId
+        );
         if (!grouped[key]) {
           grouped[key] = [];
         }
@@ -131,7 +153,7 @@ const CommentsFlyoutPanel = ({
     setExpandedSections(mainSection ? [mainSection] : []);
     setExpandedSubSections(currentKey ? [currentKey] : []);
     setSelectedSubSection(currentKey);
-  }, [mainSection, subSection, open]);
+  }, [mainSection, subSection, subSectionId, open]);
 
   const toggleSection = (section: string, expanded: boolean) =>
     setExpandedSections((sections) =>
@@ -153,7 +175,8 @@ const CommentsFlyoutPanel = ({
     const newComment: Comment = {
       id: undefined,
       mainSection,
-      subSection,
+      subSection: subSectionId ? undefined : subSection,
+      subSectionId,
       harpId: currentUserId,
       authorName,
       createdAt: new Date().toISOString(),
@@ -263,13 +286,20 @@ const CommentsFlyoutPanel = ({
 
           {sections.map((section) => {
             const isCurrentSection = section.name === mainSection;
-            const subSections = section.subSections.filter(
-              (name) =>
-                subSectionKey(section.name, name) in commentsByKey ||
-                (isCurrentSection && name === subSection)
-            );
-            if (isCurrentSection && !subSections.includes(subSection)) {
-              subSections.push(subSection);
+            const keyOf = (entry: CommentSubSectionItem) =>
+              subSectionKey(section.name, entry.name, entry.id);
+            const subSections = section.subSections
+              .map(toSubSection)
+              .filter(
+                (entry) =>
+                  keyOf(entry) in commentsByKey ||
+                  (isCurrentSection && keyOf(entry) === currentKey)
+              );
+            if (
+              isCurrentSection &&
+              !subSections.some((entry) => keyOf(entry) === currentKey)
+            ) {
+              subSections.push({ id: subSectionId, name: subSection });
             }
 
             return (
@@ -292,13 +322,13 @@ const CommentsFlyoutPanel = ({
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails className="comments-flyout-panel-section-details">
-                  {subSections.map((name) => {
-                    const key = subSectionKey(section.name, name);
+                  {subSections.map((entry) => {
+                    const key = keyOf(entry);
 
                     return (
                       <CommentSubSection
                         key={key}
-                        title={name}
+                        title={entry.name}
                         highlighted={selectedSubSection === key}
                         expanded={expandedSubSections.includes(key)}
                         onToggle={(expanded) => toggleSubSection(key, expanded)}

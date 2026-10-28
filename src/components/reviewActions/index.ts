@@ -6,6 +6,7 @@ export { default as ReviewCommentLink } from "./ReviewCommentLink";
 export { default as CommentsFlyoutPanel } from "./comments/CommentsFlyoutPanel";
 export type {
   CommentSection,
+  CommentSubSectionItem,
   CommentSectionLocation,
   CommentsFlyoutPanelProps,
 } from "./comments/CommentsFlyoutPanel";

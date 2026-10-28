@@ -563,6 +563,66 @@ describe("CommentsFlyoutPanel", () => {
       ).not.toBeInTheDocument();
     });
 
+    it("keys a test case's comments by id so a renamed test case keeps them", () => {
+      const testCaseSections = [
+        ...sections.filter((section) => section.name !== "Test Cases"),
+        {
+          name: "Test Cases",
+          subSections: [
+            "Population Criteria 1",
+            { id: "tc-1", name: "Series B - New title" },
+          ],
+        },
+      ];
+      renderPanel({
+        sections: testCaseSections,
+        activeSection: {
+          activeMainSection: "Test Cases",
+          activeSubSection: "Series B - New title",
+          activeSubSectionId: "tc-1",
+        },
+        comments: [
+          {
+            ...commentOn("Test Cases", undefined),
+            id: "renamed",
+            subSectionId: "tc-1",
+            content: "<p>Still attached</p>",
+          },
+        ],
+      });
+
+      expect(screen.getByText("Still attached")).toBeInTheDocument();
+      expect(rowFor("Series B - New title")).toContainElement(
+        screen.getByText("Still attached")
+      );
+    });
+
+    it("stamps a new test case comment with the test case id and no name", () => {
+      const onAddComment = jest.fn();
+      renderPanel({
+        onAddComment,
+        activeSection: {
+          activeMainSection: "Test Cases",
+          activeSubSection: "Series A - Example case",
+          activeSubSectionId: "tc-1",
+        },
+      });
+
+      userEvent.type(
+        screen.getByTestId("comments-flyout-input"),
+        "<p>On the test case</p>"
+      );
+      userEvent.click(screen.getByTestId("comments-flyout-add"));
+
+      expect(onAddComment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mainSection: "Test Cases",
+          subSectionId: "tc-1",
+        })
+      );
+      expect(onAddComment.mock.calls[0][0].subSection).toBeUndefined();
+    });
+
     it("stamps the new comment with the signed-in user's HARP id", () => {
       const onAddComment = jest.fn();
       renderPanel({ onAddComment });

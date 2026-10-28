@@ -94,7 +94,6 @@ describe("CommentEntry", () => {
       userEvent.click(screen.getByTestId("comment-edit-cancel-c1"));
 
       expect(onSave).not.toHaveBeenCalled();
-      // back to read-only, original text intact
       expect(screen.queryByTestId("comment-editor-c1")).not.toBeInTheDocument();
       expect(screen.getByText("Casing is intentional.")).toBeInTheDocument();
     });
