@@ -21,7 +21,7 @@ import CommentSubSection from "./CommentSubSection";
 import CommentEntry from "./CommentEntry";
 import DeleteCommentDialog from "./DeleteCommentDialog";
 import { richTextHasContent, sanitizeRichText } from "../../../util/richText";
-import { normalizeUserId } from "../../../util/accessControl";
+import { normalizeUserId } from "../../../util/reviewCommentVisibility";
 
 import { ReviewEntityType } from "../../../util/reviewReadiness";
 import "./CommentsFlyoutPanel.scss";
@@ -263,7 +263,6 @@ const CommentsFlyoutPanel = ({
 
           {sections.map((section) => {
             const isCurrentSection = section.name === mainSection;
-            // a row is shown when it has comments or is the one the user is on
             const subSections = section.subSections.filter(
               (name) =>
                 subSectionKey(section.name, name) in commentsByKey ||

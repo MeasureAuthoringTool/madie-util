@@ -1,22 +1,21 @@
-import { Acl } from "@madie/madie-models/dist/Measure";
-import { hasEditAccess, normalizeUserId } from "./accessControl";
 import { isReviewActive } from "./reviewReadiness";
 
 interface ReviewCommentVisibilityArgs {
   commentingEnabled?: boolean;
   currentUser?: string | null;
-  owner?: string | null;
-  acls?: Acl[] | null;
+  canEdit?: boolean;
   reviewStatus?: string | null;
   hasReviewerRole?: boolean;
   assignedReviewers?: string[] | null;
 }
 
+export const normalizeUserId = (value?: string | null): string =>
+  (value ?? "").trim().toLowerCase();
+
 export const shouldShowReviewCommentLink = ({
   commentingEnabled,
   currentUser,
-  owner,
-  acls,
+  canEdit,
   reviewStatus,
   hasReviewerRole,
   assignedReviewers,
@@ -30,8 +29,7 @@ export const shouldShowReviewCommentLink = ({
     return false;
   }
 
-  const isOwnerOrSharedUserInReview =
-    hasEditAccess(user, owner, acls) && isReviewActive(reviewStatus);
+  const isEditorInReview = Boolean(canEdit) && isReviewActive(reviewStatus);
 
   const isAssignedReviewer =
     Boolean(hasReviewerRole) &&
@@ -39,5 +37,5 @@ export const shouldShowReviewCommentLink = ({
       (reviewer) => normalizeUserId(reviewer) === user
     );
 
-  return isOwnerOrSharedUserInReview || isAssignedReviewer;
+  return isEditorInReview || isAssignedReviewer;
 };

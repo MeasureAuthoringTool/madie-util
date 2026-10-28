@@ -139,7 +139,6 @@ describe("useReviewComments", () => {
   it("does not write when there is no review to write to", async () => {
     mockMeasureApi.getMeasureReview.mockResolvedValue(null);
     const { result } = renderHook(() => useReviewComments("measure", "m1"));
-    // the review resolves to null, which is already the initial state
     await act(async () => {
       await Promise.resolve();
     });
