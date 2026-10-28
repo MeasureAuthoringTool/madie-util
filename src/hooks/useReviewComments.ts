@@ -21,18 +21,6 @@ export interface ReviewComments {
   deleteComment: (comment: Comment) => Promise<boolean>;
 }
 
-/*
-  Owns the review document for a measure or library and the comment writes
-  against it, so the edit pages share one data layer and the flyout panel stays
-  presentational.
-
-  The services expose only PUT on the whole review, so each change sends the
-  full comment array back and the response replaces local state. That makes
-  concurrent commenting last-write-wins; per-comment endpoints would fix it.
-
-  The review dialogs broadcast the review they persist on a window event; the
-  hook listens so status and reviewers stay current without a refetch.
-*/
 export default function useReviewComments(
   entityType: ReviewEntityType,
   entityId: string | undefined,
