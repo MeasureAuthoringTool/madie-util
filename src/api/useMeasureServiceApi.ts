@@ -722,6 +722,19 @@ export class MeasureServiceApi {
     return response.data;
   }
 
+  async cloneMeasure(id: string): Promise<Measure> {
+    const response = await axios.post<Measure>(
+      `${this.baseUrl}/admin/measures/${id}/clone`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+      }
+    );
+    return response.data;
+  }
+
   async checkNextVersionNumber(
     id: string,
     versionType: string
