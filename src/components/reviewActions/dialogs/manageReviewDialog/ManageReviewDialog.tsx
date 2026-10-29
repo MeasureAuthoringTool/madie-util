@@ -21,7 +21,7 @@ import {
   TextField,
   Toast,
 } from "@madie/madie-design-system/dist/react";
-import { UserDetails } from "@madie/madie-models";
+import { Comment, UserDetails } from "@madie/madie-models";
 import useMeasureReviewServiceApi from "../../../../api/useMeasureReviewServiceApi";
 import useCqlLibraryReviewServiceApi from "../../../../api/useCqlLibraryReviewServiceApi";
 import useUserServiceApi from "../../../../api/useUserServiceApi";
@@ -140,7 +140,7 @@ const ManageReviewDialog = ({
   const [reviewId, setReviewId] = useState<string>("");
   const [persistedStatus, setPersistedStatus] = useState<string>("");
   const [persistedReviewers, setPersistedReviewers] = useState<string[]>([]);
-  const [comment, setComment] = useState<string[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [reviewerOptions, setReviewerOptions] = useState<ReviewerOption[]>([]);
   const [toast, setToast] = useState<{
     toastOpen: boolean;
@@ -165,7 +165,7 @@ const ManageReviewDialog = ({
       setReviewId(review?.id ?? "");
       setPersistedStatus(review?.status ?? "");
       setPersistedReviewers(review?.reviewers ?? []);
-      setComment(review?.comment ?? []);
+      setComments(review?.comments ?? []);
     };
 
     const fetchReview = async () => {
@@ -257,7 +257,7 @@ const ManageReviewDialog = ({
       const payload: any = {
         id: reviewId,
         status: statusValue,
-        comment,
+        comments,
         reviewers: values.reviewers,
         ...(isLibrary
           ? { libraryId: entityId, librarySetId: entitySetId }

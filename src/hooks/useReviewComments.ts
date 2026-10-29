@@ -93,7 +93,7 @@ export default function useReviewComments(
         return false;
       }
       try {
-        setReview(await api.update(entityId, { ...review, comment: comments }));
+        setReview(await api.update(entityId, { ...review, comments }));
         return true;
       } catch {
         onErrorRef.current?.(COMMENT_SAVE_ERROR);
@@ -103,7 +103,7 @@ export default function useReviewComments(
     [api, entityId, review]
   );
 
-  const comments = review?.comment ?? [];
+  const comments = review?.comments ?? [];
 
   return {
     review,

@@ -31,7 +31,7 @@ const measureReview = {
   measureSetId: "s1",
   status: "READY_FOR_REVIEW",
   reviewers: ["reviewer"],
-  comment: [existing],
+  comments: [existing],
 };
 
 describe("useReviewComments", () => {
@@ -56,7 +56,7 @@ describe("useReviewComments", () => {
   });
 
   it("uses the library api for a library", async () => {
-    const libraryReview = { id: "r2", libraryId: "l1", comment: [] };
+    const libraryReview = { id: "r2", libraryId: "l1", comments: [] };
     mockLibraryApi.getCqlLibraryReview.mockResolvedValue(libraryReview);
 
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -90,7 +90,7 @@ describe("useReviewComments", () => {
 
     expect(mockMeasureApi.updateMeasureReview).toHaveBeenCalledWith("m1", {
       ...measureReview,
-      comment: [existing, added],
+      comments: [existing, added],
     });
     expect(result.current.comments).toEqual([existing, added]);
   });
@@ -109,7 +109,7 @@ describe("useReviewComments", () => {
     expect(result.current.comments).toEqual([]);
     expect(mockMeasureApi.updateMeasureReview).toHaveBeenLastCalledWith("m1", {
       ...measureReview,
-      comment: [],
+      comments: [],
     });
   });
 
@@ -120,7 +120,7 @@ describe("useReviewComments", () => {
     ];
     mockMeasureApi.getMeasureReview.mockResolvedValue({
       ...measureReview,
-      comment: [first, second],
+      comments: [first, second],
     });
     const { result, waitForNextUpdate } = renderHook(() =>
       useReviewComments("measure", "m1")
@@ -185,7 +185,7 @@ describe("useReviewComments", () => {
   it("resolves true once the comments are saved", async () => {
     mockMeasureApi.updateMeasureReview.mockResolvedValue({
       ...measureReview,
-      comment: [],
+      comments: [],
     });
     const { result, waitForNextUpdate } = renderHook(() =>
       useReviewComments("measure", "m1")
