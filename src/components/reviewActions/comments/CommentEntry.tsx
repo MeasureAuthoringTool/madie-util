@@ -19,22 +19,22 @@ const CommentEntry = ({
   onSave,
   onDelete,
 }: CommentEntryProps) => {
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(comment.content ?? "");
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftContent, setDraftContent] = useState(comment.content ?? "");
 
   const startEditing = () => {
-    setDraft(comment.content ?? "");
-    setEditing(true);
+    setDraftContent(comment.content ?? "");
+    setIsEditing(true);
   };
 
   const cancelEditing = () => {
-    setDraft(comment.content ?? "");
-    setEditing(false);
+    setDraftContent(comment.content ?? "");
+    setIsEditing(false);
   };
 
   const saveEdit = () => {
-    onSave?.(comment, sanitizeRichText(draft));
-    setEditing(false);
+    onSave?.(comment, sanitizeRichText(draftContent));
+    setIsEditing(false);
   };
 
   return (
@@ -72,7 +72,7 @@ const CommentEntry = ({
           </Typography>
         )}
 
-        {canEdit && !editing && (
+        {canEdit && !isEditing && (
           <Box
             className="comments-flyout-panel-comment-actions"
             data-testid={`comment-actions-${comment.id}`}
@@ -101,15 +101,15 @@ const CommentEntry = ({
         )}
       </Box>
 
-      {editing ? (
+      {isEditing ? (
         <Box className="comments-flyout-panel-comment-editor">
           <RichTextEditor
             id={`comment-editor-${comment.id}`}
             name={`comment-editor-${comment.id}`}
             data-testid={`comment-editor-${comment.id}`}
             label=""
-            content={draft}
-            onChange={(value: string) => setDraft(value)}
+            content={draftContent}
+            onChange={(value: string) => setDraftContent(value)}
           />
           <Box className="comments-flyout-panel-comment-editor-actions">
             <Button
@@ -121,7 +121,7 @@ const CommentEntry = ({
             </Button>
             <Button
               variant="outline-cyan"
-              disabled={!richTextHasContent(draft)}
+              disabled={!richTextHasContent(draftContent)}
               onClick={saveEdit}
               data-testid={`comment-edit-save-${comment.id}`}
             >

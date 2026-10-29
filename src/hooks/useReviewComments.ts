@@ -26,29 +26,41 @@ export default function useReviewComments(
   entityId: string | undefined,
   onError?: (message: string) => void
 ): ReviewComments {
-  const measureApi = useRef(useMeasureReviewServiceApi()).current;
-  const libraryApi = useRef(useCqlLibraryReviewServiceApi()).current;
+  const measureReviewApi = useRef(useMeasureReviewServiceApi()).current;
+  const libraryReviewApi = useRef(useCqlLibraryReviewServiceApi()).current;
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
 
   const [review, setReview] = useState<EntityReview | null>(null);
 
-  const api = useMemo(
+  const reviewApi = useMemo(
     () =>
       entityType === "library"
         ? {
             get: (id: string): Promise<EntityReview | null> =>
-              libraryApi.getCqlLibraryReview(id),
-            update: (id: string, next: EntityReview): Promise<EntityReview> =>
-              libraryApi.updateCqlLibraryReview(id, next as CqlLibraryReview),
+              libraryReviewApi.getCqlLibraryReview(id),
+            update: (
+              id: string,
+              updatedReview: EntityReview
+            ): Promise<EntityReview> =>
+              libraryReviewApi.updateCqlLibraryReview(
+                id,
+                updatedReview as CqlLibraryReview
+              ),
           }
         : {
             get: (id: string): Promise<EntityReview | null> =>
-              measureApi.getMeasureReview(id),
-            update: (id: string, next: EntityReview): Promise<EntityReview> =>
-              measureApi.updateMeasureReview(id, next as MeasureReview),
+              measureReviewApi.getMeasureReview(id),
+            update: (
+              id: string,
+              updatedReview: EntityReview
+            ): Promise<EntityReview> =>
+              measureReviewApi.updateMeasureReview(
+                id,
+                updatedReview as MeasureReview
+              ),
           },
-    [entityType, measureApi, libraryApi]
+    [entityType, measureReviewApi, libraryReviewApi]
   );
 
   useEffect(() => {
@@ -57,11 +69,11 @@ export default function useReviewComments(
       return;
     }
     let isMounted = true;
-    api
+    reviewApi
       .get(entityId)
-      .then((loaded) => {
+      .then((loadedReview) => {
         if (isMounted) {
-          setReview(loaded);
+          setReview(loadedReview);
         }
       })
       .catch(() => {
@@ -74,7 +86,7 @@ export default function useReviewComments(
     return () => {
       isMounted = false;
     };
-  }, [api, entityId]);
+  }, [reviewApi, entityId]);
 
   useEffect(() => {
     const eventName = REVIEW_SAVED_EVENTS[entityType];
@@ -93,14 +105,14 @@ export default function useReviewComments(
         return false;
       }
       try {
-        setReview(await api.update(entityId, { ...review, comments }));
+        setReview(await reviewApi.update(entityId, { ...review, comments }));
         return true;
       } catch {
         onErrorRef.current?.(COMMENT_SAVE_ERROR);
         return false;
       }
     },
-    [api, entityId, review]
+    [reviewApi, entityId, review]
   );
 
   const comments = review?.comments ?? [];
@@ -111,13 +123,15 @@ export default function useReviewComments(
     addComment: (comment) => saveComments([...comments, comment]),
     updateComment: (comment) =>
       saveComments(
-        comments.map((existing) =>
-          isSameComment(existing, comment) ? comment : existing
+        comments.map((existingComment) =>
+          isSameComment(existingComment, comment) ? comment : existingComment
         )
       ),
     deleteComment: (comment) =>
       saveComments(
-        comments.filter((existing) => !isSameComment(existing, comment))
+        comments.filter(
+          (existingComment) => !isSameComment(existingComment, comment)
+        )
       ),
   };
 }

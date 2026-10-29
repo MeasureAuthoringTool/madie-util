@@ -24,18 +24,19 @@ export const shouldShowReviewCommentLink = ({
     return false;
   }
 
-  const user = normalizeUserId(currentUser);
-  if (!user) {
+  const normalizedCurrentUser = normalizeUserId(currentUser);
+  if (!normalizedCurrentUser) {
     return false;
   }
 
-  const isEditorInReview = Boolean(canEdit) && isReviewActive(reviewStatus);
+  const hasEditAccessDuringReview =
+    Boolean(canEdit) && isReviewActive(reviewStatus);
 
   const isAssignedReviewer =
     Boolean(hasReviewerRole) &&
     (assignedReviewers ?? []).some(
-      (reviewer) => normalizeUserId(reviewer) === user
+      (reviewer) => normalizeUserId(reviewer) === normalizedCurrentUser
     );
 
-  return isEditorInReview || isAssignedReviewer;
+  return hasEditAccessDuringReview || isAssignedReviewer;
 };
