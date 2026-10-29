@@ -21,12 +21,14 @@ import {
   TextField,
   Toast,
 } from "@madie/madie-design-system/dist/react";
-import { UserDetails } from "@madie/madie-models";
+import { Comment, UserDetails } from "@madie/madie-models";
 import useMeasureReviewServiceApi from "../../../../api/useMeasureReviewServiceApi";
 import useCqlLibraryReviewServiceApi from "../../../../api/useCqlLibraryReviewServiceApi";
 import useUserServiceApi from "../../../../api/useUserServiceApi";
-
-export type ReviewEntityType = "measure" | "library";
+import {
+  REVIEW_SAVED_EVENTS,
+  ReviewEntityType,
+} from "../../../../util/reviewReadiness";
 
 interface ManageReviewDialogProps {
   open: boolean;
@@ -49,11 +51,6 @@ const REVIEW_STATUS_LABELS: Record<string, string> = {
 const REVIEW_STATUS_VALUES: Record<string, string> = Object.entries(
   REVIEW_STATUS_LABELS
 ).reduce((acc, [value, label]) => ({ ...acc, [label]: value }), {});
-
-const SAVED_EVENTS: Record<ReviewEntityType, string> = {
-  measure: "review-measure-saved",
-  library: "review-library-saved",
-};
 
 export interface ReviewerOption {
   harpId: string;
@@ -143,7 +140,7 @@ const ManageReviewDialog = ({
   const [reviewId, setReviewId] = useState<string>("");
   const [persistedStatus, setPersistedStatus] = useState<string>("");
   const [persistedReviewers, setPersistedReviewers] = useState<string[]>([]);
-  const [comment, setComment] = useState<string[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [reviewerOptions, setReviewerOptions] = useState<ReviewerOption[]>([]);
   const [toast, setToast] = useState<{
     toastOpen: boolean;
@@ -168,7 +165,7 @@ const ManageReviewDialog = ({
       setReviewId(review?.id ?? "");
       setPersistedStatus(review?.status ?? "");
       setPersistedReviewers(review?.reviewers ?? []);
-      setComment(review?.comment ?? []);
+      setComments(review?.comments ?? []);
     };
 
     const fetchReview = async () => {
@@ -260,7 +257,7 @@ const ManageReviewDialog = ({
       const payload: any = {
         id: reviewId,
         status: statusValue,
-        comment,
+        comments,
         reviewers: values.reviewers,
         ...(isLibrary
           ? { libraryId: entityId, librarySetId: entitySetId }
@@ -297,7 +294,7 @@ const ManageReviewDialog = ({
           toastMessage: "Review information has been saved successfully.",
         });
         window.dispatchEvent(
-          new CustomEvent(SAVED_EVENTS[entityType], { detail: saved })
+          new CustomEvent(REVIEW_SAVED_EVENTS[entityType], { detail: saved })
         );
         await onSuccess?.();
         onClose();

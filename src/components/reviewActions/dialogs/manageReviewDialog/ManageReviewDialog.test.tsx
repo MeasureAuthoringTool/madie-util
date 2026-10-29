@@ -143,7 +143,7 @@ describe("ManageReviewDialog", () => {
     mockLibraryReviewServiceApi.getCqlLibraryReview.mockResolvedValue({
       id: "review-1",
       status: "READY_FOR_REVIEW",
-      comment: "<p></p>",
+      comments: [],
     });
 
     renderDialog({ entityType: "library", entityId: "library-1" });
@@ -159,7 +159,7 @@ describe("ManageReviewDialog", () => {
     mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue({
       id: "review-1",
       status: "IN_PROGRESS",
-      comment: "<p>Please take a look</p>",
+      comments: "<p>Please take a look</p>",
     });
 
     renderDialog();
@@ -178,7 +178,7 @@ describe("ManageReviewDialog", () => {
     mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue({
       id: "review-1",
       status: "IN_PROGRESS",
-      comment: "<p>Please take a look</p>",
+      comments: [],
     });
 
     renderDialog();
@@ -253,7 +253,7 @@ describe("ManageReviewDialog", () => {
     mockLibraryReviewServiceApi.getCqlLibraryReview.mockResolvedValue({
       id: "review-1",
       status: "COMPLETE",
-      comment: "<p>Library comment</p>",
+      comments: [],
     });
 
     renderDialog({ entityType: "library", entityId: "library-1" });
@@ -350,7 +350,7 @@ describe("ManageReviewDialog", () => {
       mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue({
         id: "review-1",
         status: "READY_FOR_REVIEW",
-        comment: "<p></p>",
+        comments: [],
       });
 
       renderDialog();
@@ -384,7 +384,7 @@ describe("ManageReviewDialog", () => {
       mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue({
         id: "review-1",
         status: "IN_PROGRESS",
-        comment: "<p></p>",
+        comments: [],
         reviewers: ["reviewer1"],
       });
 
@@ -432,7 +432,7 @@ describe("ManageReviewDialog", () => {
       mockMeasureReviewServiceApi.getMeasureReview.mockResolvedValue({
         id: "review-1",
         status: "READY_FOR_REVIEW",
-        comment: "<p></p>",
+        comments: [],
       });
 
       renderDialog();

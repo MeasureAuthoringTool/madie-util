@@ -1,0 +1,145 @@
+import React, { useState } from "react";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
+import { Pencil, Trash2 } from "lucide-react";
+import { Button, RichTextEditor } from "@madie/madie-design-system/dist/react";
+import { Comment } from "@madie/madie-models";
+import { formatReviewCommentDate } from "../../../util/reviewReadiness";
+import { richTextHasContent, sanitizeRichText } from "../../../util/richText";
+
+export interface CommentEntryProps {
+  comment: Comment;
+  canEdit?: boolean;
+  onSave?: (comment: Comment, content: string) => void;
+  onDelete?: (comment: Comment) => void;
+}
+
+const CommentEntry = ({
+  comment,
+  canEdit = false,
+  onSave,
+  onDelete,
+}: CommentEntryProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftContent, setDraftContent] = useState(comment.content ?? "");
+
+  const startEditing = () => {
+    setDraftContent(comment.content ?? "");
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setDraftContent(comment.content ?? "");
+    setIsEditing(false);
+  };
+
+  const saveEdit = () => {
+    onSave?.(comment, sanitizeRichText(draftContent));
+    setIsEditing(false);
+  };
+
+  return (
+    <Box
+      className="comments-flyout-panel-comment"
+      data-testid={`comment-${comment.id}`}
+    >
+      <Box className="comments-flyout-panel-comment-meta">
+        <Typography
+          component="span"
+          className="comments-flyout-panel-comment-author"
+        >
+          {comment.authorName}
+        </Typography>
+        <Typography
+          component="span"
+          className="comments-flyout-panel-comment-separator"
+          aria-hidden="true"
+        >
+          &middot;
+        </Typography>
+        <Typography
+          component="span"
+          className="comments-flyout-panel-comment-date"
+        >
+          {formatReviewCommentDate(comment.createdAt)}
+        </Typography>
+        {comment.edited && (
+          <Typography
+            component="span"
+            className="comments-flyout-panel-comment-edited"
+            data-testid={`comment-edited-${comment.id}`}
+          >
+            (edited)
+          </Typography>
+        )}
+
+        {canEdit && !isEditing && (
+          <Box
+            className="comments-flyout-panel-comment-actions"
+            data-testid={`comment-actions-${comment.id}`}
+          >
+            <Tooltip title="Edit comment" arrow>
+              <IconButton
+                size="small"
+                aria-label="Edit comment"
+                data-testid={`comment-edit-${comment.id}`}
+                onClick={startEditing}
+              >
+                <Pencil size={16} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete comment" arrow>
+              <IconButton
+                size="small"
+                aria-label="Delete comment"
+                data-testid={`comment-delete-${comment.id}`}
+                onClick={() => onDelete?.(comment)}
+              >
+                <Trash2 size={16} />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
+      </Box>
+
+      {isEditing ? (
+        <Box className="comments-flyout-panel-comment-editor">
+          <RichTextEditor
+            id={`comment-editor-${comment.id}`}
+            name={`comment-editor-${comment.id}`}
+            data-testid={`comment-editor-${comment.id}`}
+            label=""
+            content={draftContent}
+            onChange={(value: string) => setDraftContent(value)}
+          />
+          <Box className="comments-flyout-panel-comment-editor-actions">
+            <Button
+              variant="outline-secondary"
+              onClick={cancelEditing}
+              data-testid={`comment-edit-cancel-${comment.id}`}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="outline-cyan"
+              disabled={!richTextHasContent(draftContent)}
+              onClick={saveEdit}
+              data-testid={`comment-edit-save-${comment.id}`}
+            >
+              Save
+            </Button>
+          </Box>
+        </Box>
+      ) : (
+        <Typography
+          component="div"
+          className="comments-flyout-panel-comment-body"
+          dangerouslySetInnerHTML={{
+            __html: sanitizeRichText(comment.content),
+          }}
+        />
+      )}
+    </Box>
+  );
+};
+
+export default CommentEntry;

@@ -98,11 +98,10 @@ import {
   ManageReviewDialog,
   REVIEW_STATUS_OPTIONS,
   ReviewCommentLink,
-  formatReviewCommentDate,
-  getReadyForReviewMessage,
-  ReviewSubSection,
   CommentsFlyoutPanel,
 } from "./components/reviewActions";
+import { default as useReviewComments } from "./hooks/useReviewComments";
+import { REVIEW_ACTIVE_STATUSES } from "./util/reviewReadiness";
 
 export {
   useServiceConfig,
@@ -175,10 +174,9 @@ export {
   ManageReviewDialog,
   REVIEW_STATUS_OPTIONS,
   ReviewCommentLink,
-  formatReviewCommentDate,
-  getReadyForReviewMessage,
-  ReviewSubSection,
   CommentsFlyoutPanel,
+  useReviewComments,
+  REVIEW_ACTIVE_STATUSES,
   getNewestMeasureInstance,
   exportMeasure,
   downloadZipFile,

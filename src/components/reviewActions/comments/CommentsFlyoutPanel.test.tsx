@@ -1,11 +1,13 @@
 import * as React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import CommentsFlyoutPanel from "./CommentsFlyoutPanel";
 import userEvent from "@testing-library/user-event";
 jest.mock("@madie/madie-design-system/dist/react", () => ({
   Button: ({ children, ...props }: any) => (
     <button {...props}>{children}</button>
   ),
+  Toast: ({ open, message, testId }: any) =>
+    open ? <div data-testid={testId}>{message}</div> : null,
   RichTextEditor: ({ label, content, onChange, ...props }: any) => (
     <div>
       <div data-testid="comments-flyout-label">{label}</div>
@@ -30,6 +32,16 @@ const sections = [
   },
   { name: "Test Cases", subSections: ["Population Criteria 1", "SDE"] },
 ];
+
+const commentOn = (mainSection: string, subSection: string) => ({
+  id: `${mainSection}-${subSection}`,
+  mainSection,
+  subSection,
+  authorName: "Sarah Mitchell",
+  createdAt: "2025-06-18T10:42:00.000Z",
+  edited: false,
+  content: "<p>A stored comment</p>",
+});
 
 const titlesIn = (container: Element) =>
   Array.from(
@@ -158,7 +170,7 @@ describe("CommentsFlyoutPanel", () => {
         open
         onClose={jest.fn()}
         activeSection={{ activeSubSection: "Details" }}
-        readyForReviewAt="2026-08-12T09:00:00"
+        markedForReviewAt="2026-08-12T09:00:00"
       />
     );
     expect(
@@ -172,7 +184,7 @@ describe("CommentsFlyoutPanel", () => {
         open
         onClose={jest.fn()}
         activeSection={{ activeSubSection: "Details" }}
-        readyForReviewAt="2026-08-12T09:00:00"
+        markedForReviewAt="2026-08-12T09:00:00"
       />
     );
     expect(
@@ -222,9 +234,9 @@ describe("CommentsFlyoutPanel", () => {
           activeMainSection: "CQL Editor",
           activeSubSection: "CQL Editor",
         }}
-        commentedSubSections={[
-          "Details::Model & Measurement Period",
-          "Population Criteria::Criteria 2",
+        comments={[
+          commentOn("Details", "Model & Measurement Period"),
+          commentOn("Population Criteria", "Criteria 2"),
         ]}
       />
     );
@@ -334,7 +346,7 @@ describe("CommentsFlyoutPanel", () => {
           activeMainSection: "Population Criteria",
           activeSubSection: "Criteria 1",
         }}
-        commentedSubSections={["Population Criteria::Supplemental Data"]}
+        comments={[commentOn("Population Criteria", "Supplemental Data")]}
       />
     );
 
@@ -379,7 +391,7 @@ describe("CommentsFlyoutPanel", () => {
           activeMainSection: "CQL Editor",
           activeSubSection: "CQL Editor",
         }}
-        commentedSubSections={["Details::Name, Version & ID"]}
+        comments={[commentOn("Details", "Name, Version & ID")]}
       />
     );
 
@@ -440,8 +452,8 @@ describe("CommentsFlyoutPanel", () => {
         open
         onClose={jest.fn()}
         activeSection={{ activeSubSection: "Details" }}
-        readyForReviewBy="jjones"
-        readyForReviewAt="2026-08-12T09:00:00"
+        markedForReviewBy="jjones"
+        markedForReviewAt="2026-08-12T09:00:00"
       />
     );
     expect(
@@ -450,5 +462,389 @@ describe("CommentsFlyoutPanel", () => {
     expect(
       screen.getByTestId("ready-for-review-comment-date")
     ).toHaveTextContent("Aug 12, 2026");
+  });
+
+  describe("adding a comment", () => {
+    const renderPanel = (props: any = {}) =>
+      render(
+        <CommentsFlyoutPanel
+          entityType="measure"
+          sections={sections}
+          open
+          onClose={jest.fn()}
+          activeSection={{
+            activeMainSection: "Population Criteria",
+            activeSubSection: "Criteria 1",
+          }}
+          currentUserName="Jonathan Jones"
+          currentUserId="jjones"
+          {...props}
+        />
+      );
+
+    it("tags the new comment with the section the user is on", () => {
+      const onAddComment = jest.fn();
+      renderPanel({ onAddComment });
+
+      userEvent.type(
+        screen.getByTestId("comments-flyout-input"),
+        "<p>Needs a look</p>"
+      );
+      userEvent.click(screen.getByTestId("comments-flyout-add"));
+
+      expect(onAddComment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mainSection: "Population Criteria",
+          subSection: "Criteria 1",
+          authorName: "Jonathan Jones",
+          content: "<p>Needs a look</p>",
+          edited: false,
+        })
+      );
+    });
+
+    it("clears the field and disables both buttons afterwards", () => {
+      renderPanel({ onAddComment: jest.fn() });
+
+      const input = screen.getByTestId("comments-flyout-input");
+      userEvent.type(input, "<p>Needs a look</p>");
+      expect(screen.getByTestId("comments-flyout-add")).toBeEnabled();
+
+      userEvent.click(screen.getByTestId("comments-flyout-add"));
+
+      expect(input).toHaveValue("");
+      expect(screen.getByTestId("comments-flyout-add")).toBeDisabled();
+      expect(screen.getByTestId("comments-flyout-cancel")).toBeDisabled();
+    });
+
+    it("lists stored comments oldest first", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "newer",
+            createdAt: "2025-06-20T09:00:00.000Z",
+            content: "<p>Second</p>",
+          },
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "older",
+            createdAt: "2025-06-18T09:00:00.000Z",
+            content: "<p>First</p>",
+          },
+        ],
+      });
+
+      const rendered = Array.from(
+        document.querySelectorAll(".comments-flyout-panel-comment-body")
+      ).map((node) => node.textContent);
+      expect(rendered).toEqual(["First", "Second"]);
+    });
+
+    it("only offers the action center on the signed-in user's comments", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "theirs",
+            authorName: "David Park",
+          },
+        ],
+      });
+
+      expect(screen.getByTestId("comment-actions-mine")).toBeInTheDocument();
+      expect(
+        screen.queryByTestId("comment-actions-theirs")
+      ).not.toBeInTheDocument();
+    });
+
+    it("keys a test case's comments by id so a renamed test case keeps them", () => {
+      const testCaseSections = [
+        ...sections.filter((section) => section.name !== "Test Cases"),
+        {
+          name: "Test Cases",
+          subSections: [
+            "Population Criteria 1",
+            { id: "tc-1", name: "Series B - New title" },
+          ],
+        },
+      ];
+      renderPanel({
+        sections: testCaseSections,
+        activeSection: {
+          activeMainSection: "Test Cases",
+          activeSubSection: "Series B - New title",
+          activeSubSectionId: "tc-1",
+        },
+        comments: [
+          {
+            ...commentOn("Test Cases", undefined),
+            id: "renamed",
+            subSectionId: "tc-1",
+            content: "<p>Still attached</p>",
+          },
+        ],
+      });
+
+      expect(screen.getByText("Still attached")).toBeInTheDocument();
+      expect(rowFor("Series B - New title")).toContainElement(
+        screen.getByText("Still attached")
+      );
+    });
+
+    it("stamps a new test case comment with the test case id and no name", () => {
+      const onAddComment = jest.fn();
+      renderPanel({
+        onAddComment,
+        activeSection: {
+          activeMainSection: "Test Cases",
+          activeSubSection: "Series A - Example case",
+          activeSubSectionId: "tc-1",
+        },
+      });
+
+      userEvent.type(
+        screen.getByTestId("comments-flyout-input"),
+        "<p>On the test case</p>"
+      );
+      userEvent.click(screen.getByTestId("comments-flyout-add"));
+
+      expect(onAddComment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mainSection: "Test Cases",
+          subSectionId: "tc-1",
+        })
+      );
+      expect(onAddComment.mock.calls[0][0].subSection).toBeUndefined();
+    });
+
+    it("stamps the new comment with the signed-in user's HARP id", () => {
+      const onAddComment = jest.fn();
+      renderPanel({ onAddComment });
+
+      userEvent.type(
+        screen.getByTestId("comments-flyout-input"),
+        "<p>Needs a look</p>"
+      );
+      userEvent.click(screen.getByTestId("comments-flyout-add"));
+
+      expect(onAddComment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          harpId: "jjones",
+          authorName: "Jonathan Jones",
+        })
+      );
+    });
+
+    it("decides the action center by harpId when the comment has one", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "same-name-other-user",
+            harpId: "jjones2",
+            authorName: "Jonathan Jones",
+          },
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "renamed-me",
+            harpId: "JJones",
+            authorName: "Jon Jones",
+          },
+        ],
+      });
+
+      expect(
+        screen.queryByTestId("comment-actions-same-name-other-user")
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByTestId("comment-actions-renamed-me")
+      ).toBeInTheDocument();
+    });
+
+    it("recognises the author by HARP id when no name was resolved", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "harp",
+            authorName: "jjones",
+          },
+        ],
+      });
+
+      expect(screen.getByTestId("comment-actions-harp")).toBeInTheDocument();
+    });
+
+    it("marks an edited comment without moving its timestamp", () => {
+      const onUpdateComment = jest.fn();
+      const stored = {
+        ...commentOn("Population Criteria", "Criteria 1"),
+        id: "mine",
+        authorName: "Jonathan Jones",
+      };
+      renderPanel({ comments: [stored], onUpdateComment });
+
+      userEvent.click(screen.getByTestId("comment-edit-mine"));
+      userEvent.clear(screen.getByTestId("comment-editor-mine"));
+      userEvent.type(screen.getByTestId("comment-editor-mine"), "<p>New</p>");
+      userEvent.click(screen.getByTestId("comment-edit-save-mine"));
+
+      expect(onUpdateComment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "mine",
+          content: "<p>New</p>",
+          edited: true,
+          createdAt: stored.createdAt,
+        })
+      );
+    });
+
+    it("reports a confirmed delete", async () => {
+      const onDeleteComment = jest.fn();
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+        ],
+        onDeleteComment,
+      });
+
+      userEvent.click(screen.getByTestId("comment-delete-mine"));
+      userEvent.click(screen.getByTestId("delete-comment-confirm"));
+
+      expect(onDeleteComment).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "mine" })
+      );
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId("delete-comment-dialog")
+        ).not.toBeInTheDocument()
+      );
+    });
+
+    it("keeps the confirmation open until the delete has finished, then confirms it", async () => {
+      let finishDelete: (saved: boolean) => void;
+      const onDeleteComment = jest.fn(
+        () =>
+          new Promise<boolean>((resolve) => {
+            finishDelete = resolve;
+          })
+      );
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+        ],
+        onDeleteComment,
+      });
+
+      userEvent.click(screen.getByTestId("comment-delete-mine"));
+      userEvent.click(screen.getByTestId("delete-comment-confirm"));
+
+      // still in flight: dialog up, buttons locked, no toast yet
+      expect(screen.getByText("Delete this comment?")).toBeInTheDocument();
+      expect(screen.getByTestId("delete-comment-confirm")).toBeDisabled();
+      expect(screen.getByTestId("delete-comment-cancel")).toBeDisabled();
+      expect(
+        screen.queryByText("Comment has been deleted.")
+      ).not.toBeInTheDocument();
+
+      await act(async () => {
+        finishDelete(true);
+      });
+
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId("delete-comment-dialog")
+        ).not.toBeInTheDocument()
+      );
+      expect(screen.getByText("Comment has been deleted.")).toBeInTheDocument();
+    });
+
+    it("leaves the confirmation open when the delete did not save", async () => {
+      const onDeleteComment = jest.fn().mockResolvedValue(false);
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+        ],
+        onDeleteComment,
+      });
+
+      userEvent.click(screen.getByTestId("comment-delete-mine"));
+      await act(async () => {
+        userEvent.click(screen.getByTestId("delete-comment-confirm"));
+      });
+
+      expect(onDeleteComment).toHaveBeenCalledTimes(1);
+      expect(screen.getByText("Delete this comment?")).toBeInTheDocument();
+      expect(screen.getByTestId("delete-comment-confirm")).toBeEnabled();
+      expect(
+        screen.queryByText("Comment has been deleted.")
+      ).not.toBeInTheDocument();
+    });
+
+    it("keeps the comment when the delete is cancelled", async () => {
+      const onDeleteComment = jest.fn();
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+        ],
+        onDeleteComment,
+      });
+
+      userEvent.click(screen.getByTestId("comment-delete-mine"));
+      expect(screen.getByText("Delete this comment?")).toBeInTheDocument();
+
+      userEvent.click(screen.getByTestId("delete-comment-cancel"));
+
+      expect(onDeleteComment).not.toHaveBeenCalled();
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId("delete-comment-dialog")
+        ).not.toBeInTheDocument()
+      );
+    });
+
+    it("shows the delete confirmation inside the flyout, not over the page", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Population Criteria", "Criteria 1"),
+            id: "mine",
+            authorName: "Jonathan Jones",
+          },
+        ],
+      });
+
+      userEvent.click(screen.getByTestId("comment-delete-mine"));
+
+      const panel = screen.getByRole("dialog", {
+        name: "Comments",
+        hidden: true,
+      });
+      expect(panel.contains(screen.getByTestId("delete-comment-dialog"))).toBe(
+        true
+      );
+    });
   });
 });
