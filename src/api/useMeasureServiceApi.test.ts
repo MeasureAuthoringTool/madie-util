@@ -959,6 +959,20 @@ describe("MeasureServiceApi admin coverage", () => {
     );
   });
 
+  it("cloneMeasure posts to the admin clone endpoint and returns the clone", async () => {
+    const clone = { id: "clone-1", measureName: "CLONE Measure" } as Measure;
+    mockedAxios.post.mockResolvedValue({ data: clone });
+
+    const result = await api.cloneMeasure("measure-1");
+
+    expect(result).toEqual(clone);
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      `${mockBaseUrl}/admin/measures/measure-1/clone`,
+      {},
+      { headers: { Authorization: "Bearer mock-token" } }
+    );
+  });
+
   it("unlockMeasures unlocks measures successfully", async () => {
     const resp = { status: 200, data: "success" };
     mockedAxios.delete.mockResolvedValue(resp);
