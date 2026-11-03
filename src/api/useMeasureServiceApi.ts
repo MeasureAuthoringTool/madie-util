@@ -724,8 +724,8 @@ export class MeasureServiceApi {
 
   async cloneMeasure(id: string): Promise<Measure> {
     const response = await axios.post<Measure>(
-      `${this.baseUrl}/admin/measures/${id}/clone`,
-      {},
+      `${this.baseUrl}/admin/measures/clone`,
+      { measureId: id },
       {
         headers: {
           Authorization: `Bearer ${this.getAccessToken()}`,

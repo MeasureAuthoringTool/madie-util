@@ -959,7 +959,7 @@ describe("MeasureServiceApi admin coverage", () => {
     );
   });
 
-  it("cloneMeasure posts to the admin clone endpoint and returns the clone", async () => {
+  it("cloneMeasure posts the measure id to the admin clone endpoint and returns the clone", async () => {
     const clone = { id: "clone-1", measureName: "CLONE Measure" } as Measure;
     mockedAxios.post.mockResolvedValue({ data: clone });
 
@@ -967,8 +967,8 @@ describe("MeasureServiceApi admin coverage", () => {
 
     expect(result).toEqual(clone);
     expect(mockedAxios.post).toHaveBeenCalledWith(
-      `${mockBaseUrl}/admin/measures/measure-1/clone`,
-      {},
+      `${mockBaseUrl}/admin/measures/clone`,
+      { measureId: "measure-1" },
       { headers: { Authorization: "Bearer mock-token" } }
     );
   });
