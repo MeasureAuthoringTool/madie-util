@@ -251,7 +251,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 32px 40px 24px 40px;
+  padding: 32px 40px 8px 40px;
   text-align: center;
 
   .comments-flyout-panel-delete-dialog-title {
@@ -265,13 +265,6 @@
     font-family: Rubik, sans-serif;
     font-size: 14px;
     color: #717171;
-  }
-
-  .comments-flyout-panel-delete-dialog-actions {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 16px;
   }
 }
 
@@ -292,6 +285,15 @@
   .MuiDialog-paper {
     margin: 16px;
     box-shadow: none;
-    background-color: transparent;
+    background-color: transparent !important;
+  }
+
+  .MuiDivider-root {
+    display: none;
+  }
+
+  .MuiDialogActions-root {
+    justify-content: center;
+    padding: 0 0 24px 0;
   }
 }
