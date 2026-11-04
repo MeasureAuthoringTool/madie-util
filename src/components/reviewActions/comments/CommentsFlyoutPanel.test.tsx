@@ -8,6 +8,35 @@ jest.mock("@madie/madie-design-system/dist/react", () => ({
   ),
   Toast: ({ open, message, testId }: any) =>
     open ? <div data-testid={testId}>{message}</div> : null,
+  MadieDialog: ({
+    dialogProps,
+    cancelButtonProps,
+    continueButtonProps,
+    children,
+  }: any) =>
+    dialogProps.open ? (
+      <div
+        role="dialog"
+        data-testid={dialogProps["data-testid"]}
+        className={dialogProps.className}
+      >
+        {children}
+        <button
+          data-testid={cancelButtonProps["data-testid"]}
+          disabled={cancelButtonProps.disabled}
+          onClick={cancelButtonProps.onClick}
+        >
+          {cancelButtonProps.cancelText}
+        </button>
+        <button
+          data-testid={continueButtonProps["data-testid"]}
+          disabled={continueButtonProps.disabled}
+          onClick={continueButtonProps.onClick}
+        >
+          {continueButtonProps.continueText}
+        </button>
+      </div>
+    ) : null,
   RichTextEditor: ({ label, content, onChange, ...props }: any) => (
     <div>
       <div data-testid="comments-flyout-label">{label}</div>
