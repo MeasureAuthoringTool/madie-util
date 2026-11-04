@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -10,22 +10,38 @@ import {
   Typography,
 } from "@mui/material";
 import { MessageSquare, X, ChevronRight } from "lucide-react";
-import { Button, RichTextEditor } from "@madie/madie-design-system/dist/react";
+import {
+  Button,
+  RichTextEditor,
+  Toast,
+} from "@madie/madie-design-system/dist/react";
+import { Comment } from "@madie/madie-models";
 import ReviewSubSection from "./general/ReviewSubSection";
 import CommentSubSection from "./CommentSubSection";
+import CommentEntry from "./CommentEntry";
+import DeleteCommentDialog from "./DeleteCommentDialog";
+import { richTextHasContent, sanitizeRichText } from "../../../util/richText";
+import { normalizeUserId } from "../../../util/reviewCommentVisibility";
+
 import { ReviewEntityType } from "../../../util/reviewReadiness";
 import "./CommentsFlyoutPanel.scss";
 
 const GENERAL_SECTION = "General";
 
+export interface CommentSubSectionItem {
+  id?: string;
+  name: string;
+}
+
 export interface CommentSection {
   name: string;
-  subSections: string[];
+  subSections: Array<string | CommentSubSectionItem>;
 }
 
 export interface CommentSectionLocation {
   activeMainSection?: string;
   activeSubSection: string;
+  activeSubSectionId?: string;
 }
 
 export interface CommentsFlyoutPanelProps {
@@ -34,14 +50,19 @@ export interface CommentsFlyoutPanelProps {
   entityType: ReviewEntityType;
   sections: CommentSection[];
   activeSection: CommentSectionLocation;
-  commentedSubSections?: string[];
-  readyForReviewBy?: string;
-  readyForReviewAt?: string;
+  comments?: Comment[];
+  currentUserId?: string;
+  onAddComment?: (comment: Comment) => void;
+  onUpdateComment?: (comment: Comment) => void;
+  onDeleteComment?: (comment: Comment) => void | Promise<boolean | void>;
+  currentUserName?: string;
+  markedForReviewBy?: string;
+  markedForReviewAt?: string;
 }
 
 const MAX_LABEL_LENGTH = 50;
-const getAddCommentLabel = (subSection: string) => {
-  const fullLabel = `Add a comment to ${subSection}`;
+const getAddCommentLabel = (subSectionName: string) => {
+  const fullLabel = `Add a comment to ${subSectionName}`;
   const isLabelTruncated = fullLabel.length > MAX_LABEL_LENGTH;
 
   if (!isLabelTruncated) {
@@ -56,8 +77,17 @@ const getAddCommentLabel = (subSection: string) => {
   );
 };
 
-const subSectionKey = (section: string, subSection: string) =>
-  `${section}::${subSection}`;
+const toSubSectionItem = (
+  entry: string | CommentSubSectionItem
+): CommentSubSectionItem =>
+  typeof entry === "string" ? { name: entry } : entry;
+
+const subSectionKey = (
+  section: string,
+  subSection: string,
+  subSectionId?: string
+) =>
+  subSectionId ? `${section}::#${subSectionId}` : `${section}::${subSection}`;
 
 const CommentsFlyoutPanel = ({
   open,
@@ -65,35 +95,73 @@ const CommentsFlyoutPanel = ({
   entityType,
   sections,
   activeSection,
-  commentedSubSections = [],
-  readyForReviewBy,
-  readyForReviewAt,
+  comments = [],
+  currentUserName,
+  currentUserId,
+  onAddComment,
+  onUpdateComment,
+  onDeleteComment,
+  markedForReviewBy,
+  markedForReviewAt,
 }: CommentsFlyoutPanelProps) => {
-  const { activeMainSection: mainSection, activeSubSection: subSection } =
-    activeSection;
-  const [comment, setComment] = useState("");
+  const {
+    activeMainSection: mainSection,
+    activeSubSection: subSection,
+    activeSubSectionId: subSectionId,
+  } = activeSection;
+  const [draftComment, setDraftComment] = useState("");
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [expandedSubSection, setExpandedSubSection] = useState<{
     section: string;
     key: string;
   }>(null);
-  const [selectedSubSection, setSelectedSubSection] = useState<string>(null);
-  const currentKey = mainSection
-    ? subSectionKey(mainSection, subSection)
+  const [selectedSubSectionKey, setSelectedSubSectionKey] =
+    useState<string>(null);
+  const [commentToDelete, setCommentToDelete] = useState<Comment | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletedToastOpen, setDeletedToastOpen] = useState(false);
+
+  const authorName = currentUserName || currentUserId || "Unknown user";
+
+  const activeSubSectionKey = mainSection
+    ? subSectionKey(mainSection, subSection, subSectionId)
     : null;
-  const hasComment =
-    comment
-      .replace(/<[^>]*>/g, "")
-      .replace(/&nbsp;/g, " ")
-      .trim().length > 0;
+  const hasDraftContent = richTextHasContent(draftComment);
+
+  const commentsBySubSectionKey = useMemo(() => {
+    const buckets = comments.reduce<Record<string, Comment[]>>(
+      (grouped, comment) => {
+        const key = subSectionKey(
+          comment.mainSection,
+          comment.subSection,
+          comment.subSectionId
+        );
+        if (!grouped[key]) {
+          grouped[key] = [];
+        }
+        grouped[key].push(comment);
+        return grouped;
+      },
+      {}
+    );
+
+    Object.values(buckets).forEach((bucket) =>
+      bucket.sort((a, b) =>
+        (a.createdAt ?? "").localeCompare(b.createdAt ?? "")
+      )
+    );
+    return buckets;
+  }, [comments]);
 
   useEffect(() => {
     setExpandedSections(mainSection ? [mainSection] : []);
     setExpandedSubSection(
-      currentKey ? { section: mainSection, key: currentKey } : null
+      activeSubSectionKey
+        ? { section: mainSection, key: activeSubSectionKey }
+        : null
     );
-    setSelectedSubSection(currentKey);
-  }, [mainSection, subSection, open]);
+    setSelectedSubSectionKey(activeSubSectionKey);
+  }, [mainSection, activeSubSectionKey, open]);
 
   const toggleSection = (section: string, expanded: boolean) =>
     setExpandedSections((sections) =>
@@ -107,7 +175,7 @@ const CommentsFlyoutPanel = ({
     key: string,
     expanded: boolean
   ) => {
-    setSelectedSubSection(key);
+    setSelectedSubSectionKey(key);
     setExpandedSubSection(expanded ? { section, key } : null);
     if (expanded && expandedSubSection?.section !== section) {
       setExpandedSections((sections) => [
@@ -119,9 +187,68 @@ const CommentsFlyoutPanel = ({
     }
   };
 
+  const handleAddComment = () => {
+    const newComment: Comment = {
+      id: undefined,
+      mainSection,
+      subSection: subSectionId ? undefined : subSection,
+      subSectionId,
+      harpId: currentUserId,
+      authorName,
+      createdAt: new Date().toISOString(),
+      edited: false,
+      content: sanitizeRichText(draftComment),
+    };
+
+    onAddComment?.(newComment);
+    setDraftComment("");
+  };
+
+  const handleUpdateComment = (
+    commentToUpdate: Comment,
+    updatedContent: string
+  ) => {
+    onUpdateComment?.({
+      ...commentToUpdate,
+      content: updatedContent,
+      edited: true,
+    });
+  };
+
+  const isCurrentUserAuthor = (comment: Comment) => {
+    const harpId = normalizeUserId(comment.harpId);
+    if (harpId) {
+      return harpId === normalizeUserId(currentUserId);
+    }
+    const author = normalizeUserId(comment.authorName);
+    return (
+      author.length > 0 &&
+      [currentUserName, currentUserId].some(
+        (candidate) => normalizeUserId(candidate) === author
+      )
+    );
+  };
+
   const handleClose = () => {
-    setComment("");
+    setCommentToDelete(null);
+    setDraftComment("");
     onClose();
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!commentToDelete) {
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      const deleted = await onDeleteComment?.(commentToDelete);
+      if (deleted !== false) {
+        setCommentToDelete(null);
+        setDeletedToastOpen(true);
+      }
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -173,14 +300,14 @@ const CommentsFlyoutPanel = ({
             <AccordionDetails className="comments-flyout-panel-section-details">
               <ReviewSubSection
                 entityType={entityType}
-                readyForReviewBy={readyForReviewBy}
-                readyForReviewAt={readyForReviewAt}
+                markedForReviewBy={markedForReviewBy}
+                markedForReviewAt={markedForReviewAt}
                 expanded={
                   expandedSubSection?.key ===
                   subSectionKey(GENERAL_SECTION, "Review")
                 }
                 highlighted={
-                  selectedSubSection ===
+                  selectedSubSectionKey ===
                   subSectionKey(GENERAL_SECTION, "Review")
                 }
                 onToggle={(expanded) =>
@@ -196,15 +323,28 @@ const CommentsFlyoutPanel = ({
 
           {sections.map((section) => {
             const isCurrentSection = section.name === mainSection;
-            const subSections = section.subSections.filter(
-              (name) =>
-                commentedSubSections.includes(
-                  subSectionKey(section.name, name)
-                ) ||
-                (isCurrentSection && name === subSection)
-            );
-            if (isCurrentSection && !subSections.includes(subSection)) {
-              subSections.push(subSection);
+            const keyForSubSection = (subSectionItem: CommentSubSectionItem) =>
+              subSectionKey(
+                section.name,
+                subSectionItem.name,
+                subSectionItem.id
+              );
+            const subSections = section.subSections
+              .map(toSubSectionItem)
+              .filter(
+                (subSectionItem) =>
+                  keyForSubSection(subSectionItem) in commentsBySubSectionKey ||
+                  (isCurrentSection &&
+                    keyForSubSection(subSectionItem) === activeSubSectionKey)
+              );
+            if (
+              isCurrentSection &&
+              !subSections.some(
+                (subSectionItem) =>
+                  keyForSubSection(subSectionItem) === activeSubSectionKey
+              )
+            ) {
+              subSections.push({ id: subSectionId, name: subSection });
             }
 
             return (
@@ -227,24 +367,34 @@ const CommentsFlyoutPanel = ({
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails className="comments-flyout-panel-section-details">
-                  {subSections.map((name) => {
-                    const key = subSectionKey(section.name, name);
+                  {subSections.map((subSectionItem) => {
+                    const key = keyForSubSection(subSectionItem);
 
                     return (
                       <CommentSubSection
                         key={key}
-                        title={name}
-                        highlighted={selectedSubSection === key}
+                        title={subSectionItem.name}
+                        highlighted={selectedSubSectionKey === key}
                         expanded={expandedSubSection?.key === key}
                         onToggle={(expanded) =>
                           toggleSubSection(section.name, key, expanded)
                         }
                         data-testid={
-                          key === currentKey
+                          key === activeSubSectionKey
                             ? "comments-current-subsection"
                             : undefined
                         }
-                      />
+                      >
+                        {(commentsBySubSectionKey[key] ?? []).map((comment) => (
+                          <CommentEntry
+                            key={comment.id}
+                            comment={comment}
+                            canEdit={isCurrentUserAuthor(comment)}
+                            onSave={handleUpdateComment}
+                            onDelete={setCommentToDelete}
+                          />
+                        ))}
+                      </CommentSubSection>
                     );
                   })}
                 </AccordionDetails>
@@ -259,28 +409,48 @@ const CommentsFlyoutPanel = ({
             name="comments-flyout-input"
             data-testid="comments-flyout-input"
             label={getAddCommentLabel(subSection)}
-            content={comment}
-            onChange={(value: string) => setComment(value)}
+            content={draftComment}
+            onChange={(value: string) => setDraftComment(value)}
           />
           <Box className="comments-flyout-panel-actions">
             <Button
               variant="outline-secondary"
-              disabled={!hasComment}
-              onClick={() => setComment("")}
+              disabled={!hasDraftContent}
+              onClick={() => setDraftComment("")}
               data-testid="comments-flyout-cancel"
             >
               Cancel
             </Button>
             <Button
               variant="outline-cyan"
-              disabled={!hasComment}
+              disabled={!hasDraftContent}
+              onClick={handleAddComment}
               data-testid="comments-flyout-add"
             >
               Add Comment
             </Button>
           </Box>
         </Box>
+
+        <DeleteCommentDialog
+          open={commentToDelete !== null}
+          isDeleting={isDeleting}
+          onCancel={() => setCommentToDelete(null)}
+          onDelete={handleConfirmDelete}
+        />
       </Box>
+      <Toast
+        toastKey="comments-flyout-deleted-toast"
+        toastType="success"
+        testId="comments-flyout-deleted-toast"
+        open={deletedToastOpen}
+        message="Comment has been deleted."
+        closeButtonProps={{
+          "data-testid": "comments-flyout-deleted-toast-close-button",
+        }}
+        onClose={() => setDeletedToastOpen(false)}
+        autoHideDuration={6000}
+      />
     </Drawer>
   );
 };
