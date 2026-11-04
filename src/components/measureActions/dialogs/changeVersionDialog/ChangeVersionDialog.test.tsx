@@ -7,6 +7,11 @@ import ChangeVersionDialog, {
   VERSION_CHANGE_CRITERIA,
 } from "./ChangeVersionDialog";
 import { VERSION_LOWER_ERROR } from "../../../../util/versionUtils";
+import { useFeatureFlags } from "../../../../hooks/useFeatureFlags";
+
+jest.mock("../../../../hooks/useFeatureFlags", () => ({
+  useFeatureFlags: jest.fn(() => ({ MeasureChangeVersion: true })),
+}));
 
 const mockGetMeasuresByMeasureSetId = jest.fn();
 jest.mock("../../../../api/useMeasureServiceApi", () => ({
@@ -38,7 +43,7 @@ const measureSet = [
 const waitForVersionsLoaded = async (count: number) =>
   waitFor(() =>
     expect(screen.getByTestId("measure-versions-toggle")).toHaveTextContent(
-      `Measure Versions (${count})`
+      `Previous Measure Versions (${count})`
     )
   );
 
@@ -62,6 +67,9 @@ describe("ChangeVersionDialog", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useFeatureFlags as jest.Mock).mockReturnValue({
+      MeasureChangeVersion: true,
+    });
     mockGetMeasuresByMeasureSetId.mockResolvedValue(measureSet);
   });
 
@@ -111,6 +119,8 @@ describe("ChangeVersionDialog", () => {
       "3.2.003"
     );
     expect(screen.getByTestId("new-version-number-input")).toHaveValue("");
+    expect(screen.getByLabelText(/New Draft Version #/)).toBeRequired();
+    expect(screen.getByLabelText("Intended Final Version #")).toHaveValue("");
 
     expect(
       screen.getByTestId("change-version-cancel-button")
@@ -120,7 +130,7 @@ describe("ChangeVersionDialog", () => {
     ).toBeInTheDocument();
   });
 
-  it("accepts input in the New Version # field", async () => {
+  it("accepts input in the New Draft Version # field", async () => {
     renderDialog();
 
     await waitForVersionsLoaded(3);
@@ -129,6 +139,54 @@ describe("ChangeVersionDialog", () => {
     userEvent.type(input, "4.0.000");
     await waitFor(() => expect(input).toHaveValue("4.0.000"));
   });
+
+  it("keeps the original Admin fields when the feature flag is disabled", async () => {
+    (useFeatureFlags as jest.Mock).mockReturnValue({
+      MeasureChangeVersion: false,
+    });
+    renderDialog();
+
+    await waitFor(() =>
+      expect(screen.getByTestId("measure-versions-toggle")).toHaveTextContent(
+        "Measure Versions (3)"
+      )
+    );
+    expect(screen.getByLabelText(/New Version #/)).toBeRequired();
+    expect(
+      screen.queryByLabelText("Intended Final Version #")
+    ).not.toBeInTheDocument();
+  });
+
+  it.each(["", "3.1.999", "invalid"])(
+    "always allows Cancel without submitting list-view values: %s",
+    async (value) => {
+      const { onClose } = renderDialog({ onSubmit: undefined });
+      await waitForVersionsLoaded(3);
+
+      if (value) {
+        await userEvent.type(
+          screen.getByTestId("new-version-number-input"),
+          value
+        );
+        await userEvent.type(
+          screen.getByTestId("intended-final-version-number-input"),
+          value
+        );
+        await userEvent.tab();
+      }
+      expect(screen.getByTestId("new-version-number-input")).toHaveValue(value);
+      expect(
+        screen.getByTestId("intended-final-version-number-input")
+      ).toHaveValue(value);
+      expect(screen.getByTestId("change-version-save-button")).toBeDisabled();
+      expect(screen.getByTestId("change-version-cancel-button")).toBeEnabled();
+      expect(
+        screen.queryByText(VERSION_DUPLICATE_ERROR)
+      ).not.toBeInTheDocument();
+      await userEvent.click(screen.getByTestId("change-version-cancel-button"));
+      expect(onClose).toHaveBeenCalled();
+    }
+  );
 
   it("toggles the measure versions panel and lists versions newest first", async () => {
     renderDialog();

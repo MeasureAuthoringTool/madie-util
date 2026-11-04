@@ -1,4 +1,10 @@
-.change-version-dialog {
+.measure-change-version-modal {
+  #draggable-dialog-title > .MuiBox-root {
+    margin-left: auto;
+  }
+}
+
+.measure-change-version-dialog {
   font-family: Rubik, sans-serif;
   color: #333;
 
@@ -16,6 +22,7 @@
 
     .selected-measure-name {
       font-size: 14px;
+      overflow-wrap: anywhere;
     }
   }
 
@@ -41,13 +48,14 @@
   }
 
   .version-fields {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: flex-start;
-    gap: 40px;
+    gap: 24px;
     margin-top: 24px;
 
     .current-version {
-      min-width: 180px;
+      min-width: 0;
 
       .current-version-label {
         font-size: 14px;
@@ -61,7 +69,7 @@
     }
 
     .new-version {
-      width: 260px;
+      min-width: 0;
     }
   }
 
@@ -91,14 +99,16 @@
     }
 
     .measure-versions-panel {
-      max-height: 232px;
+      max-height: 264px;
       overflow-y: auto;
       border-top: 1px solid #dddddd;
     }
 
     table {
       width: 100%;
+      min-width: 480px;
       border-collapse: collapse;
+      table-layout: fixed;
       font-size: 14px;
 
       th {
@@ -113,6 +123,9 @@
       td {
         padding: 12px 16px;
         border-top: 1px solid #dddddd;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
 

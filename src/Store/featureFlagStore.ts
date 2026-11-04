@@ -8,6 +8,7 @@ export interface FeatureFlags {
   enableQdmRepeatTransfer: boolean;
   QICoreCompositeMeasure: boolean;
   MeasureReviewStatus?: boolean;
+  MeasureChangeVersion?: boolean;
   LibraryReviewStatus?: boolean;
   Commenting?: boolean;
 }
@@ -16,6 +17,7 @@ const initialState: FeatureFlags = {
   enableQdmRepeatTransfer: false,
   QICoreCompositeMeasure: false,
   MeasureReviewStatus: false,
+  MeasureChangeVersion: false,
   LibraryReviewStatus: false,
   Commenting: false,
 };
