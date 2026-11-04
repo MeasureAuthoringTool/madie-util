@@ -3,6 +3,7 @@ export { default as ViewHRAction } from "./actions/viewHumanReadableAction/ViewH
 export { default as HistoryAction } from "./actions/historyAction/HistoryAction";
 export { default as CompareVersionsAction } from "./actions/compareVersionsAction/CompareVersionsAction";
 export { default as ChangeVersionAction } from "./actions/changeVersionAction/ChangeVersionAction";
+export { default as CloneAction } from "./actions/cloneAction/CloneAction";
 export { default as ExportDialog } from "./dialogs/exportDialog/ExportDialog";
 export { default as ExportIcon } from "./dialogs/exportDialog/ExportIcon";
 export { default as ViewHRModal } from "./dialogs/viewHumanReadableModal/ViewHRModal";
