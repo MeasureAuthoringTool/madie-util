@@ -3,7 +3,6 @@ import { shouldShowReviewCommentLink } from "./reviewCommentVisibility";
 
 describe("reviewCommentVisibility", () => {
   const owner = "owner-user";
-  const sharedUser = "shared-user";
   const reviewerUser = "reviewer-user";
 
   it("returns false when Commenting feature flag is disabled", () => {
@@ -11,7 +10,7 @@ describe("reviewCommentVisibility", () => {
       shouldShowReviewCommentLink({
         commentingEnabled: false,
         currentUser: owner,
-        owner,
+        canEdit: true,
         reviewStatus: ReviewStatus.READY_FOR_REVIEW,
       })
     ).toBe(false);
@@ -24,7 +23,7 @@ describe("reviewCommentVisibility", () => {
         shouldShowReviewCommentLink({
           commentingEnabled: true,
           currentUser,
-          owner,
+          canEdit: true,
           reviewStatus: ReviewStatus.READY_FOR_REVIEW,
         })
       ).toBe(false);
@@ -40,23 +39,7 @@ describe("reviewCommentVisibility", () => {
       shouldShowReviewCommentLink({
         commentingEnabled: true,
         currentUser: owner,
-        owner,
-        reviewStatus: status,
-      })
-    ).toBe(true);
-  });
-
-  it.each([
-    ReviewStatus.READY_FOR_REVIEW,
-    ReviewStatus.IN_PROGRESS,
-    ReviewStatus.COMPLETE,
-  ])("returns true for shared user in review state %s", (status) => {
-    expect(
-      shouldShowReviewCommentLink({
-        commentingEnabled: true,
-        currentUser: sharedUser,
-        owner,
-        acls: [{ userId: sharedUser, roles: ["SHARED_WITH"] }],
+        canEdit: true,
         reviewStatus: status,
       })
     ).toBe(true);
@@ -67,19 +50,7 @@ describe("reviewCommentVisibility", () => {
       shouldShowReviewCommentLink({
         commentingEnabled: true,
         currentUser: owner,
-        owner,
-        reviewStatus: ReviewStatus.NOT_READY_FOR_REVIEW,
-      })
-    ).toBe(false);
-  });
-
-  it("returns false for shared user outside review state", () => {
-    expect(
-      shouldShowReviewCommentLink({
-        commentingEnabled: true,
-        currentUser: sharedUser,
-        owner,
-        acls: [{ userId: sharedUser, roles: ["SHARED_WITH"] }],
+        canEdit: true,
         reviewStatus: ReviewStatus.NOT_READY_FOR_REVIEW,
       })
     ).toBe(false);
@@ -90,7 +61,7 @@ describe("reviewCommentVisibility", () => {
       shouldShowReviewCommentLink({
         commentingEnabled: true,
         currentUser: reviewerUser,
-        owner,
+        canEdit: false,
         hasReviewerRole: true,
         assignedReviewers: [reviewerUser],
         reviewStatus: ReviewStatus.NOT_READY_FOR_REVIEW,
@@ -103,7 +74,7 @@ describe("reviewCommentVisibility", () => {
       shouldShowReviewCommentLink({
         commentingEnabled: true,
         currentUser: reviewerUser,
-        owner,
+        canEdit: false,
         hasReviewerRole: true,
         assignedReviewers: ["another-reviewer"],
         reviewStatus: ReviewStatus.NOT_READY_FOR_REVIEW,
@@ -116,7 +87,7 @@ describe("reviewCommentVisibility", () => {
       shouldShowReviewCommentLink({
         commentingEnabled: true,
         currentUser: reviewerUser,
-        owner,
+        canEdit: false,
         hasReviewerRole: false,
         assignedReviewers: [reviewerUser],
         reviewStatus: ReviewStatus.NOT_READY_FOR_REVIEW,
@@ -124,13 +95,12 @@ describe("reviewCommentVisibility", () => {
     ).toBe(false);
   });
 
-  it("returns false for unrelated users", () => {
+  it("returns false for users who cannot edit and are not assigned", () => {
     expect(
       shouldShowReviewCommentLink({
         commentingEnabled: true,
         currentUser: "unrelated-user",
-        owner,
-        acls: [{ userId: sharedUser, roles: ["SHARED_WITH"] }],
+        canEdit: false,
         reviewStatus: ReviewStatus.COMPLETE,
       })
     ).toBe(false);

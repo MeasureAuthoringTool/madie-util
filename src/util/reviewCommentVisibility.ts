@@ -1,47 +1,21 @@
-import { ReviewStatus } from "@madie/madie-models";
-
-type MinimalAcl = {
-  userId?: string;
-  roles?: string[];
-};
+import { isReviewActive } from "./reviewReadiness";
 
 interface ReviewCommentVisibilityArgs {
   commentingEnabled?: boolean;
   currentUser?: string | null;
-  owner?: string | null;
-  acls?: MinimalAcl[] | null;
+  canEdit?: boolean;
   reviewStatus?: string | null;
   hasReviewerRole?: boolean;
   assignedReviewers?: string[] | null;
 }
 
-const REVIEW_STATUSES_IN_PROCESS = new Set<string>([
-  ReviewStatus.READY_FOR_REVIEW,
-  ReviewStatus.IN_PROGRESS,
-  ReviewStatus.COMPLETE,
-]);
-
-const normalize = (value?: string | null): string =>
+export const normalizeUserId = (value?: string | null): string =>
   (value ?? "").trim().toLowerCase();
-
-const isSharedWithUser = (
-  acls: MinimalAcl[] | null | undefined,
-  currentUser: string
-): boolean => {
-  return (
-    acls?.some(
-      (acl) =>
-        normalize(acl?.userId) === currentUser &&
-        acl?.roles?.includes("SHARED_WITH")
-    ) ?? false
-  );
-};
 
 export const shouldShowReviewCommentLink = ({
   commentingEnabled,
   currentUser,
-  owner,
-  acls,
+  canEdit,
   reviewStatus,
   hasReviewerRole,
   assignedReviewers,
@@ -50,23 +24,19 @@ export const shouldShowReviewCommentLink = ({
     return false;
   }
 
-  const normalizedCurrentUser = normalize(currentUser);
+  const normalizedCurrentUser = normalizeUserId(currentUser);
   if (!normalizedCurrentUser) {
     return false;
   }
 
-  const isReviewState = REVIEW_STATUSES_IN_PROCESS.has(reviewStatus ?? "");
-  const isOwner = normalize(owner) === normalizedCurrentUser;
-  const hasShareAccess = isSharedWithUser(acls, normalizedCurrentUser);
-  const isOwnerOrSharedUserInReview =
-    (isOwner || hasShareAccess) && isReviewState;
+  const hasEditAccessDuringReview =
+    Boolean(canEdit) && isReviewActive(reviewStatus);
 
   const isAssignedReviewer =
     Boolean(hasReviewerRole) &&
-    (assignedReviewers?.some(
-      (reviewer) => normalize(reviewer) === normalizedCurrentUser
-    ) ??
-      false);
+    (assignedReviewers ?? []).some(
+      (reviewer) => normalizeUserId(reviewer) === normalizedCurrentUser
+    );
 
-  return isOwnerOrSharedUserInReview || isAssignedReviewer;
+  return hasEditAccessDuringReview || isAssignedReviewer;
 };

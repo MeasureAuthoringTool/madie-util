@@ -7,7 +7,6 @@ import {
   Typography,
 } from "@mui/material";
 import { ChevronRight } from "lucide-react";
-import "./ReviewSubSection.scss";
 import {
   formatReviewCommentDate,
   getReadyForReviewMessage,
@@ -16,16 +15,16 @@ import {
 
 export interface ReviewSubSectionProps {
   entityType: ReviewEntityType;
-  readyForReviewBy?: string;
-  readyForReviewAt?: string;
+  markedForReviewBy?: string;
+  markedForReviewAt?: string;
 }
 
 const ReviewSubSection = ({
   entityType,
-  readyForReviewBy,
-  readyForReviewAt,
+  markedForReviewBy,
+  markedForReviewAt,
 }: ReviewSubSectionProps) => {
-  const performedAt = formatReviewCommentDate(readyForReviewAt);
+  const performedAt = formatReviewCommentDate(markedForReviewAt);
 
   return (
     <Accordion
@@ -45,7 +44,7 @@ const ReviewSubSection = ({
         </Typography>
       </AccordionSummary>
       <AccordionDetails className="comments-flyout-panel-subsection-details">
-        {readyForReviewAt && (
+        {markedForReviewAt && (
           <Box
             className="comments-flyout-panel-comment"
             data-testid="ready-for-review-comment"
@@ -56,7 +55,7 @@ const ReviewSubSection = ({
                 className="comments-flyout-panel-comment-author"
                 data-testid="ready-for-review-comment-author"
               >
-                {readyForReviewBy}
+                {markedForReviewBy}
               </Typography>
               <Typography
                 component="span"
