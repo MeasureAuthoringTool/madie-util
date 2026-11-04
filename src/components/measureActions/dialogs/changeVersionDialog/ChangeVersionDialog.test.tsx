@@ -118,9 +118,13 @@ describe("ChangeVersionDialog", () => {
     expect(screen.getByTestId("current-version-value")).toHaveTextContent(
       "3.2.003"
     );
-    expect(screen.getByTestId("new-version-number-input")).toHaveValue("");
+    await expect(screen.getByTestId("new-version-number-input")).toHaveValue(
+      ""
+    );
     expect(screen.getByLabelText(/New Draft Version #/)).toBeRequired();
-    expect(screen.getByLabelText("Intended Final Version #")).toHaveValue("");
+    await expect(screen.getByLabelText("Intended Final Version #")).toHaveValue(
+      ""
+    );
 
     expect(
       screen.getByTestId("change-version-cancel-button")
@@ -174,12 +178,16 @@ describe("ChangeVersionDialog", () => {
         );
         await userEvent.tab();
       }
-      expect(screen.getByTestId("new-version-number-input")).toHaveValue(value);
-      expect(
+      await expect(screen.getByTestId("new-version-number-input")).toHaveValue(
+        value
+      );
+      await expect(
         screen.getByTestId("intended-final-version-number-input")
       ).toHaveValue(value);
       expect(screen.getByTestId("change-version-save-button")).toBeDisabled();
-      expect(screen.getByTestId("change-version-cancel-button")).toBeEnabled();
+      await expect(
+        screen.getByTestId("change-version-cancel-button")
+      ).toBeEnabled();
       expect(
         screen.queryByText(VERSION_DUPLICATE_ERROR)
       ).not.toBeInTheDocument();
@@ -305,7 +313,9 @@ describe("ChangeVersionDialog", () => {
         screen.queryByText(VERSION_DUPLICATE_ERROR)
       ).not.toBeInTheDocument();
     });
-    expect(screen.getByTestId("change-version-save-button")).toBeEnabled();
+    await expect(
+      screen.getByTestId("change-version-save-button")
+    ).toBeEnabled();
   });
 
   it("does not treat the selected current measure row as a duplicate", async () => {
@@ -327,7 +337,9 @@ describe("ChangeVersionDialog", () => {
         screen.queryByText(VERSION_DUPLICATE_ERROR)
       ).not.toBeInTheDocument();
     });
-    expect(screen.getByTestId("change-version-save-button")).toBeEnabled();
+    await expect(
+      screen.getByTestId("change-version-save-button")
+    ).toBeEnabled();
   });
 
   it("calls submit with expected payload when Save is clicked", async () => {

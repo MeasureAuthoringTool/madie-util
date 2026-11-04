@@ -64,7 +64,7 @@ export default function ChangeVersionAction(props: PropTypes) {
   useEffect(() => {
     validateChangeVersionActionState();
     return () => {
-      lookupId.current++;
+      lookupId.current += 1;
     };
   }, [measures, validateChangeVersionActionState]);
 
