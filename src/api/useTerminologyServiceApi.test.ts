@@ -79,13 +79,9 @@ describe("useTerminologyServiceApi", () => {
         it.each(["QDM", "QI-Core", ""])(
           "returns unauthorized ValueSet without calling the API for model '%s'",
           async (model) => {
-            const result = await api.getValueSet(
-              locator,
-              false,
-              model,
-              oid,
-              valueSetUrl
-            );
+            const result = await api.getValueSet(locator, false, model, oid, [
+              valueSetUrl,
+            ]);
 
             expect(result).toEqual({
               resourceType: "ValueSet",
@@ -129,7 +125,7 @@ describe("useTerminologyServiceApi", () => {
         it("ignores valueSetUrl and still queries by oid", async () => {
           mockedAxios.get.mockResolvedValueOnce({ data: valueSet });
 
-          await api.getValueSet(locator, true, "QDM", oid, valueSetUrl);
+          await api.getValueSet(locator, true, "QDM", oid, [valueSetUrl]);
 
           expect(mockedAxios.get).toHaveBeenCalledWith(
             qdmEndpoint,
@@ -198,13 +194,9 @@ describe("useTerminologyServiceApi", () => {
           async (model) => {
             mockedAxios.put.mockResolvedValueOnce({ data: valueSet });
 
-            const result = await api.getValueSet(
-              locator,
-              true,
-              model,
-              oid,
-              valueSetUrl
-            );
+            const result = await api.getValueSet(locator, true, model, oid, [
+              valueSetUrl,
+            ]);
 
             expect(mockedAxios.put).toHaveBeenCalledTimes(1);
             expect(mockedAxios.put).toHaveBeenCalledWith(
@@ -229,10 +221,22 @@ describe("useTerminologyServiceApi", () => {
           );
         });
 
-        it("falls back to the oid when valueSetUrl is an empty string", async () => {
+        it("falls back to the oid when valueSetUrls contains only an empty string", async () => {
           mockedAxios.put.mockResolvedValueOnce({ data: valueSet });
 
-          await api.getValueSet(locator, true, "QI-Core", oid, "");
+          await api.getValueSet(locator, true, "QI-Core", oid, [""]);
+
+          expect(mockedAxios.put).toHaveBeenCalledWith(
+            fhirEndpoint,
+            fhirBody(oid),
+            fhirConfig
+          );
+        });
+
+        it("falls back to the oid when valueSetUrls is an empty list", async () => {
+          mockedAxios.put.mockResolvedValueOnce({ data: valueSet });
+
+          await api.getValueSet(locator, true, "QI-Core", oid, []);
 
           expect(mockedAxios.put).toHaveBeenCalledWith(
             fhirEndpoint,
@@ -262,11 +266,32 @@ describe("useTerminologyServiceApi", () => {
         ])("cleans a valueSetUrl wrapped in %s", async (_label, rawUrl) => {
           mockedAxios.put.mockResolvedValueOnce({ data: valueSet });
 
-          await api.getValueSet(locator, true, "QI-Core", oid, rawUrl);
+          await api.getValueSet(locator, true, "QI-Core", oid, [rawUrl]);
 
           expect(mockedAxios.put).toHaveBeenCalledWith(
             fhirEndpoint,
             fhirBody(valueSetUrl),
+            fhirConfig
+          );
+        });
+
+        it("sends every provided valueSetUrl as a separate valueSetParam", async () => {
+          const secondUrl =
+            "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1";
+          mockedAxios.put.mockResolvedValueOnce({ data: valueSet });
+
+          await api.getValueSet(locator, true, "QI-Core", oid, [
+            `'${valueSetUrl}'`,
+            "",
+            secondUrl,
+          ]);
+
+          expect(mockedAxios.put).toHaveBeenCalledWith(
+            fhirEndpoint,
+            {
+              ...fhirBody(valueSetUrl),
+              valueSetParams: [{ url: valueSetUrl }, { url: secondUrl }],
+            },
             fhirConfig
           );
         });
@@ -289,13 +314,9 @@ describe("useTerminologyServiceApi", () => {
             status: 404,
           });
 
-          const result = await api.getValueSet(
-            locator,
-            true,
-            "QI-Core",
-            oid,
-            valueSetUrl
-          );
+          const result = await api.getValueSet(locator, true, "QI-Core", oid, [
+            valueSetUrl,
+          ]);
 
           expect(result).toEqual({
             resourceType: "ValueSet",
@@ -318,7 +339,7 @@ describe("useTerminologyServiceApi", () => {
         mockedAxios.put.mockResolvedValueOnce({ data: valueSet });
 
         await service.getValueSet(locator, true, "QDM", oid);
-        await service.getValueSet(locator, true, "QI-Core", oid, valueSetUrl);
+        await service.getValueSet(locator, true, "QI-Core", oid, [valueSetUrl]);
 
         expect(mockedAxios.get).toHaveBeenCalledWith(
           qdmEndpoint,

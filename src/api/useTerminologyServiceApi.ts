@@ -139,7 +139,7 @@ export class TerminologyServiceApi {
     loggedInUMLS: boolean,
     model: string,
     oid?: string,
-    valueSetUrl?: string
+    valueSetUrls?: string[]
   ): Promise<ValueSet> {
     if (!loggedInUMLS) {
       return {
@@ -153,9 +153,13 @@ export class TerminologyServiceApi {
     const isFhirModel = !!model && model !== "QDM";
     try {
       if (isFhirModel) {
-        const cleanedUrl = (valueSetUrl || oid || "")
-          .replace(/^['"]+|['"]+$/g, "")
-          .trim();
+        const cleanUrl = (url: string): string =>
+          url.replace(/^['"]+|['"]+$/g, "").trim();
+        const providedUrls = (valueSetUrls ?? []).filter((url) => !!url);
+        const cleanedUrls =
+          providedUrls.length > 0
+            ? providedUrls.map(cleanUrl)
+            : [cleanUrl(oid || "")];
 
         const response = await axios.put(
           `${this.baseUrl}/terminology/value-sets/fhir`,
@@ -164,7 +168,7 @@ export class TerminologyServiceApi {
             includeDraft: "true",
             activeOnly: "true",
             includeExpansion: false,
-            valueSetParams: [{ url: cleanedUrl }],
+            valueSetParams: cleanedUrls.map((url) => ({ url })),
           } as ValueSetsSearchCriteria,
           {
             headers: {
