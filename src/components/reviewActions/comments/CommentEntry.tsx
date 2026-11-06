@@ -1,6 +1,12 @@
 import React, { useState } from "react";
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import { Pencil, Trash2 } from "lucide-react";
+import {
+  Box,
+  ClickAwayListener,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { Ellipsis, Pencil, Trash2 } from "lucide-react";
 import { Button, RichTextEditor } from "@madie/madie-design-system/dist/react";
 import { Comment } from "@madie/madie-models";
 import { formatReviewCommentDate } from "../../../util/reviewReadiness";
@@ -20,11 +26,18 @@ const CommentEntry = ({
   onDelete,
 }: CommentEntryProps) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [actionsOpen, setActionsOpen] = useState(false);
   const [draftContent, setDraftContent] = useState(comment.content ?? "");
 
   const startEditing = () => {
     setDraftContent(comment.content ?? "");
+    setActionsOpen(false);
     setIsEditing(true);
+  };
+
+  const deleteComment = () => {
+    setActionsOpen(false);
+    onDelete?.(comment);
   };
 
   const cancelEditing = () => {
@@ -39,7 +52,9 @@ const CommentEntry = ({
 
   return (
     <Box
-      className="comments-flyout-panel-comment"
+      className={`comments-flyout-panel-comment${
+        isEditing ? " comments-flyout-panel-comment--editing" : ""
+      }`}
       data-testid={`comment-${comment.id}`}
     >
       <Box className="comments-flyout-panel-comment-meta">
@@ -73,31 +88,58 @@ const CommentEntry = ({
         )}
 
         {canEdit && !isEditing && (
-          <Box
-            className="comments-flyout-panel-comment-actions"
-            data-testid={`comment-actions-${comment.id}`}
-          >
-            <Tooltip title="Edit comment" arrow>
-              <IconButton
-                size="small"
-                aria-label="Edit comment"
-                data-testid={`comment-edit-${comment.id}`}
-                onClick={startEditing}
-              >
-                <Pencil size={16} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete comment" arrow>
-              <IconButton
-                size="small"
-                aria-label="Delete comment"
-                data-testid={`comment-delete-${comment.id}`}
-                onClick={() => onDelete?.(comment)}
-              >
-                <Trash2 size={16} />
-              </IconButton>
-            </Tooltip>
-          </Box>
+          <ClickAwayListener onClickAway={() => setActionsOpen(false)}>
+            <Box
+              className="comments-flyout-panel-comment-actions"
+              data-testid={`comment-actions-${comment.id}`}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") setActionsOpen(false);
+              }}
+            >
+              {actionsOpen && (
+                <>
+                  <Tooltip title="Edit comment">
+                    <IconButton
+                      size="small"
+                      aria-label="Edit comment"
+                      className="comments-flyout-panel-comment-action"
+                      data-testid={`comment-edit-${comment.id}`}
+                      onClick={startEditing}
+                    >
+                      <Pencil size={16} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete comment">
+                    <IconButton
+                      size="small"
+                      aria-label="Delete comment"
+                      className="comments-flyout-panel-comment-action"
+                      data-testid={`comment-delete-${comment.id}`}
+                      onClick={deleteComment}
+                    >
+                      <Trash2 size={16} />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              )}
+              <Tooltip title="More actions">
+                <IconButton
+                  size="small"
+                  aria-label="More actions"
+                  aria-expanded={actionsOpen}
+                  className={`comments-flyout-panel-comment-more${
+                    actionsOpen
+                      ? " comments-flyout-panel-comment-more--open"
+                      : ""
+                  }`}
+                  data-testid={`comment-more-actions-${comment.id}`}
+                  onClick={() => setActionsOpen((open) => !open)}
+                >
+                  <Ellipsis size={18} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </ClickAwayListener>
         )}
       </Box>
 
