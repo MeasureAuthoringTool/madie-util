@@ -111,9 +111,10 @@ const CommentsFlyoutPanel = ({
   } = activeSection;
   const [draftComment, setDraftComment] = useState("");
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
-  const [expandedSubSectionKeys, setExpandedSubSectionKeys] = useState<
-    string[]
-  >([]);
+  const [expandedSubSection, setExpandedSubSection] = useState<{
+    section: string;
+    key: string;
+  }>(null);
   const [selectedSubSectionKey, setSelectedSubSectionKey] =
     useState<string>(null);
   const [commentToDelete, setCommentToDelete] = useState<Comment | null>(null);
@@ -154,9 +155,13 @@ const CommentsFlyoutPanel = ({
 
   useEffect(() => {
     setExpandedSections(mainSection ? [mainSection] : []);
-    setExpandedSubSectionKeys(activeSubSectionKey ? [activeSubSectionKey] : []);
+    setExpandedSubSection(
+      activeSubSectionKey
+        ? { section: mainSection, key: activeSubSectionKey }
+        : null
+    );
     setSelectedSubSectionKey(activeSubSectionKey);
-  }, [mainSection, subSection, subSectionId, open]);
+  }, [mainSection, activeSubSectionKey, open]);
 
   const toggleSection = (section: string, expanded: boolean) =>
     setExpandedSections((sections) =>
@@ -165,13 +170,21 @@ const CommentsFlyoutPanel = ({
         : sections.filter((expandedSection) => expandedSection !== section)
     );
 
-  const toggleSubSection = (key: string, expanded: boolean) => {
+  const toggleSubSection = (
+    section: string,
+    key: string,
+    expanded: boolean
+  ) => {
     setSelectedSubSectionKey(key);
-    setExpandedSubSectionKeys((keys) =>
-      expanded
-        ? [...keys, key]
-        : keys.filter((expandedKey) => expandedKey !== key)
-    );
+    setExpandedSubSection(expanded ? { section, key } : null);
+    if (expanded && expandedSubSection?.section !== section) {
+      setExpandedSections((sections) => [
+        ...sections.filter(
+          (name) => name !== expandedSubSection?.section && name !== section
+        ),
+        section,
+      ]);
+    }
   };
 
   const handleAddComment = () => {
@@ -285,11 +298,25 @@ const CommentsFlyoutPanel = ({
               </Typography>
             </AccordionSummary>
             <AccordionDetails className="comments-flyout-panel-section-details">
-              {/* Review stands on its own: it is not part of the selection */}
               <ReviewSubSection
                 entityType={entityType}
                 markedForReviewBy={markedForReviewBy}
                 markedForReviewAt={markedForReviewAt}
+                expanded={
+                  expandedSubSection?.key ===
+                  subSectionKey(GENERAL_SECTION, "Review")
+                }
+                highlighted={
+                  selectedSubSectionKey ===
+                  subSectionKey(GENERAL_SECTION, "Review")
+                }
+                onToggle={(expanded) =>
+                  toggleSubSection(
+                    GENERAL_SECTION,
+                    subSectionKey(GENERAL_SECTION, "Review"),
+                    expanded
+                  )
+                }
               />
             </AccordionDetails>
           </Accordion>
@@ -348,8 +375,10 @@ const CommentsFlyoutPanel = ({
                         key={key}
                         title={subSectionItem.name}
                         highlighted={selectedSubSectionKey === key}
-                        expanded={expandedSubSectionKeys.includes(key)}
-                        onToggle={(expanded) => toggleSubSection(key, expanded)}
+                        expanded={expandedSubSection?.key === key}
+                        onToggle={(expanded) =>
+                          toggleSubSection(section.name, key, expanded)
+                        }
                         data-testid={
                           key === activeSubSectionKey
                             ? "comments-current-subsection"

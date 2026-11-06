@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ChevronRight } from "lucide-react";
+import type { CommentSubSectionProps } from "../CommentSubSection";
 import {
   formatReviewCommentDate,
   getReadyForReviewMessage,
@@ -17,22 +18,37 @@ export interface ReviewSubSectionProps {
   entityType: ReviewEntityType;
   markedForReviewBy?: string;
   markedForReviewAt?: string;
+  expanded?: boolean;
+  onToggle?: CommentSubSectionProps["onToggle"];
+  highlighted?: boolean;
 }
 
 const ReviewSubSection = ({
   entityType,
   markedForReviewBy,
   markedForReviewAt,
+  expanded,
+  onToggle,
+  highlighted = true,
 }: ReviewSubSectionProps) => {
   const performedAt = formatReviewCommentDate(markedForReviewAt);
+  const expandedProps =
+    expanded === undefined ? { defaultExpanded: true } : { expanded };
 
   return (
     <Accordion
       disableGutters
       square
       elevation={0}
-      defaultExpanded
-      className="comments-flyout-panel-subsection comments-flyout-panel-subsection--current"
+      {...expandedProps}
+      onChange={
+        onToggle
+          ? (event, isExpanded: boolean) => onToggle(isExpanded)
+          : undefined
+      }
+      className={`comments-flyout-panel-subsection${
+        highlighted ? " comments-flyout-panel-subsection--current" : ""
+      }`}
       data-testid="comments-review-subsection"
     >
       <AccordionSummary

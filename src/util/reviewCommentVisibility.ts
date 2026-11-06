@@ -7,6 +7,7 @@ interface ReviewCommentVisibilityArgs {
   reviewStatus?: string | null;
   hasReviewerRole?: boolean;
   assignedReviewers?: string[] | null;
+  hasComments?: boolean;
 }
 
 export const normalizeUserId = (value?: string | null): string =>
@@ -19,6 +20,7 @@ export const shouldShowReviewCommentLink = ({
   reviewStatus,
   hasReviewerRole,
   assignedReviewers,
+  hasComments,
 }: ReviewCommentVisibilityArgs): boolean => {
   if (!commentingEnabled) {
     return false;
@@ -29,8 +31,8 @@ export const shouldShowReviewCommentLink = ({
     return false;
   }
 
-  const hasEditAccessDuringReview =
-    Boolean(canEdit) && isReviewActive(reviewStatus);
+  const hasEditAccessToComments =
+    Boolean(canEdit) && (isReviewActive(reviewStatus) || Boolean(hasComments));
 
   const isAssignedReviewer =
     Boolean(hasReviewerRole) &&
@@ -38,5 +40,5 @@ export const shouldShowReviewCommentLink = ({
       (reviewer) => normalizeUserId(reviewer) === normalizedCurrentUser
     );
 
-  return hasEditAccessDuringReview || isAssignedReviewer;
+  return hasEditAccessToComments || isAssignedReviewer;
 };

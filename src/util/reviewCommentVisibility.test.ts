@@ -56,6 +56,33 @@ describe("reviewCommentVisibility", () => {
     ).toBe(false);
   });
 
+  it.each([ReviewStatus.NOT_READY_FOR_REVIEW, undefined, null])(
+    "returns true for owner outside review state (%s) when comments exist",
+    (status) => {
+      expect(
+        shouldShowReviewCommentLink({
+          commentingEnabled: true,
+          currentUser: owner,
+          canEdit: true,
+          reviewStatus: status,
+          hasComments: true,
+        })
+      ).toBe(true);
+    }
+  );
+
+  it("returns false for users who cannot edit even when comments exist", () => {
+    expect(
+      shouldShowReviewCommentLink({
+        commentingEnabled: true,
+        currentUser: "unrelated-user",
+        canEdit: false,
+        reviewStatus: ReviewStatus.NOT_READY_FOR_REVIEW,
+        hasComments: true,
+      })
+    ).toBe(false);
+  });
+
   it("returns true for assigned reviewer even outside review states", () => {
     expect(
       shouldShowReviewCommentLink({
