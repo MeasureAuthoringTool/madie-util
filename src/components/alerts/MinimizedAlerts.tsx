@@ -16,7 +16,9 @@ const MinimizedAlertsContext = createContext<{
   setEntries: React.Dispatch<React.SetStateAction<AlertEntries>>;
 }>(undefined);
 
-export const MinimizedAlertsProvider = ({ children }) => {
+export const MinimizedAlertsProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
   const [entries, setEntries] = useState<AlertEntries>({});
   return (
     <MinimizedAlertsContext.Provider value={{ entries, setEntries }}>
