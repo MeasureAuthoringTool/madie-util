@@ -50,22 +50,40 @@ describe("CommentEntry", () => {
     expect(screen.queryByTestId("comment-actions-c1")).not.toBeInTheDocument();
   });
 
-  it("offers edit and delete on the signed-in user's own comment", async () => {
+  it("shows only the More actions button until it is clicked", async () => {
     render(<CommentEntry comment={comment} canEdit />);
 
     expect(screen.getByTestId("comment-actions-c1")).toBeInTheDocument();
+    expect(screen.getByTestId("comment-more-actions-c1")).toHaveAttribute(
+      "aria-expanded",
+      "false"
+    );
+    expect(screen.queryByTestId("comment-edit-c1")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("comment-delete-c1")).not.toBeInTheDocument();
 
+    userEvent.hover(screen.getByTestId("comment-more-actions-c1"));
+    await waitFor(() =>
+      expect(
+        screen.getByRole("tooltip", { name: "More actions" })
+      ).toBeInTheDocument()
+    );
+  });
+
+  it("reveals edit and delete when More actions is clicked", async () => {
+    render(<CommentEntry comment={comment} canEdit />);
+
+    userEvent.click(screen.getByTestId("comment-more-actions-c1"));
+
+    expect(screen.getByTestId("comment-more-actions-c1")).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
     userEvent.hover(screen.getByTestId("comment-edit-c1"));
     await waitFor(() =>
       expect(
         screen.getByRole("tooltip", { name: "Edit comment" })
       ).toBeInTheDocument()
     );
-  });
-
-  it("shows the delete tooltip", async () => {
-    render(<CommentEntry comment={comment} canEdit />);
-
     userEvent.hover(screen.getByTestId("comment-delete-c1"));
     await waitFor(() =>
       expect(
@@ -74,9 +92,35 @@ describe("CommentEntry", () => {
     );
   });
 
+  it("hides edit and delete again on a second click, outside click or Escape", async () => {
+    render(
+      <>
+        <CommentEntry comment={comment} canEdit />
+        <button data-testid="outside">outside</button>
+      </>
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const more = () => screen.getByTestId("comment-more-actions-c1");
+
+    userEvent.click(more());
+    userEvent.click(more());
+    expect(screen.queryByTestId("comment-edit-c1")).not.toBeInTheDocument();
+
+    userEvent.click(more());
+    userEvent.click(screen.getByTestId("outside"));
+    expect(screen.queryByTestId("comment-edit-c1")).not.toBeInTheDocument();
+
+    userEvent.click(more());
+    userEvent.keyboard("{Escape}");
+    expect(screen.queryByTestId("comment-edit-c1")).not.toBeInTheDocument();
+  });
+
   describe("editing", () => {
     it("turns the text into a field with Cancel and Save", () => {
       render(<CommentEntry comment={comment} canEdit />);
+
+      userEvent.click(screen.getByTestId("comment-more-actions-c1"));
 
       userEvent.click(screen.getByTestId("comment-edit-c1"));
 
@@ -88,6 +132,8 @@ describe("CommentEntry", () => {
     it("discards the edit on cancel", () => {
       const onSave = jest.fn();
       render(<CommentEntry comment={comment} canEdit onSave={onSave} />);
+
+      userEvent.click(screen.getByTestId("comment-more-actions-c1"));
 
       userEvent.click(screen.getByTestId("comment-edit-c1"));
       userEvent.type(screen.getByTestId("comment-editor-c1"), " and more");
@@ -102,6 +148,8 @@ describe("CommentEntry", () => {
       const onSave = jest.fn();
       render(<CommentEntry comment={comment} canEdit onSave={onSave} />);
 
+      userEvent.click(screen.getByTestId("comment-more-actions-c1"));
+
       userEvent.click(screen.getByTestId("comment-edit-c1"));
       userEvent.clear(screen.getByTestId("comment-editor-c1"));
       userEvent.type(screen.getByTestId("comment-editor-c1"), "<p>Revised</p>");
@@ -113,9 +161,11 @@ describe("CommentEntry", () => {
   });
 
   describe("deleting", () => {
-    it("asks to delete the comment when the trash icon is clicked", () => {
+    it("asks to delete the comment when the trash icon is clicked from More actions", () => {
       const onDelete = jest.fn();
       render(<CommentEntry comment={comment} canEdit onDelete={onDelete} />);
+
+      userEvent.click(screen.getByTestId("comment-more-actions-c1"));
 
       userEvent.click(screen.getByTestId("comment-delete-c1"));
 
