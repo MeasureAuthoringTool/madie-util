@@ -70,6 +70,28 @@ describe("ChangeVersionAction", () => {
     expect(mockGetMeasuresByMeasureSetId).toHaveBeenCalledWith("set-1", true);
   });
 
+  it("is disabled without owner or shared access", () => {
+    render(
+      <ChangeVersionAction
+        measures={[latest]}
+        onClick={jest.fn()}
+        canEdit={false}
+      />
+    );
+
+    expect(button()).toBeDisabled();
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
+    expect(mockGetMeasuresByMeasureSetId).not.toHaveBeenCalled();
+  });
+
+  it("is enabled with owner or shared access to an eligible measure", async () => {
+    render(
+      <ChangeVersionAction measures={[latest]} onClick={jest.fn()} canEdit />
+    );
+
+    await waitFor(() => expect(button()).toBeEnabled());
+  });
+
   it("is disabled when the selected measure is a draft", async () => {
     render(<ChangeVersionAction measures={[draft]} onClick={jest.fn()} />);
 

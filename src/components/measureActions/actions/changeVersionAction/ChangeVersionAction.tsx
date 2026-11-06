@@ -9,14 +9,15 @@ import { getLatestVersion } from "../../../../util/versionUtils";
 interface PropTypes {
   measures: MeasureListDTO[];
   onClick: () => void;
+  canEdit?: boolean;
 }
 
 export const INELIGIBLE_SELECTION =
-  "Select the latest version in a measure set that does not have a draft and is not a component of a composite measure to change version #";
+  "To change the version number, select exactly one measure that you own or have shared access to, is the latest version in its measure set, does not have a draft version, and is not a component of a composite measure.";
 export const VALID_CHANGE_VERSION = "Change Version #";
 
 export default function ChangeVersionAction(props: PropTypes) {
-  const { measures, onClick } = props;
+  const { measures, onClick, canEdit = true } = props;
   const measureServiceApi = useRef(useMeasureServiceApi()).current;
   const [disableChangeVersionBtn, setDisableChangeVersionBtn] = useState(true);
   const [tooltipMessage, setTooltipMessage] = useState(INELIGIBLE_SELECTION);
@@ -27,7 +28,7 @@ export default function ChangeVersionAction(props: PropTypes) {
     setDisableChangeVersionBtn(true);
     setTooltipMessage(INELIGIBLE_SELECTION);
 
-    if (measures?.length !== 1) {
+    if (!canEdit || measures?.length !== 1) {
       return;
     }
 
@@ -41,7 +42,7 @@ export default function ChangeVersionAction(props: PropTypes) {
         selectedMeasure?.measureSetId,
         true
       );
-      if (requestId !== lookupId.current) return;
+      if (!measureList || requestId !== lookupId.current) return;
 
       const hasDraft = (measureList ?? []).some(
         (measure) => measure?.measureMetaData?.draft
@@ -58,10 +59,13 @@ export default function ChangeVersionAction(props: PropTypes) {
       if (requestId !== lookupId.current) return;
       console.error("Unable to load measures for measure set", error);
     }
-  }, [measures, measureServiceApi]);
+  }, [measures, measureServiceApi, canEdit]);
 
   useEffect(() => {
     validateChangeVersionActionState();
+    return () => {
+      lookupId.current += 1;
+    };
   }, [measures, validateChangeVersionActionState]);
 
   return (
@@ -85,7 +89,7 @@ export default function ChangeVersionAction(props: PropTypes) {
       <span>
         <IconButton
           onClick={onClick}
-          disabled={disableChangeVersionBtn}
+          disabled={!canEdit || disableChangeVersionBtn}
           data-testid="change-version-action-btn"
           aria-label={VALID_CHANGE_VERSION}
         >

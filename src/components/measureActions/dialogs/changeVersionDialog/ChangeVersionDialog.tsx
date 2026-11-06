@@ -5,6 +5,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { MadieDialog, TextField } from "@madie/madie-design-system/dist/react";
 import { MeasureListDTO } from "@madie/madie-models";
 import useMeasureServiceApi from "../../../../api/useMeasureServiceApi";
+import { useFeatureFlags } from "../../../../hooks/useFeatureFlags";
 import {
   compareVersions,
   validateNewVersion,
@@ -25,6 +26,14 @@ interface ChangeVersionDialogProps {
 }
 
 export const VERSION_CHANGE_CRITERIA = [
+  "Enter a New Draft Version # in the format #.#.###.",
+  "Enter an Intended Final Version # in the format #.#.###.",
+  "The New Draft Version # must be lower than your Intended Final Version #.",
+  "The New Draft Version # must be higher than the previous version in the measure's history.",
+  "The New Draft Version # must not conflict with an existing version.",
+];
+
+const LEGACY_VERSION_CHANGE_CRITERIA = [
   "Enter a version number that comes before your intended final version.",
   "The version number you enter must not be one that has been used previously for this measure.",
   "After this version # change is complete, you may version the draft measure again to produce the intended final version.",
@@ -47,9 +56,12 @@ export default function ChangeVersionDialog({
   isSubmitting = false,
 }: ChangeVersionDialogProps) {
   const measureServiceApi = useRef(useMeasureServiceApi()).current;
+  const featureFlags = useFeatureFlags();
+  const changeVersionEnabled = featureFlags?.MeasureChangeVersion;
   const selectedMeasure = measures?.length === 1 ? measures[0] : null;
 
   const [newVersion, setNewVersion] = useState("");
+  const [intendedFinalVersion, setIntendedFinalVersion] = useState("");
   const [versionError, setVersionError] = useState("");
   const [versionsExpanded, setVersionsExpanded] = useState(false);
   const [measureSetVersions, setMeasureSetVersions] = useState<
@@ -59,6 +71,7 @@ export default function ChangeVersionDialog({
   useEffect(() => {
     if (!open || !selectedMeasure?.measureSetId) {
       setNewVersion("");
+      setIntendedFinalVersion("");
       setVersionError("");
       setVersionsExpanded(false);
       setMeasureSetVersions([]);
@@ -99,7 +112,11 @@ export default function ChangeVersionDialog({
 
   const currentValidationError = validateVersion(newVersion);
   const isSaveDisabled =
-    isSubmitting || !newVersion || !!currentValidationError || !!versionError;
+    !onSubmit ||
+    isSubmitting ||
+    !newVersion ||
+    !!currentValidationError ||
+    !!versionError;
 
   const handleInputBlur = () => {
     setVersionError(validateVersion(newVersion));
@@ -126,6 +143,7 @@ export default function ChangeVersionDialog({
         onClose,
         onSubmit: (event) => event.preventDefault(),
         "data-testid": "change-version-dialog",
+        className: "measure-change-version-modal",
       }}
       cancelButtonProps={{
         variant: "secondary",
@@ -142,7 +160,7 @@ export default function ChangeVersionDialog({
       }}
       maxWidth="sm"
     >
-      <div className="change-version-dialog">
+      <div className="measure-change-version-dialog">
         <div className="selected-measure" data-testid="selected-measure">
           <div className="selected-measure-label">Selected Measure</div>
           <div
@@ -156,7 +174,10 @@ export default function ChangeVersionDialog({
         <div className="criteria">
           <div className="criteria-label">Version-change criteria:</div>
           <ul data-testid="version-change-criteria">
-            {VERSION_CHANGE_CRITERIA.map((criterion) => (
+            {(changeVersionEnabled
+              ? VERSION_CHANGE_CRITERIA
+              : LEGACY_VERSION_CHANGE_CRITERIA
+            ).map((criterion) => (
               <li key={criterion}>{criterion}</li>
             ))}
           </ul>
@@ -177,17 +198,37 @@ export default function ChangeVersionDialog({
           <div className="new-version">
             <TextField
               id="new-version-number"
-              label="New Version #"
+              label={
+                changeVersionEnabled ? "New Draft Version #" : "New Version #"
+              }
               required
               tooltipText={NEW_VERSION_TOOLTIP}
               value={newVersion}
               onChange={(event) => setNewVersion(event.target.value)}
-              onBlur={handleInputBlur}
+              onBlur={onSubmit ? handleInputBlur : undefined}
               error={Boolean(versionError)}
               helperText={versionError}
-              inputProps={{ "data-testid": "new-version-number-input" }}
+              inputProps={{
+                "data-testid": "new-version-number-input",
+                "aria-required": true,
+              }}
             />
           </div>
+          {changeVersionEnabled && (
+            <div className="new-version">
+              <TextField
+                id="intended-final-version-number"
+                label="Intended Final Version #"
+                value={intendedFinalVersion}
+                onChange={(event) =>
+                  setIntendedFinalVersion(event.target.value)
+                }
+                inputProps={{
+                  "data-testid": "intended-final-version-number-input",
+                }}
+              />
+            </div>
+          )}
         </div>
 
         <div className="measure-versions">
@@ -200,7 +241,9 @@ export default function ChangeVersionDialog({
             onClick={() => setVersionsExpanded((expanded) => !expanded)}
           >
             <span>
-              Measure Versions{" "}
+              {changeVersionEnabled
+                ? "Previous Measure Versions"
+                : "Measure Versions"}{" "}
               <span className="measure-versions-count">
                 ({sortedVersions.length})
               </span>
@@ -236,7 +279,9 @@ export default function ChangeVersionDialog({
                           {measure.version}
                           {measure.id === selectedMeasure.id && " (Current)"}
                         </td>
-                        <td>{measure.measureName}</td>
+                        <td title={measure.measureName}>
+                          {measure.measureName}
+                        </td>
                         <td>{formatVersionDate(measure.lastModifiedAt)}</td>
                       </tr>
                     ))}
