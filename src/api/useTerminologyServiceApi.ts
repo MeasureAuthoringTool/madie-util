@@ -114,27 +114,74 @@ export interface CreateCodeSystemRequest {
   };
 }
 
+export interface ValueSetSearchCriteriaValueSetParam {
+  oid?: string;
+  url?: string;
+  release?: string;
+  count?: number;
+  offset?: number;
+}
+
+export interface ValueSetsSearchCriteria {
+  profile?: string;
+  includeDraft?: string;
+  activeOnly?: string;
+  manifestExpansion?: unknown;
+  valueSetParams?: ValueSetSearchCriteriaValueSetParam[];
+  includeExpansion?: boolean;
+}
+
 export class TerminologyServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
 
   async getValueSet(
-    oid: string,
     locator: string,
-    loggedInUMLS: boolean
+    loggedInUMLS: boolean,
+    model: string,
+    oid?: string,
+    valueSetUrls?: string[]
   ): Promise<ValueSet> {
-    let valueset: ValueSet = null;
     if (!loggedInUMLS) {
-      valueset = {
+      return {
         resourceType: "ValueSet",
         id: oid,
         url: locator,
         status: "unauthorized",
         errorMsg: "Please log in to UMLS",
       };
-      return valueset;
     }
-    await axios
-      .get(`${this.baseUrl}/vsac/valueset`, {
+    const isFhirModel = !!model && model !== "QDM";
+    try {
+      if (isFhirModel) {
+        const cleanUrl = (url: string): string =>
+          url.replace(/^['"]+|['"]+$/g, "").trim();
+        const providedUrls = (valueSetUrls ?? []).filter((url) => !!url);
+        const cleanedUrls =
+          providedUrls.length > 0
+            ? providedUrls.map(cleanUrl)
+            : [cleanUrl(oid || "")];
+
+        const response = await axios.put(
+          `${this.baseUrl}/terminology/value-sets/fhir`,
+          {
+            profile: "",
+            includeDraft: "true",
+            activeOnly: "true",
+            includeExpansion: false,
+            valueSetParams: cleanedUrls.map((url) => ({ url })),
+          } as ValueSetsSearchCriteria,
+          {
+            headers: {
+              Authorization: `Bearer ${this.getAccessToken()}`,
+              "Content-Type": "application/json",
+            },
+            timeout: 15000,
+          }
+        );
+        return response.data as ValueSet;
+      }
+
+      const response = await axios.get(`${this.baseUrl}/vsac/valueset`, {
         headers: {
           Authorization: `Bearer ${this.getAccessToken()}`,
           "Content-Type": "text/plain",
@@ -143,22 +190,19 @@ export class TerminologyServiceApi {
           oid: oid,
         },
         timeout: 15000,
-      })
-      .then((resp) => {
-        valueset = resp.data;
-      })
-      .catch((error) => {
-        const message =
-          error.message + " for oid = " + oid + " location = " + locator;
-        valueset = {
-          resourceType: "ValueSet",
-          id: oid,
-          url: locator,
-          status: error.status,
-          errorMsg: message,
-        };
       });
-    return valueset;
+      return response.data as ValueSet;
+    } catch (error: any) {
+      const message =
+        error.message + " for oid = " + oid + " location = " + locator;
+      return {
+        resourceType: "ValueSet",
+        id: oid,
+        url: locator,
+        status: error.status,
+        errorMsg: message,
+      };
+    }
   }
 
   async getValueSets(
