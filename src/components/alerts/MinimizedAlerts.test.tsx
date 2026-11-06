@@ -19,7 +19,13 @@ const secondContent = (
   </ul>
 );
 
-const Fixture = ({
+interface FixtureProps {
+  showFirst?: boolean;
+  showSecond?: boolean;
+  onSubmit?: React.FormEventHandler<HTMLFormElement>;
+}
+
+const Fixture: React.FC<FixtureProps> = ({
   showFirst = true,
   showSecond = true,
   onSubmit = jest.fn(),
