@@ -9,7 +9,6 @@ export interface FeatureFlags {
   QICoreCompositeMeasure: boolean;
   MeasureReviewStatus?: boolean;
   MeasureChangeVersion?: boolean;
-  gi?: boolean;
   LibraryReviewStatus?: boolean;
   Commenting?: boolean;
 }
