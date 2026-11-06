@@ -814,6 +814,8 @@ describe("CommentsFlyoutPanel", () => {
       };
       renderPanel({ comments: [stored], onUpdateComment });
 
+      userEvent.click(screen.getByTestId("comment-more-actions-mine"));
+
       userEvent.click(screen.getByTestId("comment-edit-mine"));
       userEvent.clear(screen.getByTestId("comment-editor-mine"));
       userEvent.type(screen.getByTestId("comment-editor-mine"), "<p>New</p>");
@@ -841,6 +843,8 @@ describe("CommentsFlyoutPanel", () => {
         ],
         onDeleteComment,
       });
+
+      userEvent.click(screen.getByTestId("comment-more-actions-mine"));
 
       userEvent.click(screen.getByTestId("comment-delete-mine"));
       userEvent.click(screen.getByTestId("delete-comment-confirm"));
@@ -873,6 +877,8 @@ describe("CommentsFlyoutPanel", () => {
         ],
         onDeleteComment,
       });
+
+      userEvent.click(screen.getByTestId("comment-more-actions-mine"));
 
       userEvent.click(screen.getByTestId("comment-delete-mine"));
       userEvent.click(screen.getByTestId("delete-comment-confirm"));
@@ -910,6 +916,8 @@ describe("CommentsFlyoutPanel", () => {
         onDeleteComment,
       });
 
+      userEvent.click(screen.getByTestId("comment-more-actions-mine"));
+
       userEvent.click(screen.getByTestId("comment-delete-mine"));
       await act(async () => {
         userEvent.click(screen.getByTestId("delete-comment-confirm"));
@@ -936,6 +944,8 @@ describe("CommentsFlyoutPanel", () => {
         onDeleteComment,
       });
 
+      userEvent.click(screen.getByTestId("comment-more-actions-mine"));
+
       userEvent.click(screen.getByTestId("comment-delete-mine"));
       expect(screen.getByText("Delete this comment?")).toBeInTheDocument();
 
@@ -959,6 +969,8 @@ describe("CommentsFlyoutPanel", () => {
           },
         ],
       });
+
+      userEvent.click(screen.getByTestId("comment-more-actions-mine"));
 
       userEvent.click(screen.getByTestId("comment-delete-mine"));
 
