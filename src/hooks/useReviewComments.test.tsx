@@ -20,7 +20,7 @@ const existing = {
   id: "c1",
   mainSection: "Details",
   subSection: "Description",
-  authorName: "Sarah Mitchell",
+  authorName: "User2",
   createdAt: "2025-06-18T10:42:00.000Z",
   content: "<p>first</p>",
 };

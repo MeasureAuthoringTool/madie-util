@@ -20,7 +20,7 @@ const comment = {
   id: "c1",
   mainSection: "Details",
   subSection: "Name, Version & ID",
-  authorName: "Jonathan Jones",
+  authorName: "User1",
   createdAt: "2025-06-20T09:08:00.000Z",
   edited: false,
   content: "<p>Casing is intentional.</p>",
@@ -30,7 +30,7 @@ describe("CommentEntry", () => {
   it("shows the author, the timestamp and the text", () => {
     render(<CommentEntry comment={comment} />);
 
-    expect(screen.getByText("Jonathan Jones")).toBeInTheDocument();
+    expect(screen.getByText("User1")).toBeInTheDocument();
     expect(screen.getByText(/Jun 20, 2025/)).toBeInTheDocument();
     expect(screen.getByText("Casing is intentional.")).toBeInTheDocument();
   });
