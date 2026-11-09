@@ -983,4 +983,267 @@ describe("CommentsFlyoutPanel", () => {
       );
     });
   });
+
+  describe.each(["measure", "library"] as const)(
+    "replies on a %s",
+    (entityType) => {
+      const parent = {
+        ...commentOn("Population Criteria", "Criteria 1"),
+        id: "parent",
+        authorName: "David Park",
+      };
+      const replyBy = (id: string, authorName: string, createdAt: string) => ({
+        id,
+        authorName,
+        createdAt,
+        edited: false,
+        content: `<p>Reply ${id}</p>`,
+      });
+
+      const renderPanel = (props: any = {}) =>
+        render(
+          <CommentsFlyoutPanel
+            entityType={entityType}
+            sections={sections}
+            open
+            onClose={jest.fn()}
+            activeSection={{
+              activeMainSection: "Population Criteria",
+              activeSubSection: "Criteria 1",
+            }}
+            currentUserName="Jonathan Jones"
+            currentUserId="jjones"
+            comments={[parent]}
+            {...props}
+          />
+        );
+
+      it("opens a Reply panel with Cancel enabled and Save enabled once text is entered", () => {
+        renderPanel();
+
+        expect(
+          screen.queryByTestId("reply-composer-parent")
+        ).not.toBeInTheDocument();
+        userEvent.click(screen.getByTestId("comment-reply-parent"));
+
+        expect(screen.getByTestId("reply-cancel-parent")).toBeEnabled();
+        expect(screen.getByTestId("reply-save-parent")).toBeDisabled();
+
+        userEvent.type(
+          screen.getByTestId("reply-input-parent"),
+          "<p>Agreed</p>"
+        );
+        expect(screen.getByTestId("reply-save-parent")).toBeEnabled();
+      });
+
+      it("closes the Reply panel on Cancel without saving", () => {
+        const onUpdateComment = jest.fn();
+        renderPanel({ onUpdateComment });
+
+        userEvent.click(screen.getByTestId("comment-reply-parent"));
+        userEvent.type(
+          screen.getByTestId("reply-input-parent"),
+          "<p>Agreed</p>"
+        );
+        userEvent.click(screen.getByTestId("reply-cancel-parent"));
+
+        expect(onUpdateComment).not.toHaveBeenCalled();
+        expect(
+          screen.queryByTestId("reply-composer-parent")
+        ).not.toBeInTheDocument();
+      });
+
+      it("saves the reply onto the comment, stamped with the signed-in user", async () => {
+        const onUpdateComment = jest.fn().mockResolvedValue(true);
+        renderPanel({ onUpdateComment });
+
+        userEvent.click(screen.getByTestId("comment-reply-parent"));
+        userEvent.type(
+          screen.getByTestId("reply-input-parent"),
+          "<p>Agreed</p>"
+        );
+        await act(async () => {
+          userEvent.click(screen.getByTestId("reply-save-parent"));
+        });
+
+        expect(onUpdateComment).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: "parent",
+            edited: false,
+            replies: [
+              expect.objectContaining({
+                harpId: "jjones",
+                authorName: "Jonathan Jones",
+                content: "<p>Agreed</p>",
+                edited: false,
+              }),
+            ],
+          })
+        );
+        expect(
+          screen.queryByTestId("reply-composer-parent")
+        ).not.toBeInTheDocument();
+      });
+
+      it("keeps the Reply panel and draft when the reply did not save", async () => {
+        const onUpdateComment = jest.fn().mockResolvedValue(false);
+        renderPanel({ onUpdateComment });
+
+        userEvent.click(screen.getByTestId("comment-reply-parent"));
+        userEvent.type(
+          screen.getByTestId("reply-input-parent"),
+          "<p>Agreed</p>"
+        );
+        await act(async () => {
+          userEvent.click(screen.getByTestId("reply-save-parent"));
+        });
+
+        expect(screen.getByTestId("reply-input-parent")).toHaveValue(
+          "<p>Agreed</p>"
+        );
+      });
+
+      it("lists replies oldest first and opens the Reply panel below them", () => {
+        renderPanel({
+          comments: [
+            {
+              ...parent,
+              replies: [
+                replyBy("newer", "Jonathan Jones", "2025-06-21T09:00:00.000Z"),
+                replyBy("older", "Sarah Mitchell", "2025-06-20T09:00:00.000Z"),
+              ],
+            },
+          ],
+        });
+        userEvent.click(screen.getByTestId("comment-reply-parent"));
+
+        const replies = screen.getByTestId("comment-replies-parent");
+        const items = Array.from(replies.children).map((child) =>
+          child.getAttribute("data-testid")
+        );
+        expect(items).toEqual([
+          "reply-older",
+          "reply-newer",
+          "reply-composer-parent",
+        ]);
+      });
+
+      it("gives only the signed-in user's replies an action center, and no reply icon", () => {
+        renderPanel({
+          comments: [
+            {
+              ...parent,
+              replies: [
+                replyBy("mine", "Jonathan Jones", "2025-06-20T09:00:00.000Z"),
+                replyBy("theirs", "Sarah Mitchell", "2025-06-21T09:00:00.000Z"),
+              ],
+            },
+          ],
+        });
+
+        expect(screen.getByTestId("reply-actions-mine")).toBeInTheDocument();
+        expect(
+          screen.queryByTestId("reply-actions-theirs")
+        ).not.toBeInTheDocument();
+        expect(screen.getAllByLabelText("Reply")).toHaveLength(1);
+      });
+
+      it("saves an edited reply and marks it edited", () => {
+        const onUpdateComment = jest.fn();
+        const mine = replyBy(
+          "mine",
+          "Jonathan Jones",
+          "2025-06-20T09:00:00.000Z"
+        );
+        renderPanel({
+          onUpdateComment,
+          comments: [{ ...parent, replies: [mine] }],
+        });
+
+        userEvent.click(screen.getByTestId("reply-more-actions-mine"));
+        userEvent.click(screen.getByTestId("reply-edit-mine"));
+        userEvent.clear(screen.getByTestId("reply-editor-mine"));
+        userEvent.type(
+          screen.getByTestId("reply-editor-mine"),
+          "<p>Revised</p>"
+        );
+        userEvent.click(screen.getByTestId("reply-edit-save-mine"));
+
+        expect(onUpdateComment).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: "parent",
+            edited: false,
+            replies: [{ ...mine, content: "<p>Revised</p>", edited: true }],
+          })
+        );
+      });
+
+      it("confirms before deleting a reply, then removes only that reply", async () => {
+        const onUpdateComment = jest.fn().mockResolvedValue(true);
+        const onDeleteComment = jest.fn();
+        const theirs = replyBy(
+          "theirs",
+          "Sarah Mitchell",
+          "2025-06-19T09:00:00.000Z"
+        );
+        renderPanel({
+          onUpdateComment,
+          onDeleteComment,
+          comments: [
+            {
+              ...parent,
+              replies: [
+                theirs,
+                replyBy("mine", "Jonathan Jones", "2025-06-20T09:00:00.000Z"),
+              ],
+            },
+          ],
+        });
+
+        userEvent.click(screen.getByTestId("reply-more-actions-mine"));
+        userEvent.click(screen.getByTestId("reply-delete-mine"));
+        expect(screen.getByText("Delete this reply?")).toBeInTheDocument();
+        expect(
+          screen.getByText("This action cannot be undone.")
+        ).toBeInTheDocument();
+
+        await act(async () => {
+          userEvent.click(screen.getByTestId("delete-comment-confirm"));
+        });
+
+        expect(onDeleteComment).not.toHaveBeenCalled();
+        expect(onUpdateComment).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "parent", replies: [theirs] })
+        );
+        expect(
+          screen.queryByTestId("delete-comment-dialog")
+        ).not.toBeInTheDocument();
+        expect(screen.getByText("Reply has been deleted.")).toBeInTheDocument();
+      });
+
+      it("keeps the reply when the delete is cancelled", () => {
+        const onUpdateComment = jest.fn();
+        renderPanel({
+          onUpdateComment,
+          comments: [
+            {
+              ...parent,
+              replies: [
+                replyBy("mine", "Jonathan Jones", "2025-06-20T09:00:00.000Z"),
+              ],
+            },
+          ],
+        });
+
+        userEvent.click(screen.getByTestId("reply-more-actions-mine"));
+        userEvent.click(screen.getByTestId("reply-delete-mine"));
+        userEvent.click(screen.getByTestId("delete-comment-cancel"));
+
+        expect(onUpdateComment).not.toHaveBeenCalled();
+        expect(
+          screen.queryByTestId("delete-comment-dialog")
+        ).not.toBeInTheDocument();
+      });
+    }
+  );
 });

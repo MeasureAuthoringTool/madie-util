@@ -18,7 +18,7 @@ import {
 import { Comment } from "@madie/madie-models";
 import ReviewSubSection from "./general/ReviewSubSection";
 import CommentSubSection from "./CommentSubSection";
-import CommentEntry from "./CommentEntry";
+import CommentThread from "./CommentThread";
 import DeleteCommentDialog from "./DeleteCommentDialog";
 import { richTextHasContent, sanitizeRichText } from "../../../util/richText";
 import { normalizeUserId } from "../../../util/reviewCommentVisibility";
@@ -53,7 +53,7 @@ export interface CommentsFlyoutPanelProps {
   comments?: Comment[];
   currentUserId?: string;
   onAddComment?: (comment: Comment) => void;
-  onUpdateComment?: (comment: Comment) => void;
+  onUpdateComment?: (comment: Comment) => void | Promise<boolean | void>;
   onDeleteComment?: (comment: Comment) => void | Promise<boolean | void>;
   currentUserName?: string;
   markedForReviewBy?: string;
@@ -89,6 +89,11 @@ const subSectionKey = (
 ) =>
   subSectionId ? `${section}::#${subSectionId}` : `${section}::${subSection}`;
 
+interface DeleteTarget {
+  comment: Comment;
+  parent?: Comment;
+}
+
 const CommentsFlyoutPanel = ({
   open,
   onClose,
@@ -117,9 +122,11 @@ const CommentsFlyoutPanel = ({
   }>(null);
   const [selectedSubSectionKey, setSelectedSubSectionKey] =
     useState<string>(null);
-  const [commentToDelete, setCommentToDelete] = useState<Comment | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deletedToastOpen, setDeletedToastOpen] = useState(false);
+  const [deletedToastMessage, setDeletedToastMessage] = useState<string | null>(
+    null
+  );
 
   const authorName = currentUserName || currentUserId || "Unknown user";
 
@@ -215,6 +222,36 @@ const CommentsFlyoutPanel = ({
     });
   };
 
+  const handleAddReply = (parent: Comment, content: string) => {
+    const reply: Comment = {
+      id: undefined,
+      harpId: currentUserId,
+      authorName,
+      createdAt: new Date().toISOString(),
+      edited: false,
+      content,
+    };
+    return onUpdateComment?.({
+      ...parent,
+      replies: [...(parent.replies ?? []), reply],
+    });
+  };
+
+  const handleUpdateReply = (
+    parent: Comment,
+    replyToUpdate: Comment,
+    updatedContent: string
+  ) => {
+    onUpdateComment?.({
+      ...parent,
+      replies: (parent.replies ?? []).map((reply) =>
+        reply.id === replyToUpdate.id
+          ? { ...reply, content: updatedContent, edited: true }
+          : reply
+      ),
+    });
+  };
+
   const isCurrentUserAuthor = (comment: Comment) => {
     const harpId = normalizeUserId(comment.harpId);
     if (harpId) {
@@ -230,21 +267,31 @@ const CommentsFlyoutPanel = ({
   };
 
   const handleClose = () => {
-    setCommentToDelete(null);
+    setDeleteTarget(null);
     setDraftComment("");
     onClose();
   };
 
   const handleConfirmDelete = async () => {
-    if (!commentToDelete) {
+    if (!deleteTarget) {
       return;
     }
+    const { comment, parent } = deleteTarget;
     setIsDeleting(true);
     try {
-      const deleted = await onDeleteComment?.(commentToDelete);
+      const deleted = parent
+        ? await onUpdateComment?.({
+            ...parent,
+            replies: (parent.replies ?? []).filter(
+              (reply) => reply.id !== comment.id
+            ),
+          })
+        : await onDeleteComment?.(comment);
       if (deleted !== false) {
-        setCommentToDelete(null);
-        setDeletedToastOpen(true);
+        setDeleteTarget(null);
+        setDeletedToastMessage(
+          parent ? "Reply has been deleted." : "Comment has been deleted."
+        );
       }
     } finally {
       setIsDeleting(false);
@@ -386,12 +433,19 @@ const CommentsFlyoutPanel = ({
                         }
                       >
                         {(commentsBySubSectionKey[key] ?? []).map((comment) => (
-                          <CommentEntry
+                          <CommentThread
                             key={comment.id}
                             comment={comment}
-                            canEdit={isCurrentUserAuthor(comment)}
-                            onSave={handleUpdateComment}
-                            onDelete={setCommentToDelete}
+                            isAuthor={isCurrentUserAuthor}
+                            onSaveComment={handleUpdateComment}
+                            onDeleteComment={(toDelete) =>
+                              setDeleteTarget({ comment: toDelete })
+                            }
+                            onAddReply={handleAddReply}
+                            onSaveReply={handleUpdateReply}
+                            onDeleteReply={(parent, reply) =>
+                              setDeleteTarget({ comment: reply, parent })
+                            }
                           />
                         ))}
                       </CommentSubSection>
@@ -433,9 +487,10 @@ const CommentsFlyoutPanel = ({
         </Box>
 
         <DeleteCommentDialog
-          open={commentToDelete !== null}
+          open={deleteTarget !== null}
+          itemLabel={deleteTarget?.parent ? "reply" : "comment"}
           isDeleting={isDeleting}
-          onCancel={() => setCommentToDelete(null)}
+          onCancel={() => setDeleteTarget(null)}
           onDelete={handleConfirmDelete}
         />
       </Box>
@@ -443,12 +498,12 @@ const CommentsFlyoutPanel = ({
         toastKey="comments-flyout-deleted-toast"
         toastType="success"
         testId="comments-flyout-deleted-toast"
-        open={deletedToastOpen}
-        message="Comment has been deleted."
+        open={deletedToastMessage !== null}
+        message={deletedToastMessage ?? ""}
         closeButtonProps={{
           "data-testid": "comments-flyout-deleted-toast-close-button",
         }}
-        onClose={() => setDeletedToastOpen(false)}
+        onClose={() => setDeletedToastMessage(null)}
         autoHideDuration={6000}
       />
     </Drawer>
