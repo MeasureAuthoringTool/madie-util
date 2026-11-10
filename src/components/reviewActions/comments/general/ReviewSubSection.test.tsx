@@ -18,7 +18,7 @@ describe("ReviewSubSection", () => {
     render(
       <ReviewSubSection
         entityType="measure"
-        markedForReviewBy="Jonathan Jones"
+        markedForReviewBy="User1"
         markedForReviewAt="2026-08-12T09:00:00"
       />
     );
@@ -31,14 +31,14 @@ describe("ReviewSubSection", () => {
     // The review service already resolved the name.
     expect(
       screen.getByTestId("ready-for-review-comment-author")
-    ).toHaveTextContent("Jonathan Jones");
+    ).toHaveTextContent("User1");
   });
 
   it("names the library in the message for libraries", () => {
     render(
       <ReviewSubSection
         entityType="library"
-        markedForReviewBy="Jonathan Jones"
+        markedForReviewBy="User1"
         markedForReviewAt="2026-08-12T09:00:00"
       />
     );
@@ -51,12 +51,12 @@ describe("ReviewSubSection", () => {
     render(
       <ReviewSubSection
         entityType="measure"
-        markedForReviewBy="jjones"
+        markedForReviewBy="user1"
         markedForReviewAt="2026-08-12T09:00:00"
       />
     );
     expect(
       screen.getByTestId("ready-for-review-comment-author")
-    ).toHaveTextContent("jjones");
+    ).toHaveTextContent("user1");
   });
 });

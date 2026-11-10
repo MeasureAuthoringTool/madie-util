@@ -8,6 +8,7 @@ export interface DeleteCommentDialogProps {
   isDeleting?: boolean;
   onCancel: () => void;
   onDelete: () => void;
+  itemLabel?: "comment" | "reply";
 }
 
 const DeleteCommentDialog = ({
@@ -15,6 +16,7 @@ const DeleteCommentDialog = ({
   isDeleting = false,
   onCancel,
   onDelete,
+  itemLabel = "comment",
 }: DeleteCommentDialogProps) => (
   <MadieDialog
     title=""
@@ -49,7 +51,7 @@ const DeleteCommentDialog = ({
         id="delete-comment-dialog-title"
         className="comments-flyout-panel-delete-dialog-title"
       >
-        Delete this comment?
+        Delete this {itemLabel}?
       </Typography>
       <Typography className="comments-flyout-panel-delete-dialog-body">
         This action cannot be undone.

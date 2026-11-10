@@ -150,6 +150,42 @@
     color: #0073c4;
   }
 
+  /* a comment with its replies; the rule above separates threads */
+  .comments-flyout-panel-thread {
+    border-top: 1px solid #aeb0b5;
+
+    > .comments-flyout-panel-comment {
+      border-top: none;
+    }
+  }
+
+  .comments-flyout-panel-replies {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 8px 12px 24px;
+    padding: 8px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+  }
+
+  .comments-flyout-panel-comment.comments-flyout-panel-comment--reply {
+    padding: 8px 8px 12px 12px;
+    border: 1px solid #dcdee0;
+    border-radius: 4px;
+
+    .comments-flyout-panel-comment-author {
+      font-weight: 600;
+    }
+  }
+
+  .comments-flyout-panel-reply-composer {
+    .ProseMirror,
+    .tiptap {
+      background-color: #fff;
+    }
+  }
+
   .comments-flyout-panel-comment {
     display: flex;
     flex-direction: column;
@@ -211,11 +247,27 @@
     }
   }
 
-  .comments-flyout-panel-comment-actions {
+  .comments-flyout-panel-comment-toolbar {
     display: flex;
     align-items: center;
     gap: 2px;
     margin-left: auto;
+
+    .comments-flyout-panel-comment-reply {
+      padding: 4px;
+      border-radius: 4px;
+      color: #0073c4;
+
+      &:hover {
+        background-color: #eff7ff;
+      }
+    }
+  }
+
+  .comments-flyout-panel-comment-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
 
     .MuiIconButton-root {
       padding: 4px;
