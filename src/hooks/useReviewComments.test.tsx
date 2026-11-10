@@ -21,7 +21,7 @@ const existing = {
   id: "c1",
   mainSection: "Details",
   subSection: "Description",
-  authorName: "User2",
+  authorName: "user2",
   createdAt: "2025-06-18T10:42:00.000Z",
   content: "<p>first</p>",
 };
@@ -222,12 +222,12 @@ describe("useReviewComments", () => {
     const theirs = {
       ...existing,
       id: "c9",
-      authorName: "User3", // #nosec
+      authorName: "user2",
       content: "<p>added by another user after the page loaded</p>",
     };
     const reply = (id: string, content: string) => ({
       id,
-      authorName: "User2", // #nosec
+      authorName: "user2",
       createdAt: "2025-06-19T10:00:00.000Z",
       content,
     });

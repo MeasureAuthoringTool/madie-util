@@ -66,7 +66,7 @@ const commentOn = (mainSection: string, subSection: string) => ({
   id: `${mainSection}-${subSection}`,
   mainSection,
   subSection,
-  authorName: "User2",
+  authorName: "user2",
   createdAt: "2025-06-18T10:42:00.000Z",
   edited: false,
   content: "<p>A stored comment</p>",
@@ -625,7 +625,7 @@ describe("CommentsFlyoutPanel", () => {
             activeMainSection: "Population Criteria",
             activeSubSection: "Criteria 1",
           }}
-          currentUserName="User1"
+          currentUserName="user1"
           currentUserId="user1"
           {...props}
         />
@@ -645,7 +645,7 @@ describe("CommentsFlyoutPanel", () => {
         expect.objectContaining({
           mainSection: "Population Criteria",
           subSection: "Criteria 1",
-          authorName: "User1",
+          authorName: "user1",
           content: "<p>Needs a look</p>",
           edited: false,
         })
@@ -696,12 +696,12 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "User1",
+            authorName: "user1",
           },
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "theirs",
-            authorName: "User3",
+            authorName: "user2",
           },
         ],
       });
@@ -785,7 +785,7 @@ describe("CommentsFlyoutPanel", () => {
       expect(onAddComment).toHaveBeenCalledWith(
         expect.objectContaining({
           harpId: "user1",
-          authorName: "User1",
+          authorName: "user1",
         })
       );
     });
@@ -797,13 +797,13 @@ describe("CommentsFlyoutPanel", () => {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "same-name-other-user",
             harpId: "user4",
-            authorName: "User1",
+            authorName: "user1",
           },
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "renamed-me",
             harpId: "USER1",
-            authorName: "Renamed User1",
+            authorName: "Renamed user1",
           },
         ],
       });
@@ -818,6 +818,8 @@ describe("CommentsFlyoutPanel", () => {
 
     it("recognises the author by HARP id when no name was resolved", () => {
       renderPanel({
+        // display name differs from the harp id, so only the id can match
+        currentUserName: "user2",
         comments: [
           {
             ...commentOn("Population Criteria", "Criteria 1"),
@@ -835,7 +837,7 @@ describe("CommentsFlyoutPanel", () => {
       const stored = {
         ...commentOn("Population Criteria", "Criteria 1"),
         id: "mine",
-        authorName: "User1",
+        authorName: "user1",
       };
       renderPanel({ comments: [stored], onUpdateComment });
 
@@ -863,7 +865,7 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "User1",
+            authorName: "user1",
           },
         ],
         onDeleteComment,
@@ -897,7 +899,7 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "User1",
+            authorName: "user1",
           },
         ],
         onDeleteComment,
@@ -935,7 +937,7 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "User1",
+            authorName: "user1",
           },
         ],
         onDeleteComment,
@@ -963,7 +965,7 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "User1",
+            authorName: "user1",
           },
         ],
         onDeleteComment,
@@ -990,7 +992,7 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "User1",
+            authorName: "user1",
           },
         ],
       });
@@ -1015,7 +1017,7 @@ describe("CommentsFlyoutPanel", () => {
       const parent = {
         ...commentOn("Population Criteria", "Criteria 1"),
         id: "parent",
-        authorName: "User3",
+        authorName: "user2",
       };
       const replyBy = (id: string, authorName: string, createdAt: string) => ({
         id,
@@ -1036,7 +1038,7 @@ describe("CommentsFlyoutPanel", () => {
               activeMainSection: "Population Criteria",
               activeSubSection: "Criteria 1",
             }}
-            currentUserName="User1"
+            currentUserName="user1"
             currentUserId="user1"
             comments={[parent]}
             onAddReply={jest.fn()}
@@ -1096,7 +1098,7 @@ describe("CommentsFlyoutPanel", () => {
           expect.objectContaining({ id: "parent" }),
           expect.objectContaining({
             harpId: "user1",
-            authorName: "User1", // #nosec
+            authorName: "user1",
             content: "<p>Agreed</p>",
             edited: false,
           })
@@ -1138,8 +1140,8 @@ describe("CommentsFlyoutPanel", () => {
             {
               ...parent,
               replies: [
-                replyBy("newer", "User1", "2025-06-21T09:00:00.000Z"),
-                replyBy("older", "User2", "2025-06-20T09:00:00.000Z"),
+                replyBy("newer", "user1", "2025-06-21T09:00:00.000Z"),
+                replyBy("older", "user2", "2025-06-20T09:00:00.000Z"),
               ],
             },
           ],
@@ -1163,8 +1165,8 @@ describe("CommentsFlyoutPanel", () => {
             {
               ...parent,
               replies: [
-                replyBy("mine", "User1", "2025-06-20T09:00:00.000Z"),
-                replyBy("theirs", "User2", "2025-06-21T09:00:00.000Z"),
+                replyBy("mine", "user1", "2025-06-20T09:00:00.000Z"),
+                replyBy("theirs", "user2", "2025-06-21T09:00:00.000Z"),
               ],
             },
           ],
@@ -1179,7 +1181,7 @@ describe("CommentsFlyoutPanel", () => {
 
       it("saves an edited reply and marks it edited", () => {
         const onUpdateReply = jest.fn();
-        const mine = replyBy("mine", "User1", "2025-06-20T09:00:00.000Z");
+        const mine = replyBy("mine", "user1", "2025-06-20T09:00:00.000Z");
         renderPanel({
           onUpdateReply,
           comments: [{ ...parent, replies: [mine] }],
@@ -1203,7 +1205,7 @@ describe("CommentsFlyoutPanel", () => {
       it("confirms before deleting a reply, then removes only that reply", async () => {
         const onDeleteReply = jest.fn().mockResolvedValue(true);
         const onDeleteComment = jest.fn();
-        const theirs = replyBy("theirs", "User2", "2025-06-19T09:00:00.000Z");
+        const theirs = replyBy("theirs", "user2", "2025-06-19T09:00:00.000Z");
         renderPanel({
           onDeleteReply,
           onDeleteComment,
@@ -1212,7 +1214,7 @@ describe("CommentsFlyoutPanel", () => {
               ...parent,
               replies: [
                 theirs,
-                replyBy("mine", "User1", "2025-06-20T09:00:00.000Z"),
+                replyBy("mine", "user1", "2025-06-20T09:00:00.000Z"),
               ],
             },
           ],
@@ -1247,7 +1249,7 @@ describe("CommentsFlyoutPanel", () => {
           comments: [
             {
               ...parent,
-              replies: [replyBy("mine", "User1", "2025-06-20T09:00:00.000Z")],
+              replies: [replyBy("mine", "user1", "2025-06-20T09:00:00.000Z")],
             },
           ],
         });
