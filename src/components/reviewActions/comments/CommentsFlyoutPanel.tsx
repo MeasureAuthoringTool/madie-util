@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -47,6 +47,8 @@ export interface CommentSectionLocation {
 export interface CommentsFlyoutPanelProps {
   open: boolean;
   onClose: () => void;
+  // called each time the panel opens, so the latest comments can be fetched
+  onOpen?: () => void;
   entityType: ReviewEntityType;
   sections: CommentSection[];
   activeSection: CommentSectionLocation;
@@ -55,6 +57,18 @@ export interface CommentsFlyoutPanelProps {
   onAddComment?: (comment: Comment) => void;
   onUpdateComment?: (comment: Comment) => void | Promise<boolean | void>;
   onDeleteComment?: (comment: Comment) => void | Promise<boolean | void>;
+  onAddReply?: (
+    parent: Comment,
+    reply: Comment
+  ) => void | Promise<boolean | void>;
+  onUpdateReply?: (
+    parent: Comment,
+    reply: Comment
+  ) => void | Promise<boolean | void>;
+  onDeleteReply?: (
+    parent: Comment,
+    reply: Comment
+  ) => void | Promise<boolean | void>;
   currentUserName?: string;
   markedForReviewBy?: string;
   markedForReviewAt?: string;
@@ -97,6 +111,7 @@ interface DeleteTarget {
 const CommentsFlyoutPanel = ({
   open,
   onClose,
+  onOpen,
   entityType,
   sections,
   activeSection,
@@ -106,6 +121,9 @@ const CommentsFlyoutPanel = ({
   onAddComment,
   onUpdateComment,
   onDeleteComment,
+  onAddReply,
+  onUpdateReply,
+  onDeleteReply,
   markedForReviewBy,
   markedForReviewAt,
 }: CommentsFlyoutPanelProps) => {
@@ -170,6 +188,14 @@ const CommentsFlyoutPanel = ({
     setSelectedSubSectionKey(activeSubSectionKey);
   }, [mainSection, activeSubSectionKey, open]);
 
+  const onOpenRef = useRef(onOpen);
+  onOpenRef.current = onOpen;
+  useEffect(() => {
+    if (open) {
+      onOpenRef.current?.();
+    }
+  }, [open]);
+
   const toggleSection = (section: string, expanded: boolean) =>
     setExpandedSections((sections) =>
       expanded
@@ -231,10 +257,7 @@ const CommentsFlyoutPanel = ({
       edited: false,
       content,
     };
-    return onUpdateComment?.({
-      ...parent,
-      replies: [...(parent.replies ?? []), reply],
-    });
+    return onAddReply?.(parent, reply);
   };
 
   const handleUpdateReply = (
@@ -242,13 +265,10 @@ const CommentsFlyoutPanel = ({
     replyToUpdate: Comment,
     updatedContent: string
   ) => {
-    onUpdateComment?.({
-      ...parent,
-      replies: (parent.replies ?? []).map((reply) =>
-        reply.id === replyToUpdate.id
-          ? { ...reply, content: updatedContent, edited: true }
-          : reply
-      ),
+    onUpdateReply?.(parent, {
+      ...replyToUpdate,
+      content: updatedContent,
+      edited: true,
     });
   };
 
@@ -280,12 +300,7 @@ const CommentsFlyoutPanel = ({
     setIsDeleting(true);
     try {
       const deleted = parent
-        ? await onUpdateComment?.({
-            ...parent,
-            replies: (parent.replies ?? []).filter(
-              (reply) => reply.id !== comment.id
-            ),
-          })
+        ? await onDeleteReply?.(parent, comment)
         : await onDeleteComment?.(comment);
       if (deleted !== false) {
         setDeleteTarget(null);
@@ -441,7 +456,7 @@ const CommentsFlyoutPanel = ({
                             onDeleteComment={(toDelete) =>
                               setDeleteTarget({ comment: toDelete })
                             }
-                            onAddReply={handleAddReply}
+                            onAddReply={onAddReply ? handleAddReply : undefined}
                             onSaveReply={handleUpdateReply}
                             onDeleteReply={(parent, reply) =>
                               setDeleteTarget({ comment: reply, parent })

@@ -172,6 +172,31 @@ describe("CommentsFlyoutPanel", () => {
     });
   });
 
+  it("asks for the latest comments each time the panel opens", () => {
+    const onOpen = jest.fn();
+    const props = {
+      entityType: "measure" as const,
+      sections,
+      onClose: jest.fn(),
+      onOpen,
+      activeSection: {
+        activeMainSection: "Details",
+        activeSubSection: "Name, Version & ID",
+      },
+    };
+    const { rerender } = render(
+      <CommentsFlyoutPanel {...props} open={false} />
+    );
+    expect(onOpen).not.toHaveBeenCalled();
+
+    rerender(<CommentsFlyoutPanel {...props} open />);
+    expect(onOpen).toHaveBeenCalledTimes(1);
+
+    rerender(<CommentsFlyoutPanel {...props} open={false} />);
+    rerender(<CommentsFlyoutPanel {...props} open />);
+    expect(onOpen).toHaveBeenCalledTimes(2);
+  });
+
   it("renders the Review sub-section under General", () => {
     render(
       <CommentsFlyoutPanel
@@ -1014,6 +1039,7 @@ describe("CommentsFlyoutPanel", () => {
             currentUserName="User1"
             currentUserId="user1"
             comments={[parent]}
+            onAddReply={jest.fn()}
             {...props}
           />
         );
@@ -1037,8 +1063,8 @@ describe("CommentsFlyoutPanel", () => {
       });
 
       it("closes the Reply panel on Cancel without saving", () => {
-        const onUpdateComment = jest.fn();
-        renderPanel({ onUpdateComment });
+        const onAddReply = jest.fn();
+        renderPanel({ onAddReply });
 
         userEvent.click(screen.getByTestId("comment-reply-parent"));
         userEvent.type(
@@ -1047,15 +1073,15 @@ describe("CommentsFlyoutPanel", () => {
         );
         userEvent.click(screen.getByTestId("reply-cancel-parent"));
 
-        expect(onUpdateComment).not.toHaveBeenCalled();
+        expect(onAddReply).not.toHaveBeenCalled();
         expect(
           screen.queryByTestId("reply-composer-parent")
         ).not.toBeInTheDocument();
       });
 
       it("saves the reply onto the comment, stamped with the signed-in user", async () => {
-        const onUpdateComment = jest.fn().mockResolvedValue(true);
-        renderPanel({ onUpdateComment });
+        const onAddReply = jest.fn().mockResolvedValue(true);
+        renderPanel({ onAddReply });
 
         userEvent.click(screen.getByTestId("comment-reply-parent"));
         userEvent.type(
@@ -1066,18 +1092,13 @@ describe("CommentsFlyoutPanel", () => {
           userEvent.click(screen.getByTestId("reply-save-parent"));
         });
 
-        expect(onUpdateComment).toHaveBeenCalledWith(
+        expect(onAddReply).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "parent" }),
           expect.objectContaining({
-            id: "parent",
+            harpId: "user1",
+            authorName: "User1",
+            content: "<p>Agreed</p>",
             edited: false,
-            replies: [
-              expect.objectContaining({
-                harpId: "user1",
-                authorName: "User1",
-                content: "<p>Agreed</p>",
-                edited: false,
-              }),
-            ],
           })
         );
         expect(
@@ -1086,8 +1107,8 @@ describe("CommentsFlyoutPanel", () => {
       });
 
       it("keeps the Reply panel and draft when the reply did not save", async () => {
-        const onUpdateComment = jest.fn().mockResolvedValue(false);
-        renderPanel({ onUpdateComment });
+        const onAddReply = jest.fn().mockResolvedValue(false);
+        renderPanel({ onAddReply });
 
         userEvent.click(screen.getByTestId("comment-reply-parent"));
         userEvent.type(
@@ -1101,6 +1122,14 @@ describe("CommentsFlyoutPanel", () => {
         expect(screen.getByTestId("reply-input-parent")).toHaveValue(
           "<p>Agreed</p>"
         );
+      });
+
+      it("hides the Reply icon when replies cannot be saved", () => {
+        renderPanel({ onAddReply: undefined });
+
+        expect(
+          screen.queryByTestId("comment-reply-parent")
+        ).not.toBeInTheDocument();
       });
 
       it("lists replies oldest first and opens the Reply panel below them", () => {
@@ -1149,10 +1178,10 @@ describe("CommentsFlyoutPanel", () => {
       });
 
       it("saves an edited reply and marks it edited", () => {
-        const onUpdateComment = jest.fn();
+        const onUpdateReply = jest.fn();
         const mine = replyBy("mine", "User1", "2025-06-20T09:00:00.000Z");
         renderPanel({
-          onUpdateComment,
+          onUpdateReply,
           comments: [{ ...parent, replies: [mine] }],
         });
 
@@ -1165,21 +1194,18 @@ describe("CommentsFlyoutPanel", () => {
         );
         userEvent.click(screen.getByTestId("reply-edit-save-mine"));
 
-        expect(onUpdateComment).toHaveBeenCalledWith(
-          expect.objectContaining({
-            id: "parent",
-            edited: false,
-            replies: [{ ...mine, content: "<p>Revised</p>", edited: true }],
-          })
+        expect(onUpdateReply).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "parent" }),
+          { ...mine, content: "<p>Revised</p>", edited: true }
         );
       });
 
       it("confirms before deleting a reply, then removes only that reply", async () => {
-        const onUpdateComment = jest.fn().mockResolvedValue(true);
+        const onDeleteReply = jest.fn().mockResolvedValue(true);
         const onDeleteComment = jest.fn();
         const theirs = replyBy("theirs", "User2", "2025-06-19T09:00:00.000Z");
         renderPanel({
-          onUpdateComment,
+          onDeleteReply,
           onDeleteComment,
           comments: [
             {
@@ -1204,8 +1230,9 @@ describe("CommentsFlyoutPanel", () => {
         });
 
         expect(onDeleteComment).not.toHaveBeenCalled();
-        expect(onUpdateComment).toHaveBeenCalledWith(
-          expect.objectContaining({ id: "parent", replies: [theirs] })
+        expect(onDeleteReply).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "parent" }),
+          expect.objectContaining({ id: "mine" })
         );
         expect(
           screen.queryByTestId("delete-comment-dialog")
@@ -1214,9 +1241,9 @@ describe("CommentsFlyoutPanel", () => {
       });
 
       it("keeps the reply when the delete is cancelled", () => {
-        const onUpdateComment = jest.fn();
+        const onDeleteReply = jest.fn();
         renderPanel({
-          onUpdateComment,
+          onDeleteReply,
           comments: [
             {
               ...parent,
@@ -1229,7 +1256,7 @@ describe("CommentsFlyoutPanel", () => {
         userEvent.click(screen.getByTestId("reply-delete-mine"));
         userEvent.click(screen.getByTestId("delete-comment-cancel"));
 
-        expect(onUpdateComment).not.toHaveBeenCalled();
+        expect(onDeleteReply).not.toHaveBeenCalled();
         expect(
           screen.queryByTestId("delete-comment-dialog")
         ).not.toBeInTheDocument();
