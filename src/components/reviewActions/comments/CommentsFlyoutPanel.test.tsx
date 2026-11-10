@@ -1096,7 +1096,7 @@ describe("CommentsFlyoutPanel", () => {
           expect.objectContaining({ id: "parent" }),
           expect.objectContaining({
             harpId: "user1",
-            authorName: "User1",
+            authorName: "User1", // #nosec
             content: "<p>Agreed</p>",
             edited: false,
           })

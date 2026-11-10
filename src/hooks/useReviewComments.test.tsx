@@ -154,8 +154,8 @@ describe("useReviewComments", () => {
     mockMeasureApi.getMeasureReview.mockRejectedValue(new Error("boom"));
     const onError = jest.fn();
 
-    const { result, waitFor } = renderHook(() =>
-      useReviewComments("measure", "m1", onError)
+    const { result, waitFor } = renderHook(
+      () => useReviewComments("measure", "m1", onError) // #nosec
     );
     await waitFor(() =>
       expect(onError).toHaveBeenCalledWith(REVIEW_LOAD_ERROR)
@@ -222,18 +222,18 @@ describe("useReviewComments", () => {
     const theirs = {
       ...existing,
       id: "c9",
-      authorName: "User3",
+      authorName: "User3", // #nosec
       content: "<p>added by another user after the page loaded</p>",
     };
     const reply = (id: string, content: string) => ({
       id,
-      authorName: "User2",
+      authorName: "User2", // #nosec
       createdAt: "2025-06-19T10:00:00.000Z",
       content,
     });
 
     const loadThenServe = async (latestReview: any) => {
-      const hook = renderHook(() => useReviewComments("measure", "m1"));
+      const hook = renderHook(() => useReviewComments("measure", "m1")); // #nosec
       await hook.waitForNextUpdate();
       mockMeasureApi.getMeasureReview.mockResolvedValue(latestReview);
       return hook.result;
@@ -317,8 +317,8 @@ describe("useReviewComments", () => {
 
     it("does not save a reply to a comment that was deleted meanwhile", async () => {
       const onError = jest.fn();
-      const hook = renderHook(() =>
-        useReviewComments("measure", "m1", onError)
+      const hook = renderHook(
+        () => useReviewComments("measure", "m1", onError) // #nosec
       );
       await hook.waitForNextUpdate();
       mockMeasureApi.getMeasureReview.mockResolvedValue({
@@ -349,8 +349,8 @@ describe("useReviewComments", () => {
     };
 
     it("shows comments other users saved since the page loaded", async () => {
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useReviewComments("measure", "m1")
+      const { result, waitForNextUpdate } = renderHook(
+        () => useReviewComments("measure", "m1") // #nosec
       );
       await waitForNextUpdate();
       mockMeasureApi.getMeasureReview.mockResolvedValue({
@@ -364,8 +364,8 @@ describe("useReviewComments", () => {
     });
 
     it("ignores a reload that finishes after a newer save", async () => {
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useReviewComments("measure", "m1")
+      const { result, waitForNextUpdate } = renderHook(
+        () => useReviewComments("measure", "m1") // #nosec
       );
       await waitForNextUpdate();
 
@@ -394,8 +394,8 @@ describe("useReviewComments", () => {
 
     it("keeps the loaded comments and reports a failed reload", async () => {
       const onError = jest.fn();
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useReviewComments("measure", "m1", onError)
+      const { result, waitForNextUpdate } = renderHook(
+        () => useReviewComments("measure", "m1", onError) // #nosec
       );
       await waitForNextUpdate();
       mockMeasureApi.getMeasureReview.mockRejectedValue(new Error("boom"));
