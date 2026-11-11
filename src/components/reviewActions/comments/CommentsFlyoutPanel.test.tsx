@@ -66,7 +66,7 @@ const commentOn = (mainSection: string, subSection: string) => ({
   id: `${mainSection}-${subSection}`,
   mainSection,
   subSection,
-  authorName: "Sarah Mitchell",
+  authorName: "user2",
   createdAt: "2025-06-18T10:42:00.000Z",
   edited: false,
   content: "<p>A stored comment</p>",
@@ -170,6 +170,31 @@ describe("CommentsFlyoutPanel", () => {
         screen.getByRole("tooltip", { name: fullLabel })
       ).toBeInTheDocument();
     });
+  });
+
+  it("asks for the latest comments each time the panel opens", () => {
+    const onOpen = jest.fn();
+    const props = {
+      entityType: "measure" as const,
+      sections,
+      onClose: jest.fn(),
+      onOpen,
+      activeSection: {
+        activeMainSection: "Details",
+        activeSubSection: "Name, Version & ID",
+      },
+    };
+    const { rerender } = render(
+      <CommentsFlyoutPanel {...props} open={false} />
+    );
+    expect(onOpen).not.toHaveBeenCalled();
+
+    rerender(<CommentsFlyoutPanel {...props} open />);
+    expect(onOpen).toHaveBeenCalledTimes(1);
+
+    rerender(<CommentsFlyoutPanel {...props} open={false} />);
+    rerender(<CommentsFlyoutPanel {...props} open />);
+    expect(onOpen).toHaveBeenCalledTimes(2);
   });
 
   it("renders the Review sub-section under General", () => {
@@ -576,13 +601,13 @@ describe("CommentsFlyoutPanel", () => {
         open
         onClose={jest.fn()}
         activeSection={{ activeSubSection: "Details" }}
-        markedForReviewBy="jjones"
+        markedForReviewBy="user1"
         markedForReviewAt="2026-08-12T09:00:00"
       />
     );
     expect(
       screen.getByTestId("ready-for-review-comment-author")
-    ).toHaveTextContent("jjones");
+    ).toHaveTextContent("user1");
     expect(
       screen.getByTestId("ready-for-review-comment-date")
     ).toHaveTextContent("Aug 12, 2026");
@@ -600,8 +625,8 @@ describe("CommentsFlyoutPanel", () => {
             activeMainSection: "Population Criteria",
             activeSubSection: "Criteria 1",
           }}
-          currentUserName="Jonathan Jones"
-          currentUserId="jjones"
+          currentUserName="user1"
+          currentUserId="user1"
           {...props}
         />
       );
@@ -620,7 +645,7 @@ describe("CommentsFlyoutPanel", () => {
         expect.objectContaining({
           mainSection: "Population Criteria",
           subSection: "Criteria 1",
-          authorName: "Jonathan Jones",
+          authorName: "user1",
           content: "<p>Needs a look</p>",
           edited: false,
         })
@@ -671,12 +696,12 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "Jonathan Jones",
+            authorName: "user1",
           },
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "theirs",
-            authorName: "David Park",
+            authorName: "user2",
           },
         ],
       });
@@ -759,8 +784,8 @@ describe("CommentsFlyoutPanel", () => {
 
       expect(onAddComment).toHaveBeenCalledWith(
         expect.objectContaining({
-          harpId: "jjones",
-          authorName: "Jonathan Jones",
+          harpId: "user1",
+          authorName: "user1",
         })
       );
     });
@@ -771,14 +796,14 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "same-name-other-user",
-            harpId: "jjones2",
-            authorName: "Jonathan Jones",
+            harpId: "user4",
+            authorName: "user1",
           },
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "renamed-me",
-            harpId: "JJones",
-            authorName: "Jon Jones",
+            harpId: "USER1",
+            authorName: "Renamed user1",
           },
         ],
       });
@@ -793,11 +818,13 @@ describe("CommentsFlyoutPanel", () => {
 
     it("recognises the author by HARP id when no name was resolved", () => {
       renderPanel({
+        // display name differs from the harp id, so only the id can match
+        currentUserName: "user2",
         comments: [
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "harp",
-            authorName: "jjones",
+            authorName: "user1",
           },
         ],
       });
@@ -810,7 +837,7 @@ describe("CommentsFlyoutPanel", () => {
       const stored = {
         ...commentOn("Population Criteria", "Criteria 1"),
         id: "mine",
-        authorName: "Jonathan Jones",
+        authorName: "user1",
       };
       renderPanel({ comments: [stored], onUpdateComment });
 
@@ -838,7 +865,7 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "Jonathan Jones",
+            authorName: "user1",
           },
         ],
         onDeleteComment,
@@ -872,7 +899,7 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "Jonathan Jones",
+            authorName: "user1",
           },
         ],
         onDeleteComment,
@@ -910,7 +937,7 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "Jonathan Jones",
+            authorName: "user1",
           },
         ],
         onDeleteComment,
@@ -938,7 +965,7 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "Jonathan Jones",
+            authorName: "user1",
           },
         ],
         onDeleteComment,
@@ -965,7 +992,7 @@ describe("CommentsFlyoutPanel", () => {
           {
             ...commentOn("Population Criteria", "Criteria 1"),
             id: "mine",
-            authorName: "Jonathan Jones",
+            authorName: "user1",
           },
         ],
       });
@@ -983,4 +1010,259 @@ describe("CommentsFlyoutPanel", () => {
       );
     });
   });
+
+  describe.each(["measure", "library"] as const)(
+    "replies on a %s",
+    (entityType) => {
+      const parent = {
+        ...commentOn("Population Criteria", "Criteria 1"),
+        id: "parent",
+        authorName: "user2",
+      };
+      const replyBy = (id: string, authorName: string, createdAt: string) => ({
+        id,
+        authorName,
+        createdAt,
+        edited: false,
+        content: `<p>Reply ${id}</p>`,
+      });
+
+      const renderPanel = (props: any = {}) =>
+        render(
+          <CommentsFlyoutPanel
+            entityType={entityType}
+            sections={sections}
+            open
+            onClose={jest.fn()}
+            activeSection={{
+              activeMainSection: "Population Criteria",
+              activeSubSection: "Criteria 1",
+            }}
+            currentUserName="user1"
+            currentUserId="user1"
+            comments={[parent]}
+            onAddReply={jest.fn()}
+            {...props}
+          />
+        );
+
+      it("opens a Reply panel with Cancel enabled and Save enabled once text is entered", () => {
+        renderPanel();
+
+        expect(
+          screen.queryByTestId("reply-composer-parent")
+        ).not.toBeInTheDocument();
+        userEvent.click(screen.getByTestId("comment-reply-parent"));
+
+        expect(screen.getByTestId("reply-cancel-parent")).toBeEnabled();
+        expect(screen.getByTestId("reply-save-parent")).toBeDisabled();
+
+        userEvent.type(
+          screen.getByTestId("reply-input-parent"),
+          "<p>Agreed</p>"
+        );
+        expect(screen.getByTestId("reply-save-parent")).toBeEnabled();
+      });
+
+      it("closes the Reply panel on Cancel without saving", () => {
+        const onAddReply = jest.fn();
+        renderPanel({ onAddReply });
+
+        userEvent.click(screen.getByTestId("comment-reply-parent"));
+        userEvent.type(
+          screen.getByTestId("reply-input-parent"),
+          "<p>Agreed</p>"
+        );
+        userEvent.click(screen.getByTestId("reply-cancel-parent"));
+
+        expect(onAddReply).not.toHaveBeenCalled();
+        expect(
+          screen.queryByTestId("reply-composer-parent")
+        ).not.toBeInTheDocument();
+      });
+
+      it("saves the reply onto the comment, stamped with the signed-in user", async () => {
+        const onAddReply = jest.fn().mockResolvedValue(true);
+        renderPanel({ onAddReply });
+
+        userEvent.click(screen.getByTestId("comment-reply-parent"));
+        userEvent.type(
+          screen.getByTestId("reply-input-parent"),
+          "<p>Agreed</p>"
+        );
+        await act(async () => {
+          userEvent.click(screen.getByTestId("reply-save-parent"));
+        });
+
+        expect(onAddReply).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "parent" }),
+          expect.objectContaining({
+            harpId: "user1",
+            authorName: "user1",
+            content: "<p>Agreed</p>",
+            edited: false,
+          })
+        );
+        expect(
+          screen.queryByTestId("reply-composer-parent")
+        ).not.toBeInTheDocument();
+      });
+
+      it("keeps the Reply panel and draft when the reply did not save", async () => {
+        const onAddReply = jest.fn().mockResolvedValue(false);
+        renderPanel({ onAddReply });
+
+        userEvent.click(screen.getByTestId("comment-reply-parent"));
+        userEvent.type(
+          screen.getByTestId("reply-input-parent"),
+          "<p>Agreed</p>"
+        );
+        await act(async () => {
+          userEvent.click(screen.getByTestId("reply-save-parent"));
+        });
+
+        expect(screen.getByTestId("reply-input-parent")).toHaveValue(
+          "<p>Agreed</p>"
+        );
+      });
+
+      it("hides the Reply icon when replies cannot be saved", () => {
+        renderPanel({ onAddReply: undefined });
+
+        expect(
+          screen.queryByTestId("comment-reply-parent")
+        ).not.toBeInTheDocument();
+      });
+
+      it("lists replies oldest first and opens the Reply panel below them", () => {
+        renderPanel({
+          comments: [
+            {
+              ...parent,
+              replies: [
+                replyBy("newer", "user1", "2025-06-21T09:00:00.000Z"),
+                replyBy("older", "user2", "2025-06-20T09:00:00.000Z"),
+              ],
+            },
+          ],
+        });
+        userEvent.click(screen.getByTestId("comment-reply-parent"));
+
+        const replies = screen.getByTestId("comment-replies-parent");
+        const items = Array.from(replies.children).map((child) =>
+          child.getAttribute("data-testid")
+        );
+        expect(items).toEqual([
+          "reply-older",
+          "reply-newer",
+          "reply-composer-parent",
+        ]);
+      });
+
+      it("gives only the signed-in user's replies an action center, and no reply icon", () => {
+        renderPanel({
+          comments: [
+            {
+              ...parent,
+              replies: [
+                replyBy("mine", "user1", "2025-06-20T09:00:00.000Z"),
+                replyBy("theirs", "user2", "2025-06-21T09:00:00.000Z"),
+              ],
+            },
+          ],
+        });
+
+        expect(screen.getByTestId("reply-actions-mine")).toBeInTheDocument();
+        expect(
+          screen.queryByTestId("reply-actions-theirs")
+        ).not.toBeInTheDocument();
+        expect(screen.getAllByLabelText("Reply")).toHaveLength(1);
+      });
+
+      it("saves an edited reply and marks it edited", () => {
+        const onUpdateReply = jest.fn();
+        const mine = replyBy("mine", "user1", "2025-06-20T09:00:00.000Z");
+        renderPanel({
+          onUpdateReply,
+          comments: [{ ...parent, replies: [mine] }],
+        });
+
+        userEvent.click(screen.getByTestId("reply-more-actions-mine"));
+        userEvent.click(screen.getByTestId("reply-edit-mine"));
+        userEvent.clear(screen.getByTestId("reply-editor-mine"));
+        userEvent.type(
+          screen.getByTestId("reply-editor-mine"),
+          "<p>Revised</p>"
+        );
+        userEvent.click(screen.getByTestId("reply-edit-save-mine"));
+
+        expect(onUpdateReply).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "parent" }),
+          { ...mine, content: "<p>Revised</p>", edited: true }
+        );
+      });
+
+      it("confirms before deleting a reply, then removes only that reply", async () => {
+        const onDeleteReply = jest.fn().mockResolvedValue(true);
+        const onDeleteComment = jest.fn();
+        const theirs = replyBy("theirs", "user2", "2025-06-19T09:00:00.000Z");
+        renderPanel({
+          onDeleteReply,
+          onDeleteComment,
+          comments: [
+            {
+              ...parent,
+              replies: [
+                theirs,
+                replyBy("mine", "user1", "2025-06-20T09:00:00.000Z"),
+              ],
+            },
+          ],
+        });
+
+        userEvent.click(screen.getByTestId("reply-more-actions-mine"));
+        userEvent.click(screen.getByTestId("reply-delete-mine"));
+        expect(screen.getByText("Delete this reply?")).toBeInTheDocument();
+        expect(
+          screen.getByText("This action cannot be undone.")
+        ).toBeInTheDocument();
+
+        await act(async () => {
+          userEvent.click(screen.getByTestId("delete-comment-confirm"));
+        });
+
+        expect(onDeleteComment).not.toHaveBeenCalled();
+        expect(onDeleteReply).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "parent" }),
+          expect.objectContaining({ id: "mine" })
+        );
+        expect(
+          screen.queryByTestId("delete-comment-dialog")
+        ).not.toBeInTheDocument();
+        expect(screen.getByText("Reply has been deleted.")).toBeInTheDocument();
+      });
+
+      it("keeps the reply when the delete is cancelled", () => {
+        const onDeleteReply = jest.fn();
+        renderPanel({
+          onDeleteReply,
+          comments: [
+            {
+              ...parent,
+              replies: [replyBy("mine", "user1", "2025-06-20T09:00:00.000Z")],
+            },
+          ],
+        });
+
+        userEvent.click(screen.getByTestId("reply-more-actions-mine"));
+        userEvent.click(screen.getByTestId("reply-delete-mine"));
+        userEvent.click(screen.getByTestId("delete-comment-cancel"));
+
+        expect(onDeleteReply).not.toHaveBeenCalled();
+        expect(
+          screen.queryByTestId("delete-comment-dialog")
+        ).not.toBeInTheDocument();
+      });
+    }
+  );
 });
