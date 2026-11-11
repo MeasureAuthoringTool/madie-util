@@ -1,4 +1,5 @@
 import useTerminologyServiceApi, {
+  CodeSystemJobStatus,
   CustomCqlCode,
   TerminologyServiceApi,
 } from "./useTerminologyServiceApi";
@@ -598,11 +599,11 @@ describe("useTerminologyServiceApi", () => {
 
     describe("getCodeSystemJobStatus", () => {
       it("returns the latest code system job status", async () => {
-        const jobStatus = {
-          status: "COMPLETED",
+        const jobState = {
+          status: CodeSystemJobStatus.COMPLETED,
           completedAt: "2026-11-09T15:04:05Z",
         };
-        mockedAxios.get.mockResolvedValueOnce({ status: 200, data: jobStatus });
+        mockedAxios.get.mockResolvedValueOnce({ status: 200, data: jobState });
 
         const result = await api.getCodeSystemJobStatus();
 
@@ -614,7 +615,7 @@ describe("useTerminologyServiceApi", () => {
             },
           }
         );
-        expect(result).toEqual(jobStatus);
+        expect(result).toEqual(jobState);
       });
 
       it("returns undefined when no job has run yet", async () => {

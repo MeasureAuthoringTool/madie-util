@@ -114,8 +114,14 @@ export interface CreateCodeSystemRequest {
   };
 }
 
-export interface CodeSystemJobStatus {
-  status: "RUNNING" | "COMPLETED" | "FAILED";
+export enum CodeSystemJobStatus {
+  RUNNING = "RUNNING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
+}
+
+export interface CodeSystemJobState {
+  status: CodeSystemJobStatus;
   completedAt?: string;
 }
 
@@ -486,8 +492,8 @@ export class TerminologyServiceApi {
     }
   }
 
-  async getCodeSystemJobStatus(): Promise<CodeSystemJobStatus | undefined> {
-    const response = await axios.get<CodeSystemJobStatus>(
+  async getCodeSystemJobStatus(): Promise<CodeSystemJobState | undefined> {
+    const response = await axios.get<CodeSystemJobState>(
       `${this.baseUrl}/terminology/admin/code-system-job-status`,
       {
         headers: {
