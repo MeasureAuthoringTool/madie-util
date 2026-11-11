@@ -28,6 +28,7 @@ import {
   default as useTerminologyServiceApi,
   type ValueSetDisplayForAdmin,
   type CodeSystem,
+  type CodeSystemJobStatus,
   type CreateCodeSystemRequest,
   type Version,
 } from "./api/useTerminologyServiceApi";
@@ -121,6 +122,7 @@ export {
   useTerminologyServiceApi,
   ValueSetDisplayForAdmin,
   CodeSystem,
+  CodeSystemJobStatus,
   CreateCodeSystemRequest,
   Version,
   useMeasureServiceApi,

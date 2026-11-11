@@ -596,6 +596,40 @@ describe("useTerminologyServiceApi", () => {
       });
     });
 
+    describe("getCodeSystemJobStatus", () => {
+      it("returns the latest code system job status", async () => {
+        const jobStatus = {
+          status: "COMPLETED",
+          completedAt: "2026-11-09T15:04:05Z",
+        };
+        mockedAxios.get.mockResolvedValueOnce({ status: 200, data: jobStatus });
+
+        const result = await api.getCodeSystemJobStatus();
+
+        expect(mockedAxios.get).toHaveBeenCalledWith(
+          `${baseUrl}/terminology/admin/code-system-job-status`,
+          {
+            headers: {
+              Authorization: `Bearer ${getAccessToken()}`,
+            },
+          }
+        );
+        expect(result).toEqual(jobStatus);
+      });
+
+      it("returns undefined when no job has run yet", async () => {
+        mockedAxios.get.mockResolvedValueOnce({ status: 204, data: "" });
+
+        expect(await api.getCodeSystemJobStatus()).toBeUndefined();
+      });
+
+      it("rejects when the request fails", async () => {
+        mockedAxios.get.mockRejectedValueOnce(new Error("fail"));
+
+        await expect(api.getCodeSystemJobStatus()).rejects.toThrow("fail");
+      });
+    });
+
     describe("deleteValueSet", () => {
       it("calls delete value set endpoint and returns the response", async () => {
         const response = {

@@ -114,6 +114,11 @@ export interface CreateCodeSystemRequest {
   };
 }
 
+export interface CodeSystemJobStatus {
+  status: "RUNNING" | "COMPLETED" | "FAILED";
+  completedAt?: string;
+}
+
 export interface ValueSetSearchCriteriaValueSetParam {
   oid?: string;
   url?: string;
@@ -479,6 +484,19 @@ export class TerminologyServiceApi {
 
       throw new Error(message);
     }
+  }
+
+  async getCodeSystemJobStatus(): Promise<CodeSystemJobStatus | undefined> {
+    const response = await axios.get<CodeSystemJobStatus>(
+      `${this.baseUrl}/terminology/admin/code-system-job-status`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+      }
+    );
+    // 204 (no job has run yet) has an empty body
+    return response.data || undefined;
   }
 
   async exportCodeSystems(
