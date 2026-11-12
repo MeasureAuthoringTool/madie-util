@@ -167,7 +167,7 @@ describe("Library ChangeVersionDialog", () => {
     );
     await waitForVersionsLoaded(3);
     const input = screen.getByTestId("new-version-number-input");
-    userEvent.type(input, "invalid");
+    userEvent.type(input, "bad");
     input.blur();
     userEvent.type(
       screen.getByTestId("intended-final-version-number-input"),
