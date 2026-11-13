@@ -5,12 +5,14 @@ interface ReviewCommentLinkProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   style?: React.CSSProperties;
   dataTestId?: string;
+  commentCount?: number; // total comments + replies
 }
 
 const ReviewCommentLink = ({
   onClick,
   style,
   dataTestId = "review-comments-link",
+  commentCount,
 }: ReviewCommentLinkProps) => {
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     // Story scope: link is visible but does not perform a comments action yet.
@@ -26,7 +28,7 @@ const ReviewCommentLink = ({
       className="review-comments-link-button"
       onClick={handleClick}
     >
-      Comments
+      {commentCount === undefined ? "Comments" : `Comments (${commentCount})`}
     </button>
   );
 };

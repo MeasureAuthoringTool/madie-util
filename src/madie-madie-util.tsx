@@ -105,6 +105,7 @@ import {
 } from "./components/reviewActions";
 import { default as useReviewComments } from "./hooks/useReviewComments";
 import { REVIEW_ACTIVE_STATUSES } from "./util/reviewReadiness";
+import { countComments } from "./util/commentCounts";
 
 export {
   useServiceConfig,
@@ -182,6 +183,7 @@ export {
   ReviewCommentLink,
   CommentsFlyoutPanel,
   useReviewComments,
+  countComments,
   REVIEW_ACTIVE_STATUSES,
   getNewestMeasureInstance,
   exportMeasure,

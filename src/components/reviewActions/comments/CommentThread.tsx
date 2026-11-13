@@ -3,6 +3,7 @@ import { Box } from "@mui/material";
 import { Button, RichTextEditor } from "@madie/madie-design-system/dist/react";
 import { Comment } from "@madie/madie-models";
 import CommentEntry from "./CommentEntry";
+import CommentCountChip from "./CommentCountChip";
 import { richTextHasContent, sanitizeRichText } from "../../../util/richText";
 
 export interface CommentThreadProps {
@@ -28,6 +29,7 @@ const CommentThread = ({
   onDeleteReply,
 }: CommentThreadProps) => {
   const [replyOpen, setReplyOpen] = useState(false);
+  const [repliesExpanded, setRepliesExpanded] = useState(true);
   const [draftReply, setDraftReply] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -49,6 +51,7 @@ const CommentThread = ({
     try {
       const saved = await onAddReply?.(comment, sanitizeRichText(draftReply));
       if (saved !== false) {
+        setRepliesExpanded(true);
         closeReply();
       }
     } finally {
@@ -69,23 +72,37 @@ const CommentThread = ({
         onReply={onAddReply ? () => setReplyOpen(true) : undefined}
       />
 
-      {(replies.length > 0 || replyOpen) && (
+      {replies.length > 0 && (
+        <Box className="comments-flyout-panel-replies-count">
+          <CommentCountChip
+            label={`${replies.length} ${
+              replies.length === 1 ? "Reply" : "Replies"
+            }`}
+            expanded={repliesExpanded}
+            onClick={() => setRepliesExpanded((expanded) => !expanded)}
+            data-testid={`comment-replies-count-${comment.id}`}
+          />
+        </Box>
+      )}
+
+      {((repliesExpanded && replies.length > 0) || replyOpen) && (
         <Box
           className="comments-flyout-panel-replies"
           data-testid={`comment-replies-${comment.id}`}
         >
-          {replies.map((reply) => (
-            <CommentEntry
-              key={reply.id}
-              comment={reply}
-              isReply
-              canEdit={isAuthor(reply)}
-              onSave={(edited, content) =>
-                onSaveReply?.(comment, edited, content)
-              }
-              onDelete={(deleted) => onDeleteReply?.(comment, deleted)}
-            />
-          ))}
+          {repliesExpanded &&
+            replies.map((reply) => (
+              <CommentEntry
+                key={reply.id}
+                comment={reply}
+                isReply
+                canEdit={isAuthor(reply)}
+                onSave={(edited, content) =>
+                  onSaveReply?.(comment, edited, content)
+                }
+                onDelete={(deleted) => onDeleteReply?.(comment, deleted)}
+              />
+            ))}
 
           {replyOpen && (
             <Box

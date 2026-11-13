@@ -1265,4 +1265,224 @@ describe("CommentsFlyoutPanel", () => {
       });
     }
   );
+
+  describe("comment counts", () => {
+    const renderPanel = (props: any = {}) =>
+      render(
+        <CommentsFlyoutPanel
+          entityType="measure"
+          sections={sections}
+          open
+          onClose={jest.fn()}
+          activeSection={{
+            activeMainSection: "Details",
+            activeSubSection: "Name, Version & ID",
+          }}
+          {...props}
+        />
+      );
+
+    it("shows zero everywhere when there are no comments", () => {
+      renderPanel({ comments: [] });
+
+      expect(
+        screen.getByTestId("comments-flyout-total-count")
+      ).toHaveTextContent("Comments (0)");
+      expect(
+        screen.getByTestId("section-comment-count-General")
+      ).toHaveTextContent("0");
+      expect(
+        screen.getByTestId("section-comment-count-Details")
+      ).toHaveTextContent("0");
+      expect(
+        screen.getByTestId("section-comment-count-Population Criteria")
+      ).toHaveTextContent("0");
+    });
+
+    it("totals comments plus replies in the panel header", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Details", "Name, Version & ID"),
+            id: "c1",
+            replies: [
+              { id: "r1", authorName: "user1", content: "<p>ok</p>" },
+              { id: "r2", authorName: "user2", content: "<p>ok</p>" },
+            ],
+          },
+          { ...commentOn("CQL Editor", "CQL Editor"), id: "c2" },
+        ],
+      });
+
+      expect(
+        screen.getByTestId("comments-flyout-total-count")
+      ).toHaveTextContent("Comments (4)");
+    });
+
+    it("counts each main section's comments and replies in its chip", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Details", "Name, Version & ID"),
+            id: "c1",
+            replies: [{ id: "r1", authorName: "user1", content: "<p>ok</p>" }],
+          },
+          { ...commentOn("Details", "Description"), id: "c2" },
+          { ...commentOn("CQL Editor", "CQL Editor"), id: "c3" },
+        ],
+      });
+
+      expect(
+        screen.getByTestId("section-comment-count-Details")
+      ).toHaveTextContent("3");
+      expect(
+        screen.getByTestId("section-comment-count-CQL Editor")
+      ).toHaveTextContent("1");
+      expect(
+        screen.getByTestId("section-comment-count-Test Cases")
+      ).toHaveTextContent("0");
+    });
+
+    it("counts each sub-section's comments and replies in its chip", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Details", "Name, Version & ID"),
+            id: "c1",
+            replies: [
+              { id: "r1", authorName: "user1", content: "<p>ok</p>" },
+              { id: "r2", authorName: "user2", content: "<p>ok</p>" },
+            ],
+          },
+          { ...commentOn("Details", "Name, Version & ID"), id: "c2" },
+          { ...commentOn("Details", "Model & Measurement Period"), id: "c3" },
+        ],
+      });
+
+      expect(
+        screen.getByTestId("subsection-comment-count-Name, Version & ID")
+      ).toHaveTextContent("4");
+      expect(
+        screen.getByTestId(
+          "subsection-comment-count-Model & Measurement Period"
+        )
+      ).toHaveTextContent("1");
+    });
+
+    it("shows a Replies chip between a comment and its replies", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Details", "Name, Version & ID"),
+            id: "c1",
+            replies: [
+              { id: "r1", authorName: "user1", content: "<p>ok</p>" },
+              { id: "r2", authorName: "user2", content: "<p>ok</p>" },
+            ],
+          },
+        ],
+      });
+
+      const thread = screen.getByTestId("comment-thread-c1");
+      const chip = screen.getByTestId("comment-replies-count-c1");
+      expect(chip).toHaveTextContent("2 Replies");
+      const children = Array.from(thread.children);
+      expect(
+        children.indexOf(chip.closest(".comments-flyout-panel-replies-count"))
+      ).toBeLessThan(
+        children.indexOf(screen.getByTestId("comment-replies-c1"))
+      );
+    });
+
+    it("uses the singular Reply label for a single reply", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Details", "Name, Version & ID"),
+            id: "c1",
+            replies: [{ id: "r1", authorName: "user1", content: "<p>ok</p>" }],
+          },
+        ],
+      });
+
+      expect(screen.getByTestId("comment-replies-count-c1")).toHaveTextContent(
+        "1 Reply"
+      );
+    });
+
+    it("collapses and expands the replies when the Replies chip is clicked", async () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Details", "Name, Version & ID"),
+            id: "c1",
+            replies: [
+              { id: "r1", authorName: "user1", content: "<p>ok</p>" },
+              { id: "r2", authorName: "user2", content: "<p>ok</p>" },
+            ],
+          },
+        ],
+      });
+
+      const chip = screen.getByTestId("comment-replies-count-c1");
+      // replies start expanded
+      expect(chip).toHaveAttribute("aria-expanded", "true");
+      expect(screen.getByTestId("comment-replies-c1")).toBeInTheDocument();
+
+      userEvent.click(chip);
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("comment-replies-c1")
+        ).not.toBeInTheDocument();
+      });
+      // the count stays visible while collapsed
+      expect(chip).toHaveTextContent("2 Replies");
+      expect(chip).toHaveAttribute("aria-expanded", "false");
+
+      userEvent.click(chip);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("comment-replies-c1")).toBeInTheDocument();
+      });
+      expect(chip).toHaveTextContent("2 Replies");
+      expect(chip).toHaveAttribute("aria-expanded", "true");
+    });
+
+    it("collapses one comment's replies without collapsing another's", async () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Details", "Name, Version & ID"),
+            id: "c1",
+            replies: [{ id: "r1", authorName: "user1", content: "<p>ok</p>" }],
+          },
+          {
+            ...commentOn("Details", "Name, Version & ID"),
+            id: "c2",
+            replies: [{ id: "r2", authorName: "user2", content: "<p>ok</p>" }],
+          },
+        ],
+      });
+
+      userEvent.click(screen.getByTestId("comment-replies-count-c1"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("comment-replies-c1")
+        ).not.toBeInTheDocument();
+      });
+      expect(screen.getByTestId("comment-replies-c2")).toBeInTheDocument();
+    });
+
+    it("omits the Replies chip when a comment has no replies", () => {
+      renderPanel({
+        comments: [{ ...commentOn("Details", "Name, Version & ID"), id: "c1" }],
+      });
+
+      expect(
+        screen.queryByTestId("comment-replies-count-c1")
+      ).not.toBeInTheDocument();
+    });
+  });
 });

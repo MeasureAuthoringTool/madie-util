@@ -18,7 +18,9 @@ import {
 import { Comment } from "@madie/madie-models";
 import ReviewSubSection from "./general/ReviewSubSection";
 import CommentSubSection from "./CommentSubSection";
+import CommentCountChip from "./CommentCountChip";
 import CommentThread from "./CommentThread";
+import { countComments, countCommentThread } from "../../../util/commentCounts";
 import DeleteCommentDialog from "./DeleteCommentDialog";
 import { richTextHasContent, sanitizeRichText } from "../../../util/richText";
 import { normalizeUserId } from "../../../util/reviewCommentVisibility";
@@ -178,6 +180,19 @@ const CommentsFlyoutPanel = ({
     return buckets;
   }, [comments]);
 
+  const totalCommentCount = useMemo(() => countComments(comments), [comments]);
+  const commentCountsByMainSection = useMemo(
+    () =>
+      comments.reduce<Record<string, number>>((counts, comment) => {
+        counts[comment.mainSection] =
+          (counts[comment.mainSection] ?? 0) + countCommentThread(comment);
+        return counts;
+      }, {}),
+    [comments]
+  );
+  const mainSectionCount = (sectionName: string) =>
+    commentCountsByMainSection[sectionName] ?? 0;
+
   useEffect(() => {
     setExpandedSections(mainSection ? [mainSection] : []);
     setExpandedSubSection(
@@ -328,8 +343,12 @@ const CommentsFlyoutPanel = ({
         <Box className="comments-flyout-panel-header">
           <Box className="comments-flyout-panel-title-row">
             <MessageSquare color="#0096f4" size={14} />
-            <Typography variant="h6" className="comments-flyout-panel-title">
-              Comments
+            <Typography
+              variant="h6"
+              className="comments-flyout-panel-title"
+              data-testid="comments-flyout-total-count"
+            >
+              Comments ({totalCommentCount})
             </Typography>
           </Box>
           <IconButton
@@ -358,6 +377,10 @@ const CommentsFlyoutPanel = ({
               <Typography className="comments-flyout-panel-section-title">
                 {GENERAL_SECTION}
               </Typography>
+              <CommentCountChip
+                label={mainSectionCount(GENERAL_SECTION)}
+                data-testid={`section-comment-count-${GENERAL_SECTION}`}
+              />
             </AccordionSummary>
             <AccordionDetails className="comments-flyout-panel-section-details">
               <ReviewSubSection
@@ -427,6 +450,10 @@ const CommentsFlyoutPanel = ({
                   <Typography className="comments-flyout-panel-section-title">
                     {section.name}
                   </Typography>
+                  <CommentCountChip
+                    label={mainSectionCount(section.name)}
+                    data-testid={`section-comment-count-${section.name}`}
+                  />
                 </AccordionSummary>
                 <AccordionDetails className="comments-flyout-panel-section-details">
                   {subSections.map((subSectionItem) => {
@@ -436,6 +463,9 @@ const CommentsFlyoutPanel = ({
                       <CommentSubSection
                         key={key}
                         title={subSectionItem.name}
+                        commentCount={countComments(
+                          commentsBySubSectionKey[key]
+                        )}
                         highlighted={selectedSubSectionKey === key}
                         expanded={expandedSubSection?.key === key}
                         onToggle={(expanded) =>
