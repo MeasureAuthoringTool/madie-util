@@ -1,6 +1,7 @@
 import * as React from "react";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useFeatureFlags } from "../../../../hooks/useFeatureFlags";
 import { CqlLibrary } from "@madie/madie-models";
 import ChangeVersionDialog, {
   VERSION_CHANGE_CRITERIA,
@@ -13,6 +14,9 @@ import {
 } from "../../../../util/versionUtils";
 
 const mockGetLibrariesByLibrarySetId = jest.fn();
+jest.mock("../../../../hooks/useFeatureFlags", () => ({
+  useFeatureFlags: jest.fn(() => ({ LibraryChangeVersion: true })),
+}));
 jest.mock("../../../../api/useCqlLibraryServiceApi", () => ({
   __esModule: true,
   default: jest.fn(() => ({
@@ -66,6 +70,9 @@ describe("Library ChangeVersionDialog", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useFeatureFlags as jest.Mock).mockReturnValue({
+      LibraryChangeVersion: true,
+    });
     mockGetLibrariesByLibrarySetId.mockResolvedValue(librarySet);
   });
 
@@ -121,6 +128,13 @@ describe("Library ChangeVersionDialog", () => {
       "3.2.003"
     );
     expect(screen.getByTestId("new-version-number-input")).toHaveValue("");
+    expect(screen.getByText("New Draft Version #")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("intended-final-version-number-input")
+    ).toHaveValue("");
+    expect(screen.getByTestId("library-versions-toggle")).toHaveTextContent(
+      "Previous Library Versions (3)"
+    );
 
     expect(
       screen.getByTestId("change-version-cancel-button")
@@ -128,6 +142,42 @@ describe("Library ChangeVersionDialog", () => {
     expect(
       screen.getByTestId("change-version-save-button")
     ).toBeInTheDocument();
+  });
+
+  it("preserves the legacy admin screen when the flag is disabled", async () => {
+    (useFeatureFlags as jest.Mock).mockReturnValue({
+      LibraryChangeVersion: false,
+    });
+    renderDialog();
+    await waitForVersionsLoaded(3);
+    expect(screen.getByText("New Version #")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("intended-final-version-number-input")
+    ).not.toBeInTheDocument();
+  });
+
+  it("accepts both values without validation or submission on the list screen", async () => {
+    const onClose = jest.fn();
+    render(
+      <ChangeVersionDialog
+        libraries={[selectedLibrary]}
+        open
+        onClose={onClose}
+      />
+    );
+    await waitForVersionsLoaded(3);
+    const input = screen.getByTestId("new-version-number-input");
+    userEvent.type(input, "bad");
+    input.blur();
+    userEvent.type(
+      screen.getByTestId("intended-final-version-number-input"),
+      "also invalid"
+    );
+    expect(screen.queryByText(VERSION_FORMAT_ERROR)).not.toBeInTheDocument();
+    expect(screen.getByTestId("change-version-save-button")).toBeDisabled();
+    expect(screen.getByTestId("change-version-cancel-button")).toBeEnabled();
+    userEvent.click(screen.getByTestId("change-version-cancel-button"));
+    expect(onClose).toHaveBeenCalled();
   });
 
   it("accepts input in the New Version # field", async () => {

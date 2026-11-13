@@ -9,14 +9,15 @@ import { getLatestVersion } from "../../../../util/versionUtils";
 interface PropTypes {
   libraries: CqlLibrary[];
   onClick: () => void;
+  canEdit?: boolean;
 }
 
 export const INELIGIBLE_SELECTION =
-  "Select the latest version in a library set that does not have a draft to change version #";
+  "To change the version number, select exactly one library that you own or have shared access to, is the latest version in its library set, does not have a draft version, and is not a component of a composite library.";
 export const VALID_CHANGE_VERSION = "Change Version #";
 
 export default function ChangeVersionAction(props: PropTypes) {
-  const { libraries, onClick } = props;
+  const { libraries, onClick, canEdit = true } = props;
   const cqlLibraryServiceApi = useRef(useCqlLibraryServiceApi()).current;
   const [disableChangeVersionBtn, setDisableChangeVersionBtn] = useState(true);
   const [tooltipMessage, setTooltipMessage] = useState(INELIGIBLE_SELECTION);
@@ -27,7 +28,7 @@ export default function ChangeVersionAction(props: PropTypes) {
     setDisableChangeVersionBtn(true);
     setTooltipMessage(INELIGIBLE_SELECTION);
 
-    if (libraries?.length !== 1) {
+    if (!canEdit || libraries?.length !== 1) {
       return;
     }
 
@@ -57,11 +58,14 @@ export default function ChangeVersionAction(props: PropTypes) {
       if (requestId !== lookupId.current) return;
       console.error("Unable to load libraries for library set", error);
     }
-  }, [libraries, cqlLibraryServiceApi]);
+  }, [libraries, cqlLibraryServiceApi, canEdit]);
 
   useEffect(() => {
     validateChangeVersionActionState();
-  }, [libraries, validateChangeVersionActionState]);
+    return () => {
+      lookupId.current += 1;
+    };
+  }, [validateChangeVersionActionState]);
 
   return (
     <Tooltip
@@ -84,7 +88,7 @@ export default function ChangeVersionAction(props: PropTypes) {
       <span>
         <IconButton
           onClick={onClick}
-          disabled={disableChangeVersionBtn}
+          disabled={!canEdit || disableChangeVersionBtn}
           data-testid="change-version-action-btn"
           aria-label={VALID_CHANGE_VERSION}
         >
