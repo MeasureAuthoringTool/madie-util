@@ -6,6 +6,11 @@
     update types file with expected values in each app consuming
 */
 import useServiceConfig from "./api/useServiceConfig";
+export {
+  MadieAlert,
+  MinimizedAlertsProvider,
+  MinimizedAlertsControl,
+} from "./components/alerts/MinimizedAlerts";
 import { getOktaConfig, getServiceConfig } from "./Config/Config";
 import {
   ServiceContext,
