@@ -161,9 +161,12 @@ describe("CommentEntry", () => {
   });
 
   describe("deleting", () => {
-    it.each(["First Last", undefined])(
+    it.each([
+      ["First Last", "First Last"],
+      [undefined, "harp-user"],
+    ])(
       "renders a deleted comment with author %s without editing actions",
-      (authorName) => {
+      (authorName, expectedAuthor) => {
         const onReply = jest.fn();
         const deleted = {
           ...comment,
@@ -174,7 +177,7 @@ describe("CommentEntry", () => {
         };
         render(<CommentEntry comment={deleted} canEdit onReply={onReply} />);
 
-        expect(screen.getByText(authorName || "harp-user")).toBeInTheDocument();
+        expect(screen.getByText(expectedAuthor)).toBeInTheDocument();
         expect(screen.getByText(/Jun 20, 2025/)).toBeInTheDocument();
         expect(screen.getByText("This comment has been deleted").tagName).toBe(
           "EM"
