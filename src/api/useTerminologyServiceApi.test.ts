@@ -598,31 +598,55 @@ describe("useTerminologyServiceApi", () => {
     });
 
     describe("getCodeSystemJobStatus", () => {
-      it.each([
-        CodeSystemJobStatus.COMPLETED,
-        CodeSystemJobStatus.COMPLETED_WITH_FAILURES,
-        CodeSystemJobStatus.FAILED,
-      ])("returns the latest code system job status %s", async (status) => {
+      it.each([CodeSystemJobStatus.COMPLETED, CodeSystemJobStatus.FAILED])(
+        "returns the latest code system job status %s",
+        async (status) => {
+          //given
+          const jobState = {
+            status,
+            completedAt: "2026-11-09T15:04:05Z",
+          };
+          mockedAxios.get.mockResolvedValueOnce({
+            status: 200,
+            data: jobState,
+          });
+
+          //when
+          const result = await api.getCodeSystemJobStatus();
+
+          //then
+          expect(mockedAxios.get).toHaveBeenCalledWith(
+            `${baseUrl}/terminology/admin/code-system-job-status`,
+            {
+              headers: {
+                Authorization: `Bearer ${getAccessToken()}`,
+              },
+            }
+          );
+          expect(result).toEqual(jobState);
+        }
+      );
+
+      it("preserves the completed with failures status and completion timestamp", async () => {
         //given
-        const jobState = {
-          status,
-          completedAt: "2026-11-09T15:04:05Z",
-        };
-        mockedAxios.get.mockResolvedValueOnce({ status: 200, data: jobState });
+        const completedAt = "2026-11-09T15:04:05Z";
+        mockedAxios.get.mockResolvedValueOnce({
+          status: 200,
+          data: {
+            status: "COMPLETED_WITH_FAILURES",
+            completedAt,
+          },
+        });
 
         //when
         const result = await api.getCodeSystemJobStatus();
 
         //then
-        expect(mockedAxios.get).toHaveBeenCalledWith(
-          `${baseUrl}/terminology/admin/code-system-job-status`,
-          {
-            headers: {
-              Authorization: `Bearer ${getAccessToken()}`,
-            },
-          }
+        expect(result).toBeDefined();
+        expect(result?.status).toBe(
+          CodeSystemJobStatus.COMPLETED_WITH_FAILURES
         );
-        expect(result).toEqual(jobState);
+        expect(result?.completedAt).toBe(completedAt);
       });
 
       it("returns undefined when no job has run yet", async () => {
