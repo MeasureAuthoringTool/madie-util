@@ -114,6 +114,27 @@ describe("useReviewComments", () => {
     });
   });
 
+  it("keeps library comment deletion unchanged even when there are replies", async () => {
+    const parent = { ...existing, replies: [{ ...existing, id: "reply1" }] };
+    const libraryReview = { id: "r2", libraryId: "l1", comments: [parent] };
+    mockLibraryApi.getCqlLibraryReview.mockResolvedValue(libraryReview);
+    mockLibraryApi.updateCqlLibraryReview.mockImplementation((_id, updated) =>
+      Promise.resolve(updated)
+    );
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useReviewComments("library", "l1")
+    );
+    await waitForNextUpdate();
+
+    await act(() => result.current.deleteComment(parent));
+
+    expect(result.current.comments).toEqual([]);
+    expect(mockLibraryApi.updateCqlLibraryReview).toHaveBeenCalledWith("l1", {
+      ...libraryReview,
+      comments: [],
+    });
+  });
+
   it("never treats comments without an id as the same comment", async () => {
     const [first, second] = [
       { ...existing, id: undefined, content: "<p>first</p>" },
@@ -294,6 +315,85 @@ describe("useReviewComments", () => {
       await act(() => result.current.addReply(existing, myReply));
 
       expect(result.current.comments[0].replies).toEqual([theirReply, myReply]);
+    });
+
+    it("deletes only the original text and keeps the latest replies and metadata in order", async () => {
+      const latestReply = reply("r1", "<p>newer reply</p>");
+      const latestParent = {
+        ...existing,
+        edited: true,
+        replies: [latestReply],
+      };
+      const result = await loadThenServe({
+        ...measureReview,
+        comments: [theirs, latestParent],
+      });
+
+      await act(() => result.current.deleteComment(existing));
+
+      const deleted = { ...latestParent, content: null, edited: false };
+      expect(result.current.comments).toEqual([theirs, deleted]);
+      expect(mockMeasureApi.updateMeasureReview).toHaveBeenCalledWith("m1", {
+        ...measureReview,
+        comments: [theirs, deleted],
+      });
+    });
+
+    it("does not restore text when editing a comment deleted since it was loaded", async () => {
+      const onError = jest.fn();
+      const hook = renderHook(() =>
+        useReviewComments("measure", "m1", onError)
+      );
+      await hook.waitForNextUpdate();
+      const deleted = {
+        ...existing,
+        content: null,
+        replies: [reply("r1", "reply")],
+      };
+      mockMeasureApi.getMeasureReview.mockResolvedValue({
+        ...measureReview,
+        comments: [deleted],
+      });
+
+      await act(async () => {
+        expect(
+          await hook.result.current.updateComment({
+            ...existing,
+            content: "stale edit",
+          })
+        ).toBe(false);
+      });
+
+      expect(mockMeasureApi.updateMeasureReview).not.toHaveBeenCalled();
+      expect(onError).toHaveBeenCalledWith(COMMENT_NOT_FOUND_ERROR);
+      expect(hook.result.current.comments).toEqual([deleted]);
+    });
+
+    it("allows replies to a deleted parent and retains the placeholder after the last reply is deleted", async () => {
+      const deleted = {
+        ...existing,
+        content: null,
+        edited: false,
+        replies: [],
+      };
+      const result = await loadThenServe({
+        ...measureReview,
+        comments: [deleted],
+      });
+      const addedReply = reply("r1", "<p>continuing discussion</p>");
+
+      await act(() => result.current.addReply(existing, addedReply));
+      expect(result.current.comments).toEqual([
+        { ...deleted, replies: [addedReply] },
+      ]);
+
+      mockMeasureApi.getMeasureReview.mockResolvedValue(result.current.review);
+      await act(() => result.current.deleteReply(existing, addedReply));
+      expect(result.current.comments).toEqual([deleted]);
+
+      mockMeasureApi.getMeasureReview.mockResolvedValue(result.current.review);
+      await act(() => result.current.deleteComment(existing));
+      expect(result.current.comments).toEqual([deleted]);
     });
 
     it("updates and deletes only the reply it is given", async () => {
