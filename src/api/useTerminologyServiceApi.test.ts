@@ -598,15 +598,22 @@ describe("useTerminologyServiceApi", () => {
     });
 
     describe("getCodeSystemJobStatus", () => {
-      it("returns the latest code system job status", async () => {
+      it.each([
+        CodeSystemJobStatus.COMPLETED,
+        CodeSystemJobStatus.COMPLETED_WITH_FAILURES,
+        CodeSystemJobStatus.FAILED,
+      ])("returns the latest code system job status %s", async (status) => {
+        //given
         const jobState = {
-          status: CodeSystemJobStatus.COMPLETED,
+          status,
           completedAt: "2026-11-09T15:04:05Z",
         };
         mockedAxios.get.mockResolvedValueOnce({ status: 200, data: jobState });
 
+        //when
         const result = await api.getCodeSystemJobStatus();
 
+        //then
         expect(mockedAxios.get).toHaveBeenCalledWith(
           `${baseUrl}/terminology/admin/code-system-job-status`,
           {
