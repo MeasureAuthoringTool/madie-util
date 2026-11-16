@@ -1,5 +1,5 @@
 import * as React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CqlLibrary } from "@madie/madie-models";
 import ChangeVersionAction, {
@@ -55,6 +55,34 @@ describe("Library ChangeVersionAction", () => {
     expect(button()).toBeDisabled();
     expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
     expect(mockGetLibrariesByLibrarySetId).not.toHaveBeenCalled();
+  });
+
+  it("is disabled without owner or share access", () => {
+    render(
+      <ChangeVersionAction
+        libraries={[latest]}
+        canEdit={false}
+        onClick={jest.fn()}
+      />
+    );
+    expect(button()).toBeDisabled();
+    expect(mockGetLibrariesByLibrarySetId).not.toHaveBeenCalled();
+  });
+
+  it("ignores a stale lookup after the selection changes", async () => {
+    let resolveLookup: (libraries: CqlLibrary[]) => void;
+    mockGetLibrariesByLibrarySetId.mockReturnValue(
+      new Promise<CqlLibrary[]>((resolve) => {
+        resolveLookup = resolve;
+      })
+    );
+    const { rerender } = render(
+      <ChangeVersionAction libraries={[latest]} onClick={jest.fn()} />
+    );
+    rerender(<ChangeVersionAction libraries={[]} onClick={jest.fn()} />);
+    await act(async () => resolveLookup([latest]));
+    expect(button()).toBeDisabled();
+    expect(tooltip()).toHaveAttribute("aria-label", INELIGIBLE_SELECTION);
   });
 
   it("is enabled when the only selected library is the latest version and the set has no draft", async () => {

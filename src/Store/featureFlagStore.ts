@@ -9,6 +9,7 @@ export interface FeatureFlags {
   QICoreCompositeMeasure: boolean;
   MeasureReviewStatus?: boolean;
   MeasureChangeVersion?: boolean;
+  LibraryChangeVersion?: boolean;
   LibraryReviewStatus?: boolean;
   Commenting?: boolean;
 }
@@ -18,6 +19,7 @@ const initialState: FeatureFlags = {
   QICoreCompositeMeasure: false,
   MeasureReviewStatus: false,
   MeasureChangeVersion: false,
+  LibraryChangeVersion: false,
   LibraryReviewStatus: false,
   Commenting: false,
 };

@@ -5,6 +5,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { MadieDialog, TextField } from "@madie/madie-design-system/dist/react";
 import { CqlLibrary } from "@madie/madie-models";
 import useCqlLibraryServiceApi from "../../../../api/useCqlLibraryServiceApi";
+import { useFeatureFlags } from "../../../../hooks/useFeatureFlags";
 import {
   compareVersions,
   validateNewVersion,
@@ -24,6 +25,14 @@ interface ChangeVersionDialogProps {
 }
 
 export const VERSION_CHANGE_CRITERIA = [
+  "Enter a New Draft Version # in the format #.#.###.",
+  "Enter an Intended Final Version # in the format #.#.###.",
+  "The New Draft Version # must be lower than your Intended Final Version #.",
+  "The New Draft Version # must be higher than the previous version in the library's history.",
+  "The New Draft Version # must not conflict with an existing version.",
+];
+
+const LEGACY_VERSION_CHANGE_CRITERIA = [
   "Enter a version number that comes before your intended final version.",
   "The version number you enter must not be one that has been used previously for this library.",
   "After this version # change is complete, you may version the draft library again to produce the intended final version.",
@@ -46,9 +55,11 @@ export default function ChangeVersionDialog({
   isSubmitting = false,
 }: ChangeVersionDialogProps) {
   const cqlLibraryServiceApi = useRef(useCqlLibraryServiceApi()).current;
+  const changeVersionEnabled = useFeatureFlags()?.LibraryChangeVersion;
   const selectedLibrary = libraries?.length === 1 ? libraries[0] : null;
 
   const [newVersion, setNewVersion] = useState("");
+  const [intendedFinalVersion, setIntendedFinalVersion] = useState("");
   const [versionError, setVersionError] = useState("");
   const [versionsExpanded, setVersionsExpanded] = useState(false);
   const [librarySetVersions, setLibrarySetVersions] = useState<CqlLibrary[]>(
@@ -58,6 +69,7 @@ export default function ChangeVersionDialog({
   useEffect(() => {
     if (!open || !selectedLibrary?.librarySetId) {
       setNewVersion("");
+      setIntendedFinalVersion("");
       setVersionError("");
       setVersionsExpanded(false);
       setLibrarySetVersions([]);
@@ -98,7 +110,11 @@ export default function ChangeVersionDialog({
 
   const currentValidationError = validateVersion(newVersion);
   const isSaveDisabled =
-    isSubmitting || !newVersion || !!currentValidationError || !!versionError;
+    !onSubmit ||
+    isSubmitting ||
+    !newVersion ||
+    !!currentValidationError ||
+    !!versionError;
 
   const handleInputBlur = () => {
     setVersionError(validateVersion(newVersion));
@@ -125,6 +141,7 @@ export default function ChangeVersionDialog({
         onClose,
         onSubmit: (event) => event.preventDefault(),
         "data-testid": "change-version-dialog",
+        className: "library-change-version-modal",
       }}
       cancelButtonProps={{
         variant: "secondary",
@@ -155,7 +172,10 @@ export default function ChangeVersionDialog({
         <div className="criteria">
           <div className="criteria-label">Version-change criteria:</div>
           <ul data-testid="version-change-criteria">
-            {VERSION_CHANGE_CRITERIA.map((criterion) => (
+            {(changeVersionEnabled
+              ? VERSION_CHANGE_CRITERIA
+              : LEGACY_VERSION_CHANGE_CRITERIA
+            ).map((criterion) => (
               <li key={criterion}>{criterion}</li>
             ))}
           </ul>
@@ -176,17 +196,37 @@ export default function ChangeVersionDialog({
           <div className="new-version">
             <TextField
               id="new-version-number"
-              label="New Version #"
+              label={
+                changeVersionEnabled ? "New Draft Version #" : "New Version #"
+              }
               required
               tooltipText={NEW_VERSION_TOOLTIP}
               value={newVersion}
               onChange={(event) => setNewVersion(event.target.value)}
-              onBlur={handleInputBlur}
+              onBlur={onSubmit ? handleInputBlur : undefined}
               error={Boolean(versionError)}
               helperText={versionError}
-              inputProps={{ "data-testid": "new-version-number-input" }}
+              inputProps={{
+                "data-testid": "new-version-number-input",
+                "aria-required": true,
+              }}
             />
           </div>
+          {changeVersionEnabled && (
+            <div className="new-version">
+              <TextField
+                id="intended-final-version-number"
+                label="Intended Final Version #"
+                value={intendedFinalVersion}
+                onChange={(event) =>
+                  setIntendedFinalVersion(event.target.value)
+                }
+                inputProps={{
+                  "data-testid": "intended-final-version-number-input",
+                }}
+              />
+            </div>
+          )}
         </div>
 
         <div className="library-versions">
@@ -199,7 +239,9 @@ export default function ChangeVersionDialog({
             onClick={() => setVersionsExpanded((expanded) => !expanded)}
           >
             <span>
-              Library Versions{" "}
+              {changeVersionEnabled
+                ? "Previous Library Versions"
+                : "Library Versions"}{" "}
               <span className="library-versions-count">
                 ({sortedVersions.length})
               </span>
