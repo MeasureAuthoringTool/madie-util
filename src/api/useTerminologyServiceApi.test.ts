@@ -1,4 +1,5 @@
 import useTerminologyServiceApi, {
+  CodeSystemJobStatus,
   CustomCqlCode,
   TerminologyServiceApi,
 } from "./useTerminologyServiceApi";
@@ -593,6 +594,40 @@ describe("useTerminologyServiceApi", () => {
         mockedAxios.delete.mockResolvedValueOnce({ status: 401 });
         const result = await api.logoutUMLS();
         expect(result).toBe(false);
+      });
+    });
+
+    describe("getCodeSystemJobStatus", () => {
+      it("returns the latest code system job status", async () => {
+        const jobState = {
+          status: CodeSystemJobStatus.COMPLETED,
+          completedAt: "2026-11-09T15:04:05Z",
+        };
+        mockedAxios.get.mockResolvedValueOnce({ status: 200, data: jobState });
+
+        const result = await api.getCodeSystemJobStatus();
+
+        expect(mockedAxios.get).toHaveBeenCalledWith(
+          `${baseUrl}/terminology/admin/code-system-job-status`,
+          {
+            headers: {
+              Authorization: `Bearer ${getAccessToken()}`,
+            },
+          }
+        );
+        expect(result).toEqual(jobState);
+      });
+
+      it("returns undefined when no job has run yet", async () => {
+        mockedAxios.get.mockResolvedValueOnce({ status: 204, data: "" });
+
+        expect(await api.getCodeSystemJobStatus()).toBeUndefined();
+      });
+
+      it("rejects when the request fails", async () => {
+        mockedAxios.get.mockRejectedValueOnce(new Error("fail"));
+
+        await expect(api.getCodeSystemJobStatus()).rejects.toThrow("fail");
       });
     });
 
