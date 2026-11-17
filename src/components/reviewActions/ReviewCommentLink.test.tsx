@@ -15,6 +15,20 @@ describe("ReviewCommentLink", () => {
     expect(screen.getByTestId("review-comments-link")).toBeInTheDocument();
   });
 
+  it("shows the comment count when one is given", () => {
+    render(<ReviewCommentLink commentCount={0} />);
+    expect(
+      screen.getByRole("button", { name: "Comments (0)" })
+    ).toBeInTheDocument();
+  });
+
+  it("shows a non-zero comment count", () => {
+    render(<ReviewCommentLink commentCount={16} />);
+    expect(
+      screen.getByRole("button", { name: "Comments (16)" })
+    ).toBeInTheDocument();
+  });
+
   it("invokes optional click callback", () => {
     const onClick = jest.fn();
     render(<ReviewCommentLink onClick={onClick} />);

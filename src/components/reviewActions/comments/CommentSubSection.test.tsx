@@ -21,6 +21,22 @@ describe("CommentSubSection", () => {
     expect(screen.getByText("A comment")).toBeInTheDocument();
   });
 
+  it("shows a comment count chip when a count is given", () => {
+    render(<CommentSubSection title="Description" commentCount={5} />);
+
+    expect(
+      screen.getByTestId("subsection-comment-count-Description")
+    ).toHaveTextContent("5");
+  });
+
+  it("omits the comment count chip when no count is given", () => {
+    render(<CommentSubSection title="Description" />);
+
+    expect(
+      screen.queryByTestId("subsection-comment-count-Description")
+    ).not.toBeInTheDocument();
+  });
+
   it("starts expanded so the current screen's comments are visible", () => {
     render(<CommentSubSection title="CQL Editor" />);
 

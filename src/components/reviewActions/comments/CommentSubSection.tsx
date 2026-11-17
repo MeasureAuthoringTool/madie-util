@@ -6,6 +6,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ChevronRight } from "lucide-react";
+import CommentCountChip from "./CommentCountChip";
 
 export interface CommentSubSectionProps {
   title: string;
@@ -14,6 +15,7 @@ export interface CommentSubSectionProps {
   expanded?: boolean;
   onToggle?: (expanded: boolean) => void;
   highlighted?: boolean;
+  commentCount?: number; // comments + replies in this sub-section
   "data-testid"?: string;
 }
 
@@ -24,6 +26,7 @@ const CommentSubSection = ({
   expanded,
   onToggle,
   highlighted = false,
+  commentCount,
   "data-testid": dataTestId,
 }: CommentSubSectionProps) => {
   const expandedProps =
@@ -52,6 +55,12 @@ const CommentSubSection = ({
         <Typography className="comments-flyout-panel-subsection-title">
           {title}
         </Typography>
+        {commentCount !== undefined && (
+          <CommentCountChip
+            label={commentCount}
+            data-testid={`subsection-comment-count-${title}`}
+          />
+        )}
       </AccordionSummary>
       <AccordionDetails className="comments-flyout-panel-subsection-details">
         {children}
