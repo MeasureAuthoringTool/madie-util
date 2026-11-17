@@ -26,4 +26,13 @@ describe("commentCounts", () => {
       ])
     ).toBe(5);
   });
+
+  it("adds the ready-for-review note to the comment total", () => {
+    expect(countComments([], true)).toBe(1);
+    expect(
+      countComments([comment("a", [comment("r1")]), comment("b")], true)
+    ).toBe(4);
+    // nothing added while the entity has not been marked for review
+    expect(countComments([comment("a")])).toBe(1);
+  });
 });

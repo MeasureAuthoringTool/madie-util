@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { ChevronRight } from "lucide-react";
 import type { CommentSubSectionProps } from "../CommentSubSection";
+import CommentCountChip from "../CommentCountChip";
 import {
   formatReviewCommentDate,
   getReadyForReviewMessage,
@@ -58,6 +59,10 @@ const ReviewSubSection = ({
         <Typography className="comments-flyout-panel-subsection-title">
           Review
         </Typography>
+        <CommentCountChip
+          label={markedForReviewAt ? 1 : 0}
+          data-testid="subsection-comment-count-Review"
+        />
       </AccordionSummary>
       <AccordionDetails className="comments-flyout-panel-subsection-details">
         {markedForReviewAt && (

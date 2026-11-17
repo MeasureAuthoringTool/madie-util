@@ -180,7 +180,13 @@ const CommentsFlyoutPanel = ({
     return buckets;
   }, [comments]);
 
-  const totalCommentCount = useMemo(() => countComments(comments), [comments]);
+  // the General > Review note counts as a comment until real General comments exist
+  const hasReviewNote = Boolean(markedForReviewAt);
+  const reviewNoteCount = hasReviewNote ? 1 : 0;
+  const totalCommentCount = useMemo(
+    () => countComments(comments, hasReviewNote),
+    [comments, hasReviewNote]
+  );
   const commentCountsByMainSection = useMemo(
     () =>
       comments.reduce<Record<string, number>>((counts, comment) => {
@@ -191,7 +197,8 @@ const CommentsFlyoutPanel = ({
     [comments]
   );
   const mainSectionCount = (sectionName: string) =>
-    commentCountsByMainSection[sectionName] ?? 0;
+    (commentCountsByMainSection[sectionName] ?? 0) +
+    (sectionName === GENERAL_SECTION ? reviewNoteCount : 0);
 
   useEffect(() => {
     setExpandedSections(mainSection ? [mainSection] : []);

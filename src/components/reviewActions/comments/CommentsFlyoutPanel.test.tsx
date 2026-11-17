@@ -1299,6 +1299,60 @@ describe("CommentsFlyoutPanel", () => {
       ).toHaveTextContent("0");
     });
 
+    it("shows a zero Review chip until the entity is marked for review", () => {
+      renderPanel({ comments: [] });
+
+      expect(
+        screen.getByTestId("subsection-comment-count-Review")
+      ).toHaveTextContent("0");
+    });
+
+    it("counts the ready-for-review note as a General comment", () => {
+      renderPanel({
+        comments: [],
+        markedForReviewBy: "user1",
+        markedForReviewAt: "2026-08-12T09:00:00",
+      });
+
+      // the note is the only thing in General, so everything above it reads 1
+      expect(
+        screen.getByTestId("subsection-comment-count-Review")
+      ).toHaveTextContent("1");
+      expect(
+        screen.getByTestId("section-comment-count-General")
+      ).toHaveTextContent("1");
+      expect(
+        screen.getByTestId("comments-flyout-total-count")
+      ).toHaveTextContent("Comments (1)");
+      expect(
+        screen.getByTestId("section-comment-count-Details")
+      ).toHaveTextContent("0");
+    });
+
+    it("adds the ready-for-review note on top of the other sections' comments", () => {
+      renderPanel({
+        comments: [
+          {
+            ...commentOn("Details", "Name, Version & ID"),
+            id: "c1",
+            replies: [{ id: "r1", authorName: "user1", content: "<p>ok</p>" }],
+          },
+        ],
+        markedForReviewBy: "user1",
+        markedForReviewAt: "2026-08-12T09:00:00",
+      });
+
+      expect(
+        screen.getByTestId("comments-flyout-total-count")
+      ).toHaveTextContent("Comments (3)");
+      expect(
+        screen.getByTestId("section-comment-count-General")
+      ).toHaveTextContent("1");
+      expect(
+        screen.getByTestId("section-comment-count-Details")
+      ).toHaveTextContent("2");
+    });
+
     it("totals comments plus replies in the panel header", () => {
       renderPanel({
         comments: [
