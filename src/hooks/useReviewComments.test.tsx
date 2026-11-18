@@ -114,7 +114,7 @@ describe("useReviewComments", () => {
     });
   });
 
-  it("keeps library comment deletion unchanged even when there are replies", async () => {
+  it("preserves a library comment's latest replies when deleting it", async () => {
     const parent = { ...existing, replies: [{ ...existing, id: "reply1" }] };
     const libraryReview = { id: "r2", libraryId: "l1", comments: [parent] };
     mockLibraryApi.getCqlLibraryReview.mockResolvedValue(libraryReview);
@@ -128,11 +128,28 @@ describe("useReviewComments", () => {
 
     await act(() => result.current.deleteComment(parent));
 
-    expect(result.current.comments).toEqual([]);
+    const deleted = { ...parent, content: null, edited: false };
+    expect(result.current.comments).toEqual([deleted]);
     expect(mockLibraryApi.updateCqlLibraryReview).toHaveBeenCalledWith("l1", {
       ...libraryReview,
-      comments: [],
+      comments: [deleted],
     });
+  });
+
+  it("removes a library comment without replies", async () => {
+    const libraryReview = { id: "r2", libraryId: "l1", comments: [existing] };
+    mockLibraryApi.getCqlLibraryReview.mockResolvedValue(libraryReview);
+    mockLibraryApi.updateCqlLibraryReview.mockImplementation((_id, updated) =>
+      Promise.resolve(updated)
+    );
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useReviewComments("library", "l1")
+    );
+    await waitForNextUpdate();
+
+    await act(() => result.current.deleteComment(existing));
+
+    expect(result.current.comments).toEqual([]);
   });
 
   it("never treats comments without an id as the same comment", async () => {

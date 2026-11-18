@@ -207,10 +207,7 @@ export default function useReviewComments(
         latestComments.reduce<Comment[]>((remaining, existing) => {
           if (!isSameComment(existing, comment)) {
             remaining.push(existing);
-          } else if (
-            entityType === "measure" &&
-            (existing.content === null || existing.replies?.length)
-          ) {
+          } else if (existing.content === null || existing.replies?.length) {
             remaining.push({ ...existing, content: null, edited: false });
           }
           return remaining;
