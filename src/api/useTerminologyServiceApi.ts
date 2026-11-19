@@ -125,11 +125,14 @@ export interface CreateCodeSystemRequest {
   };
 }
 
+/* eslint-disable no-unused-vars -- Public enum consumed by madie-admin. */
 export enum CodeSystemJobStatus {
   RUNNING = "RUNNING",
   COMPLETED = "COMPLETED",
+  COMPLETED_WITH_FAILURES = "COMPLETED_WITH_FAILURES",
   FAILED = "FAILED",
 }
+/* eslint-enable no-unused-vars */
 
 export interface CodeSystemJobState {
   status: CodeSystemJobStatus;
