@@ -4,18 +4,49 @@ import { ServiceConfig } from "./ServiceContext";
 import useOktaTokens from "../hooks/useOktaTokens";
 import { Measure } from "@madie/madie-models";
 
-export interface SourceDataCriteria {
-  oid: string;
-  title: string;
-  description: string;
+export interface RelevantElement {
   type: string;
-  drc: string;
-  codeId: string;
-  name: string;
+  profile: string;
 }
 
 export class FhirElmTranslationServiceApi {
   constructor(private baseUrl: string, private getAccessToken: () => string) {}
+
+  async translateCqlToElm(cql: string, checkContext: boolean): Promise<any> {
+    if (this.baseUrl) {
+      try {
+        const resp = await axios.put(
+          `${this.baseUrl}/fhir/cql/translator/cql`,
+          cql,
+          {
+            headers: {
+              Authorization: `Bearer ${this.getAccessToken()}`,
+              "Content-Type": "text/plain",
+            },
+            params: {
+              errorSeverity: "Info",
+              annotations: true,
+              locators: true,
+              "disable-list-demotion": true,
+              "disable-list-promotion": true,
+              "validate-units": true,
+              checkContext: checkContext,
+            },
+          }
+        );
+        if (resp.status === 200) {
+          return JSON.parse(resp.data.json);
+        }
+      } catch (error) {
+        console.warn(error.response.data.error, error.response.data.status);
+        throw new Error(error.message);
+      }
+    } else {
+      throw new Error(
+        "Missing FHIR ELM translation service URL! Is it present in the service config?"
+      );
+    }
+  }
 
   async fetchTranslatorVersion(draft: boolean): Promise<string> {
     try {
@@ -38,8 +69,9 @@ export class FhirElmTranslationServiceApi {
   }
 
   async fetchRelevantDataElements(
-    measure: Measure
-  ): Promise<Array<SourceDataCriteria>> {
+    measure: Measure,
+    signal?: AbortSignal
+  ): Promise<Array<RelevantElement>> {
     try {
       const response = await axios.put(
         `${this.baseUrl}/fhir/cql/relevant-elements`,
@@ -49,6 +81,7 @@ export class FhirElmTranslationServiceApi {
             Authorization: `Bearer ${this.getAccessToken()}`,
             "Content-Type": "application/json",
           },
+          signal,
         }
       );
       return response.data;
