@@ -266,6 +266,14 @@
     color: #212121;
   }
 
+  .comments-flyout-panel-comment--deleted {
+    border-bottom: 1px solid #aeb0b5;
+
+    .comments-flyout-panel-comment-author {
+      font-weight: 700;
+    }
+  }
+
   .comments-flyout-panel-comment-separator,
   .comments-flyout-panel-comment-date {
     font-family: Rubik, sans-serif;

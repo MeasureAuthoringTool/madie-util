@@ -34,9 +34,12 @@ const CommentEntry = ({
   const testId = (part: string) =>
     part ? `${kind}-${part}-${comment.id}` : `${kind}-${comment.id}`;
   const showReply = Boolean(onReply) && !isReply;
+  const isDeleted = comment.content === null;
+  const showActions = canEdit && !isDeleted;
   const [isEditing, setIsEditing] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
   const [draftContent, setDraftContent] = useState(comment.content ?? "");
+  const editing = isEditing && !isDeleted;
 
   const startEditing = () => {
     setDraftContent(comment.content ?? "");
@@ -63,7 +66,9 @@ const CommentEntry = ({
     <Box
       className={`comments-flyout-panel-comment${
         isReply ? " comments-flyout-panel-comment--reply" : ""
-      }${isEditing ? " comments-flyout-panel-comment--editing" : ""}`}
+      }${editing ? " comments-flyout-panel-comment--editing" : ""}${
+        isDeleted ? " comments-flyout-panel-comment--deleted" : ""
+      }`}
       data-testid={testId("")}
     >
       <Box className="comments-flyout-panel-comment-meta">
@@ -71,7 +76,7 @@ const CommentEntry = ({
           component="span"
           className="comments-flyout-panel-comment-author"
         >
-          {comment.authorName}
+          {comment.authorName || comment.harpId}
         </Typography>
         <Typography
           component="span"
@@ -86,7 +91,7 @@ const CommentEntry = ({
         >
           {formatReviewCommentDate(comment.createdAt)}
         </Typography>
-        {comment.edited && (
+        {comment.edited && !isDeleted && (
           <Typography
             component="span"
             className="comments-flyout-panel-comment-edited"
@@ -96,7 +101,7 @@ const CommentEntry = ({
           </Typography>
         )}
 
-        {!isEditing && (showReply || canEdit) && (
+        {!editing && (showReply || showActions) && (
           <Box className="comments-flyout-panel-comment-toolbar">
             {showReply && (
               <Tooltip title="Reply">
@@ -111,7 +116,7 @@ const CommentEntry = ({
                 </IconButton>
               </Tooltip>
             )}
-            {canEdit && (
+            {showActions && (
               <ClickAwayListener onClickAway={() => setActionsOpen(false)}>
                 <Box
                   className="comments-flyout-panel-comment-actions"
@@ -169,7 +174,7 @@ const CommentEntry = ({
         )}
       </Box>
 
-      {isEditing ? (
+      {editing ? (
         <Box className="comments-flyout-panel-comment-editor">
           <RichTextEditor
             id={testId("editor")}
@@ -197,6 +202,13 @@ const CommentEntry = ({
             </Button>
           </Box>
         </Box>
+      ) : isDeleted ? (
+        <Typography
+          component="div"
+          className="comments-flyout-panel-comment-body"
+        >
+          <em>This comment has been deleted</em>
+        </Typography>
       ) : (
         <Typography
           component="div"

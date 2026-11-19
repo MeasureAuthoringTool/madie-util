@@ -2,6 +2,30 @@ import * as React from "react";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import CommentsFlyoutPanel from "./CommentsFlyoutPanel";
 import userEvent from "@testing-library/user-event";
+import {
+  CqlLibraryReview,
+  MeasureReview,
+  ReviewStatus,
+} from "@madie/madie-models";
+import useReviewComments from "../../../hooks/useReviewComments";
+
+const mockMeasureApi = {
+  getMeasureReview: jest.fn(),
+  updateMeasureReview: jest.fn(),
+};
+const mockLibraryApi = {
+  getCqlLibraryReview: jest.fn(),
+  updateCqlLibraryReview: jest.fn(),
+};
+jest.mock(
+  "../../../api/useMeasureReviewServiceApi",
+  () => () => mockMeasureApi
+);
+jest.mock(
+  "../../../api/useCqlLibraryReviewServiceApi",
+  () => () => mockLibraryApi
+);
+
 jest.mock("@madie/madie-design-system/dist/react", () => ({
   Button: ({ children, ...props }: any) => (
     <button {...props}>{children}</button>
@@ -86,6 +110,136 @@ const isHighlighted = (row: Element) =>
   row.classList.contains("comments-flyout-panel-subsection--current");
 
 describe("CommentsFlyoutPanel", () => {
+  it.each(["measure", "library"] as const)(
+    "cancels deletion, then persists a %s placeholder with replies and can reload the discussion",
+    async (entityType) => {
+      const parent = {
+        ...commentOn("Details", "Name, Version & ID"),
+        id: "parent",
+        harpId: "user1",
+        authorName: "First Last",
+        edited: true,
+        replies: [
+          {
+            id: "reply1",
+            harpId: "user2",
+            authorName: "Other User",
+            content: "<p>Keep this reply</p>",
+          },
+        ],
+      };
+      let storedReview: MeasureReview | CqlLibraryReview = {
+        id: "review1",
+        ...(entityType === "measure"
+          ? { measureId: "m1", measureSetId: "s1" }
+          : { libraryId: "m1", librarySetId: "s1" }),
+        status: ReviewStatus.READY_FOR_REVIEW,
+        comments: [parent],
+      };
+      const getReview =
+        entityType === "measure"
+          ? mockMeasureApi.getMeasureReview
+          : mockLibraryApi.getCqlLibraryReview;
+      const updateReview =
+        entityType === "measure"
+          ? mockMeasureApi.updateMeasureReview
+          : mockLibraryApi.updateCqlLibraryReview;
+      getReview.mockClear();
+      updateReview.mockClear();
+      getReview.mockResolvedValue(storedReview);
+      updateReview.mockImplementation(
+        async (_id: string, updated: MeasureReview | CqlLibraryReview) => {
+          storedReview = updated;
+          getReview.mockResolvedValue(storedReview);
+          return updated;
+        }
+      );
+      const onError = jest.fn();
+      const Discussion = () => {
+        const { comments, deleteComment, addReply } = useReviewComments(
+          entityType,
+          "m1",
+          onError
+        );
+        return (
+          <CommentsFlyoutPanel
+            open
+            onClose={jest.fn()}
+            entityType={entityType}
+            sections={sections}
+            activeSection={{
+              activeMainSection: "Details",
+              activeSubSection: "Name, Version & ID",
+            }}
+            currentUserId="user1"
+            currentUserName="First Last"
+            comments={comments}
+            onDeleteComment={deleteComment}
+            onAddReply={addReply}
+          />
+        );
+      };
+      const { unmount } = render(<Discussion />);
+      await screen.findByTestId("comment-more-actions-parent");
+      const originalDate = screen
+        .getByTestId("comment-parent")
+        .querySelector(".comments-flyout-panel-comment-date").textContent;
+      userEvent.click(screen.getByTestId("comment-more-actions-parent"));
+      userEvent.click(screen.getByTestId("comment-delete-parent"));
+      expect(screen.getByText("Delete this comment?")).toBeInTheDocument();
+      expect(
+        screen.getByText("This action cannot be undone.")
+      ).toBeInTheDocument();
+      userEvent.click(screen.getByTestId("delete-comment-cancel"));
+      expect(updateReview).not.toHaveBeenCalled();
+      expect(screen.getByText("A stored comment")).toBeInTheDocument();
+      expect(screen.getByText("Keep this reply")).toBeInTheDocument();
+
+      userEvent.click(screen.getByTestId("comment-more-actions-parent"));
+      userEvent.click(screen.getByTestId("comment-delete-parent"));
+      userEvent.click(screen.getByTestId("delete-comment-confirm"));
+      await screen.findByText("This comment has been deleted");
+      expect(
+        screen.queryByTestId("delete-comment-dialog")
+      ).not.toBeInTheDocument();
+      expect(storedReview.comments).toEqual([
+        { ...parent, content: null, edited: false },
+      ]);
+      expect(screen.queryByText("A stored comment")).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("comment-edited-parent")
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("comment-actions-parent")
+      ).not.toBeInTheDocument();
+      expect(
+        screen
+          .getByTestId("comment-parent")
+          .querySelector(".comments-flyout-panel-comment-date")
+      ).toHaveTextContent(originalDate);
+      expect(rowFor("Name, Version & ID")).toContainElement(
+        screen.getByTestId("reply-reply1")
+      );
+
+      unmount();
+      render(<Discussion />);
+      await screen.findByText("This comment has been deleted");
+      expect(screen.getByText("Keep this reply")).toBeInTheDocument();
+      userEvent.click(screen.getByTestId("comment-reply-parent"));
+      userEvent.type(
+        screen.getByTestId("reply-input-parent"),
+        "<p>Continue the discussion</p>"
+      );
+      userEvent.click(screen.getByTestId("reply-save-parent"));
+      await waitFor(() =>
+        expect(storedReview.comments[0].replies).toHaveLength(2)
+      );
+      expect(storedReview.comments[0].content).toBeNull();
+      expect(storedReview.comments[0].replies[0]).toEqual(parent.replies[0]);
+      expect(onError).not.toHaveBeenCalled();
+    }
+  );
+
   it("renders the sections and keeps actions disabled until text is entered", () => {
     render(
       <CommentsFlyoutPanel

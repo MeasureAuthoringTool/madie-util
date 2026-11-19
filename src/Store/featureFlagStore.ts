@@ -17,11 +17,11 @@ const initialState: FeatureFlags = {
   qdmHideJson: true,
   enableQdmRepeatTransfer: false,
   QICoreCompositeMeasure: false,
-  MeasureReviewStatus: false,
+  MeasureReviewStatus: true,
   MeasureChangeVersion: false,
   LibraryChangeVersion: false,
   LibraryReviewStatus: false,
-  Commenting: false,
+  Commenting: true,
 };
 
 let state: FeatureFlags | null = initialState;
