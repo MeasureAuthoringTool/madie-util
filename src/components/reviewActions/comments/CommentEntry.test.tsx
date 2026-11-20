@@ -161,6 +161,56 @@ describe("CommentEntry", () => {
   });
 
   describe("deleting", () => {
+    it.each([
+      ["First Last", "First Last"],
+      [undefined, "harp-user"],
+    ])(
+      "renders a deleted comment with author %s without editing actions",
+      (authorName, expectedAuthor) => {
+        const onReply = jest.fn();
+        const deleted = {
+          ...comment,
+          authorName,
+          harpId: "harp-user",
+          content: null,
+          edited: true,
+        };
+        render(<CommentEntry comment={deleted} canEdit onReply={onReply} />);
+
+        expect(screen.getByText(expectedAuthor)).toBeInTheDocument();
+        expect(screen.getByText(/Jun 20, 2025/)).toBeInTheDocument();
+        expect(screen.getByText("This comment has been deleted").tagName).toBe(
+          "EM"
+        );
+        expect(
+          screen.queryByText("Casing is intentional.")
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId("comment-edited-c1")
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId("comment-actions-c1")
+        ).not.toBeInTheDocument();
+        userEvent.click(screen.getByTestId("comment-reply-c1"));
+        expect(onReply).toHaveBeenCalledWith(deleted);
+      }
+    );
+
+    it("closes an active editor if the comment is deleted while editing", () => {
+      const { rerender } = render(<CommentEntry comment={comment} canEdit />);
+      userEvent.click(screen.getByTestId("comment-more-actions-c1"));
+      userEvent.click(screen.getByTestId("comment-edit-c1"));
+
+      rerender(
+        <CommentEntry comment={{ ...comment, content: null }} canEdit />
+      );
+
+      expect(screen.queryByTestId("comment-editor-c1")).not.toBeInTheDocument();
+      expect(
+        screen.getByText("This comment has been deleted")
+      ).toBeInTheDocument();
+    });
+
     it("asks to delete the comment when the trash icon is clicked from More actions", () => {
       const onDelete = jest.fn();
       render(<CommentEntry comment={comment} canEdit onDelete={onDelete} />);
