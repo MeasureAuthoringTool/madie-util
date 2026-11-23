@@ -32,6 +32,13 @@ export type ValueSet = {
   errorMsg: string;
 };
 
+export type ValueSetError =
+  | "TOO_COSTLY"
+  | "BUSINESS_RULE"
+  | "NOT_SUPPORTED"
+  | "CODE_INVALID"
+  | "NOT_FOUND";
+
 export interface AddValueSetForAdmin {
   url: string;
   version?: string;
@@ -46,6 +53,7 @@ export interface ValueSetDisplayForAdmin {
   lastUpdated: string;
   manuallyModified: boolean;
   unavailable: boolean;
+  error?: ValueSetError | null;
   valueSet: string;
 }
 
@@ -55,6 +63,7 @@ export interface ValueSetDisplayForAdmin {
   version?: string;
   lastUpdated: string;
   manuallyModified: boolean;
+  error?: ValueSetError | null;
   valueSet: string;
 }
 
