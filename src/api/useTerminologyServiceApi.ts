@@ -190,7 +190,6 @@ export class TerminologyServiceApi {
               Authorization: `Bearer ${this.getAccessToken()}`,
               "Content-Type": "application/json",
             },
-            timeout: 15000,
           }
         );
         return response.data as ValueSet;
