@@ -56,6 +56,7 @@ export interface ValueSetDisplayForAdmin {
   version?: string;
   lastUpdated: string;
   manuallyModified: boolean;
+  unavailable: boolean;
   valueSet: string;
 }
 

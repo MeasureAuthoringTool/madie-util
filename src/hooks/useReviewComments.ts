@@ -191,7 +191,10 @@ export default function useReviewComments(
       saveComments((latestComments) => [...latestComments, comment]),
     updateComment: (comment) =>
       saveComments((latestComments) =>
-        latestComments.some((existing) => isSameComment(existing, comment))
+        latestComments.some(
+          (existing) =>
+            isSameComment(existing, comment) && existing.content !== null
+        )
           ? latestComments.map((existing) =>
               isSameComment(existing, comment)
                 ? { ...comment, replies: existing.replies }
@@ -201,7 +204,14 @@ export default function useReviewComments(
       ),
     deleteComment: (comment) =>
       saveComments((latestComments) =>
-        latestComments.filter((existing) => !isSameComment(existing, comment))
+        latestComments.reduce<Comment[]>((remaining, existing) => {
+          if (!isSameComment(existing, comment)) {
+            remaining.push(existing);
+          } else if (existing.content === null || existing.replies?.length) {
+            remaining.push({ ...existing, content: null, edited: false });
+          }
+          return remaining;
+        }, [])
       ),
     addReply: (parent, reply) =>
       saveComments(changeReplies(parent, (replies) => [...replies, reply])),
