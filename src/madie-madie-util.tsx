@@ -31,13 +31,25 @@ import { userRolesStore } from "./Store/userRolesStore";
 import { adminUserStore } from "./Store/adminUserStore";
 import {
   default as useTerminologyServiceApi,
+  TerminologyServiceApi,
   type ValueSetDisplayForAdmin,
   type CodeSystem,
   CodeSystemJobStatus,
   type CodeSystemJobState,
   type CreateCodeSystemRequest,
   type Version,
+  type ValueSetSearchParams,
+  type FhirValueSetSearchParams,
 } from "./api/useTerminologyServiceApi";
+import {
+  default as useFhirElmTranslationServiceApi,
+  FhirElmTranslationServiceApi,
+  type RelevantElement,
+} from "./api/useFhirElmTranslationServiceApi";
+import {
+  default as useQdmElmTranslationServiceApi,
+  QdmElmTranslationServiceApi,
+} from "./api/useQdmElmTranslationServiceApi";
 import { default as useMeasureServiceApi } from "./api/useMeasureServiceApi";
 import { default as useMeasureReviewServiceApi } from "./api/useMeasureReviewServiceApi";
 import {
@@ -127,6 +139,14 @@ export {
   userRolesStore,
   adminUserStore,
   useTerminologyServiceApi,
+  TerminologyServiceApi,
+  ValueSetSearchParams,
+  FhirValueSetSearchParams,
+  useFhirElmTranslationServiceApi,
+  FhirElmTranslationServiceApi,
+  RelevantElement,
+  useQdmElmTranslationServiceApi,
+  QdmElmTranslationServiceApi,
   ValueSetDisplayForAdmin,
   CodeSystem,
   CodeSystemJobStatus,
