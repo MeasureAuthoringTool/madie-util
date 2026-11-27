@@ -73,7 +73,6 @@ describe("useTerminologyServiceApi", () => {
           Authorization: "Bearer test.jwt",
           "Content-Type": "application/json",
         },
-        timeout: 15000,
       };
 
       describe("when not logged into UMLS", () => {
